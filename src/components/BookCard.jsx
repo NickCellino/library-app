@@ -19,12 +19,11 @@ function BookCard({ book, onClick }) {
 
       <div className="book-row-info">
         <span className="book-row-title">{book.title}</span>
+        <span className="book-row-author">{book.author}</span>
         {metaParts.length > 0 && (
           <span className="book-row-meta">{metaParts.join(' · ')}</span>
         )}
       </div>
-
-      <span className="book-row-chevron">›</span>
     </div>
   )
 }

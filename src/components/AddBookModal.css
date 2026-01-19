@@ -83,7 +83,7 @@
 .form-group input {
   padding: var(--space-sm);
   border: var(--border-medium) solid var(--color-border);
-  background: var(--color-bg);
+  background: #1a1a1a;
   color: var(--color-text);
   font-size: 1rem;
   transition: all 0.2s ease;

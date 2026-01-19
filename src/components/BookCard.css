@@ -2,10 +2,10 @@
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-sm) var(--space-xs);
-  border-bottom: var(--border-thin) solid var(--color-border);
+  padding: var(--space-sm) var(--space-md);
   transition: background 0.15s ease;
   cursor: pointer;
+  position: relative;
 }
 
 .book-row:hover {
@@ -13,19 +13,30 @@
 }
 
 .book-row:active {
+  background: #1a1a1a;
+}
+
+/* Inset divider - starts after cover */
+.book-row::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: calc(var(--space-md) + 80px + var(--space-md));
+  right: 0;
+  height: 1px;
   background: var(--color-border);
 }
 
-.book-row:last-of-type {
-  border-bottom: none;
+.book-row:last-of-type::after {
+  display: none;
 }
 
 .book-row-cover {
   flex-shrink: 0;
-  width: 48px;
-  height: 72px;
+  width: 80px;
+  height: 120px;
   overflow: hidden;
-  border: var(--border-thin) solid var(--color-border);
+  border-radius: 4px;
   background: var(--color-bg);
 }
 
@@ -41,11 +52,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-border) 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
 }
 
 .book-row-cover-placeholder .book-icon {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   opacity: 0.5;
 }
 
@@ -59,46 +70,50 @@
 
 .book-row-title {
   font-family: var(--font-serif);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.book-row-author {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
 }
 
 .book-row-meta {
   font-size: 0.85rem;
   color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.book-row-chevron {
-  flex-shrink: 0;
-  font-size: 1.5rem;
-  color: var(--color-text-muted);
-  opacity: 0.4;
+  opacity: 0.7;
 }
 
 @media (max-width: 768px) {
   .book-row {
     gap: var(--space-sm);
-    padding: var(--space-sm) 0;
+    padding: var(--space-sm);
   }
 
   .book-row-cover {
-    width: 40px;
-    height: 60px;
+    width: 70px;
+    height: 105px;
+  }
+
+  .book-row::after {
+    left: calc(var(--space-sm) + 70px + var(--space-sm));
   }
 
   .book-row-cover-placeholder .book-icon {
-    font-size: 1rem;
+    font-size: 1.25rem;
   }
 
   .book-row-title {
-    font-size: 0.95rem;
+    font-size: 1rem;
+  }
+
+  .book-row-author {
+    font-size: 0.85rem;
   }
 
   .book-row-meta {

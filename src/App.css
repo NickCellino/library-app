@@ -63,8 +63,23 @@
 /* Main Content */
 .main {
   flex: 1;
-  padding-top: var(--space-xl);
+  padding-top: var(--space-md);
   padding-bottom: calc(var(--space-xl) + 80px); /* Extra space for FAB */
+}
+
+.main .container {
+  padding: 0;
+}
+
+.main > .container > .search-wrapper {
+  padding: 0 var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+@media (max-width: 768px) {
+  .main > .container > .search-wrapper {
+    padding: 0 var(--space-sm);
+  }
 }
 
 /* Search */
@@ -90,7 +105,7 @@
   padding: 10px 36px;
   border: none;
   border-radius: 10px;
-  background: var(--color-border);
+  background: #1a1a1a;
   color: var(--color-text);
   font-size: 0.95rem;
   transition: all 0.2s ease;
@@ -98,7 +113,7 @@
 
 .search-input:focus {
   outline: none;
-  background: var(--color-surface);
+  background: #252525;
   box-shadow: 0 0 0 1px var(--color-border);
 }
 
@@ -175,9 +190,9 @@
   padding: var(--space-xl) var(--space-md);
   max-width: 500px;
   margin: var(--space-xl) auto;
-  background: var(--color-surface);
-  border: var(--border-medium) solid var(--color-border);
-  box-shadow: 0 8px 24px var(--color-shadow);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .empty-state-icon {
@@ -188,7 +203,7 @@
 
 .empty-state h2 {
   font-family: var(--font-serif);
-  color: var(--color-primary);
+  color: var(--color-text);
   margin-bottom: var(--space-sm);
 }
 
@@ -199,7 +214,7 @@
 
 /* Book List */
 .book-list {
-  margin-top: var(--space-lg);
+  margin-top: var(--space-sm);
 }
 
 /* Responsive */

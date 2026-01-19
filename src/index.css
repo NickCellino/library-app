@@ -2,17 +2,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
 
 :root {
-  /* Colors - Custom palette */
-  --color-bg: #f9f9f9; /* Bright Snow */
-  --color-surface: #ffffff;
-  --color-primary: #232c33; /* Jet Black */
-  --color-secondary: #a76d60; /* Terracotta Clay */
+  /* Colors - Dark palette */
+  --color-bg: #000000; /* Pure black background */
+  --color-surface: #1a1a1a; /* Dark surface */
+  --color-primary: #232c33; /* Dark header bg */
+  --color-secondary: #6b8cae; /* Muted blue-gray for headers */
   --color-accent: #ffe45e; /* Royal Gold */
   --color-highlight: #00a676; /* Jungle Green */
-  --color-text: #232c33; /* Jet Black */
-  --color-text-muted: #6b6b6b;
-  --color-border: #e0e0e0;
-  --color-shadow: rgba(35, 44, 51, 0.1);
+  --color-text: #ffffff; /* White text */
+  --color-text-muted: #8a8a8a; /* Light gray */
+  --color-border: #2a2a2a; /* Dark borders */
+  --color-shadow: rgba(0, 0, 0, 0.3);
 
   /* Typography */
   --font-serif: 'Cormorant Garamond', serif;
@@ -222,7 +222,7 @@ input, textarea, select {
 }
 
 .hamburger-item:hover {
-  background: var(--color-bg);
+  background: #252525;
 }
 
 .hamburger-icon {
@@ -236,7 +236,7 @@ input, textarea, select {
 }
 
 .hamburger-item-danger:hover {
-  background: #fdf2f2;
+  background: rgba(192, 57, 43, 0.15);
 }
 
 .hamburger-divider {
@@ -262,7 +262,7 @@ input, textarea, select {
 }
 
 .hamburger-dev-section {
-  background: var(--color-bg);
+  background: #141414;
   margin: 0 var(--space-xs);
   border-radius: 6px;
 }
