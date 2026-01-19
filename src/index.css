@@ -244,3 +244,30 @@ input, textarea, select {
   background: var(--color-border);
   margin: var(--space-sm) var(--space-md);
 }
+
+/* Dev Tools Section */
+.hamburger-dev-toggle {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.hamburger-chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  color: var(--color-text-muted);
+}
+
+.hamburger-chevron.open {
+  transform: rotate(90deg);
+}
+
+.hamburger-dev-section {
+  background: var(--color-bg);
+  margin: 0 var(--space-xs);
+  border-radius: 6px;
+}
+
+.hamburger-item-sub {
+  font-size: 0.9rem;
+  padding-left: calc(var(--space-md) + 8px);
+}

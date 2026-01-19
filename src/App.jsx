@@ -160,9 +160,6 @@ function App() {
             <div className="empty-state-icon">📚</div>
             <h2>Your library awaits</h2>
             <p>Start building your collection by adding your first book</p>
-            <button className="btn btn-primary" onClick={handleLoadTestData} style={{ marginTop: 'var(--space-md)' }}>
-              Load Test Data
-            </button>
           </div>
         ) : filteredBooks.length === 0 ? (
           <div className="empty-state">

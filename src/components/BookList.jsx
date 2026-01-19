@@ -1,3 +1,4 @@
+import React from 'react'
 import BookCard from './BookCard'
 import './BookList.css'
 
@@ -18,25 +19,19 @@ function BookList({ books, onEdit, onDelete }) {
   return (
     <div className="book-list">
       {sortedAuthors.map((author) => (
-        <div key={author} className="author-group">
-          <div className="author-header">
-            <h2 className="author-name">{author}</h2>
-            <span className="author-count">
-              {booksByAuthor[author].length} {booksByAuthor[author].length === 1 ? 'book' : 'books'}
-            </span>
+        <React.Fragment key={author}>
+          <div className="author-divider">
+            <span className="author-divider-name">{author}</span>
           </div>
-
-          <div className="author-books">
-            {booksByAuthor[author].map((book) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                onEdit={onEdit}
-                onDelete={onDelete}
-              />
-            ))}
-          </div>
-        </div>
+          {booksByAuthor[author].map((book) => (
+            <BookCard
+              key={book.id}
+              book={book}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </React.Fragment>
       ))}
     </div>
   )
