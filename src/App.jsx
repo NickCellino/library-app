@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Fuse from 'fuse.js'
 import BookList from './components/BookList'
+import AddBookModal from './components/AddBookModal'
 import { generateTestBooks } from './utils/testData'
 import './App.css'
 
@@ -8,6 +9,7 @@ function App() {
   const [books, setBooks] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('author')
+  const [showAddModal, setShowAddModal] = useState(false)
 
   // Load books from localStorage on mount
   useEffect(() => {
@@ -47,6 +49,10 @@ function App() {
     if (window.confirm('Are you sure you want to delete this book?')) {
       setBooks(books.filter(b => b.id !== bookId))
     }
+  }
+
+  const handleAddBook = (newBook) => {
+    setBooks([...books, newBook])
   }
 
   // Fuzzy search implementation
@@ -94,7 +100,9 @@ function App() {
           />
 
           <div className="actions">
-            <button className="btn btn-primary">Add Book</button>
+            <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+              Add Book
+            </button>
             <button className="btn btn-secondary">Scan Barcode</button>
           </div>
 
@@ -133,6 +141,13 @@ function App() {
           />
         )}
       </main>
+
+      {showAddModal && (
+        <AddBookModal
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddBook}
+        />
+      )}
     </div>
   )
 }
