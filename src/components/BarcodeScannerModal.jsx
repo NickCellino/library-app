@@ -19,41 +19,53 @@ function BarcodeScannerModal({ onClose, onAdd }) {
     }
   }, [isScanning])
 
-  const startScanning = async () => {
+  const startScanning = () => {
     setError('')
     setScannedISBN('')
     setBookData(null)
-
-    try {
-      html5QrCodeRef.current = new Html5Qrcode('barcode-scanner')
-
-      await html5QrCodeRef.current.start(
-        { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 150 }
-        },
-        async (decodedText) => {
-          setScannedISBN(decodedText)
-
-          // Stop scanning after successful decode
-          await html5QrCodeRef.current.stop()
-          setIsScanning(false)
-
-          // Fetch book data
-          fetchBookData(decodedText)
-        },
-        (errorMessage) => {
-          // Ignore decoding errors
-        }
-      )
-
-      setIsScanning(true)
-    } catch (err) {
-      console.error('Error starting scanner:', err)
-      setError('Could not access camera. Please check permissions.')
-    }
+    setIsScanning(true)
   }
+
+  // Initialize scanner when isScanning becomes true
+  useEffect(() => {
+    if (!isScanning) return
+
+    const initScanner = async () => {
+      // Wait for DOM to update
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      try {
+        html5QrCodeRef.current = new Html5Qrcode('barcode-scanner')
+
+        await html5QrCodeRef.current.start(
+          { facingMode: 'environment' },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 150 }
+          },
+          async (decodedText) => {
+            setScannedISBN(decodedText)
+
+            // Stop scanning after successful decode
+            await html5QrCodeRef.current.stop()
+            setIsScanning(false)
+
+            // Fetch book data
+            fetchBookData(decodedText)
+          },
+          (errorMessage) => {
+            // Ignore decoding errors
+          }
+        )
+      } catch (err) {
+        console.error('Error starting scanner:', err)
+        setError('Could not access camera. Please check permissions.')
+        setIsScanning(false)
+      }
+    }
+
+    initScanner()
+  }, [isScanning])
 
   const stopScanning = async () => {
     if (html5QrCodeRef.current && isScanning) {
