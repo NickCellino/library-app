@@ -144,7 +144,7 @@ function App() {
         </div>
       </header>
 
-      <main className="main container">
+      <main className="main">
         {books.length > 0 && (
           <div className="search-wrapper">
             <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
