@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
+import { readBarcodes } from 'zxing-wasm/reader'
 import { v4 as uuidv4 } from '../utils/uuid'
 import './BarcodeScannerModal.css'
 
@@ -10,20 +10,31 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
   const [error, setError] = useState('')
   const [duplicateBook, setDuplicateBook] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
-  const scannerRef = useRef(null)
-  const html5QrCodeRef = useRef(null)
+
+  const videoRef = useRef(null)
+  const canvasRef = useRef(null)
+  const streamRef = useRef(null)
+  const animationFrameRef = useRef(null)
   const isProcessingRef = useRef(false)
-  const isScannerStoppedRef = useRef(true)
   const scanStartTimeRef = useRef(null)
 
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (html5QrCodeRef.current && !isScannerStoppedRef.current) {
-        isScannerStoppedRef.current = true
-        html5QrCodeRef.current.stop().catch(console.error)
-      }
+      stopCamera()
     }
-  }, [isScanning])
+  }, [])
+
+  const stopCamera = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+  }
 
   const startScanning = () => {
     setError('')
@@ -32,97 +43,90 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     setIsScanning(true)
   }
 
-  // Initialize scanner when isScanning becomes true
+  // Initialize camera when isScanning becomes true
   useEffect(() => {
     if (!isScanning) return
 
-    const initScanner = async () => {
-      // Wait for DOM to update
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      // Log if native BarcodeDetector API is available
-      const hasNativeDetector = 'BarcodeDetector' in window
-      console.log('[Scanner] Native BarcodeDetector:', hasNativeDetector ? 'available' : 'not available')
-
+    const initCamera = async () => {
       try {
-        // Limit to ISBN barcode formats for faster detection
-        const formatsToSupport = [
-          Html5QrcodeSupportedFormats.EAN_13,
-          Html5QrcodeSupportedFormats.EAN_8,
-          Html5QrcodeSupportedFormats.UPC_A,
-          Html5QrcodeSupportedFormats.UPC_E,
-        ]
-
-        html5QrCodeRef.current = new Html5Qrcode('barcode-scanner', {
-          formatsToSupport,
-          // Use native BarcodeDetector API when available (Chrome/Edge)
-          experimentalFeatures: {
-            useBarCodeDetectorIfSupported: true
-          }
-        })
-        isScannerStoppedRef.current = false
-
+        console.log('[Scanner] Starting camera...')
         scanStartTimeRef.current = performance.now()
-        console.log('[Scanner] Starting scan...')
 
-        await html5QrCodeRef.current.start(
-          { facingMode: 'environment' },
-          {
-            fps: 15,  // Increased from 10
-            qrbox: { width: 280, height: 160 }  // Slightly larger scan area
-          },
-          async (decodedText) => {
-            // Prevent multiple callbacks from processing
-            if (isProcessingRef.current) return
-            isProcessingRef.current = true
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+        })
 
-            const elapsed = performance.now() - scanStartTimeRef.current
-            console.log(`[Scanner] Barcode decoded in ${elapsed.toFixed(0)}ms:`, decodedText)
+        streamRef.current = stream
 
-            // Set loading state immediately to prevent white screen
-            setIsLoading(true)
-            setScannedISBN(decodedText)
-
-            // Stop scanning after successful decode
-            if (!isScannerStoppedRef.current) {
-              isScannerStoppedRef.current = true
-              try {
-                await html5QrCodeRef.current.stop()
-                console.log('[BarcodeScannerModal] Scanner stopped successfully')
-              } catch (err) {
-                console.error('[BarcodeScannerModal] Error stopping scanner:', err)
-              }
-            }
-
-            setIsScanning(false)
-
-            // Fetch book data (fetchBookData will manage isLoading state)
-            fetchBookData(decodedText)
-          },
-          (errorMessage) => {
-            // Ignore decoding errors (happens frequently during scanning)
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current.play()
+            startScanLoop()
           }
-        )
+        }
       } catch (err) {
-        console.error('Error starting scanner:', err)
+        console.error('Error starting camera:', err)
         setError('Could not access camera. Please check permissions.')
         setIsScanning(false)
       }
     }
 
-    initScanner()
+    initCamera()
   }, [isScanning])
 
-  const stopScanning = async () => {
-    if (html5QrCodeRef.current && !isScannerStoppedRef.current) {
-      isScannerStoppedRef.current = true
-      try {
-        await html5QrCodeRef.current.stop()
-        setIsScanning(false)
-      } catch (err) {
-        console.error('Error stopping scanner:', err)
+  const startScanLoop = () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas) return
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+
+    const scan = async () => {
+      if (!isScanning || isProcessingRef.current) {
+        if (isScanning && !isProcessingRef.current) {
+          animationFrameRef.current = requestAnimationFrame(scan)
+        }
+        return
       }
+
+      ctx.drawImage(video, 0, 0)
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+      try {
+        const results = await readBarcodes(imageData, {
+          formats: ['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E']
+        })
+
+        if (results.length > 0) {
+          const decodedText = results[0].text
+          isProcessingRef.current = true
+
+          const elapsed = performance.now() - scanStartTimeRef.current
+          console.log(`[Scanner] Barcode decoded in ${elapsed.toFixed(0)}ms:`, decodedText)
+
+          setIsLoading(true)
+          setScannedISBN(decodedText)
+          setIsScanning(false)
+          stopCamera()
+          fetchBookData(decodedText)
+          return
+        }
+      } catch (err) {
+        // Ignore decode errors, keep scanning
+      }
+
+      animationFrameRef.current = requestAnimationFrame(scan)
     }
+
+    animationFrameRef.current = requestAnimationFrame(scan)
+  }
+
+  const stopScanning = () => {
+    setIsScanning(false)
+    stopCamera()
   }
 
   const fetchBookData = async (isbn) => {
@@ -218,7 +222,13 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
 
           {isScanning && (
             <div className="scanner-view">
-              <div id="barcode-scanner"></div>
+              <div className="video-container">
+                <video ref={videoRef} playsInline muted />
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
+                <div className="scan-overlay">
+                  <div className="scan-frame"></div>
+                </div>
+              </div>
               <button className="btn btn-secondary" onClick={stopScanning}>
                 Cancel Scan
               </button>
@@ -280,7 +290,6 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
                   setDuplicateBook(null)
                   setIsLoading(false)
                   isProcessingRef.current = false
-                  isScannerStoppedRef.current = true
                 }}>
                   Scan Another
                 </button>

@@ -38,14 +38,36 @@
   gap: var(--space-md);
 }
 
-#barcode-scanner {
+.video-container {
+  position: relative;
   width: 100%;
   border: var(--border-medium) solid var(--color-border);
+  overflow: hidden;
+  border-radius: 4px;
 }
 
-#barcode-scanner video {
+.video-container video {
   width: 100%;
-  border-radius: 4px;
+  display: block;
+}
+
+.scan-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.scan-frame {
+  width: 280px;
+  height: 160px;
+  border: 2px solid var(--color-highlight);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
 }
 
 .scanned-result {
