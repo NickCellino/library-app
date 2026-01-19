@@ -45,17 +45,27 @@ function BarcodeScannerModal({ onClose, onAdd }) {
             qrbox: { width: 250, height: 150 }
           },
           async (decodedText) => {
+            console.log('[BarcodeScannerModal] Barcode decoded:', decodedText)
+
+            // Set loading state immediately to prevent white screen
+            setIsLoading(true)
             setScannedISBN(decodedText)
 
             // Stop scanning after successful decode
-            await html5QrCodeRef.current.stop()
+            try {
+              await html5QrCodeRef.current.stop()
+              console.log('[BarcodeScannerModal] Scanner stopped successfully')
+            } catch (err) {
+              console.error('[BarcodeScannerModal] Error stopping scanner:', err)
+            }
+
             setIsScanning(false)
 
-            // Fetch book data
+            // Fetch book data (fetchBookData will manage isLoading state)
             fetchBookData(decodedText)
           },
           (errorMessage) => {
-            // Ignore decoding errors
+            // Ignore decoding errors (happens frequently during scanning)
           }
         )
       } catch (err) {
@@ -80,12 +90,23 @@ function BarcodeScannerModal({ onClose, onAdd }) {
   }
 
   const fetchBookData = async (isbn) => {
+    console.log('[BarcodeScannerModal] Starting fetchBookData for ISBN:', isbn)
     setIsLoading(true)
+    setError('')
+
     try {
-      const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
-      )
+      const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
+      console.log('[BarcodeScannerModal] Fetching from URL:', url)
+
+      const response = await fetch(url)
+      console.log('[BarcodeScannerModal] Response status:', response.status)
+
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`)
+      }
+
       const data = await response.json()
+      console.log('[BarcodeScannerModal] API response data:', data)
 
       if (data.items && data.items.length > 0) {
         const book = data.items[0].volumeInfo
@@ -97,14 +118,17 @@ function BarcodeScannerModal({ onClose, onAdd }) {
           pageCount: book.pageCount || null,
           coverUrl: book.imageLinks?.thumbnail || ''
         }
+        console.log('[BarcodeScannerModal] Processed book data:', bookData)
         setBookData(bookData)
       } else {
+        console.log('[BarcodeScannerModal] No books found in API response')
         setError('Book not found. You can add it manually.')
       }
     } catch (error) {
-      console.error('Error fetching book data:', error)
-      setError('Failed to fetch book data.')
+      console.error('[BarcodeScannerModal] Error fetching book data:', error)
+      setError(`Failed to fetch book data: ${error.message}`)
     } finally {
+      console.log('[BarcodeScannerModal] Finished fetchBookData, isLoading set to false')
       setIsLoading(false)
     }
   }
@@ -143,6 +167,18 @@ function BarcodeScannerModal({ onClose, onAdd }) {
               <p>Scan the ISBN barcode on the back of your book</p>
               <button className="btn btn-primary" onClick={startScanning}>
                 Start Camera
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  const testISBN = '9780743273565' // The Great Gatsby
+                  console.log('[BarcodeScannerModal] Testing with ISBN:', testISBN)
+                  setScannedISBN(testISBN)
+                  fetchBookData(testISBN)
+                }}
+                style={{ marginTop: '8px' }}
+              >
+                Test with Sample ISBN
               </button>
             </div>
           )}
