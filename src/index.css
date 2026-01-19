@@ -2,16 +2,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
 
 :root {
-  /* Colors - Sophisticated vintage palette */
-  --color-bg: #f8f5f0;
+  /* Colors - Custom palette */
+  --color-bg: #f9f9f9; /* Bright Snow */
   --color-surface: #ffffff;
-  --color-primary: #2c3e50;
-  --color-secondary: #8b6f47;
-  --color-accent: #c9a86a;
-  --color-text: #2c2c2c;
+  --color-primary: #232c33; /* Jet Black */
+  --color-secondary: #a76d60; /* Terracotta Clay */
+  --color-accent: #ffe45e; /* Royal Gold */
+  --color-highlight: #00a676; /* Jungle Green */
+  --color-text: #232c33; /* Jet Black */
   --color-text-muted: #6b6b6b;
-  --color-border: #d4c5b0;
-  --color-shadow: rgba(44, 62, 80, 0.1);
+  --color-border: #e0e0e0;
+  --color-shadow: rgba(35, 44, 51, 0.1);
 
   /* Typography */
   --font-serif: 'Cormorant Garamond', serif;

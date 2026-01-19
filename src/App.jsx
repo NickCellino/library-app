@@ -1,4 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import Fuse from 'fuse.js'
+import BookList from './components/BookList'
+import { generateTestBooks } from './utils/testData'
 import './App.css'
 
 function App() {
@@ -23,6 +26,45 @@ function App() {
   useEffect(() => {
     localStorage.setItem('library-books', JSON.stringify(books))
   }, [books])
+
+  const handleLoadTestData = () => {
+    const testBooks = generateTestBooks()
+    setBooks(testBooks)
+  }
+
+  const handleClearAll = () => {
+    if (window.confirm('Are you sure you want to delete all books? This cannot be undone.')) {
+      setBooks([])
+    }
+  }
+
+  const handleEdit = (book) => {
+    // TODO: Implement edit modal
+    console.log('Edit book:', book)
+  }
+
+  const handleDelete = (bookId) => {
+    if (window.confirm('Are you sure you want to delete this book?')) {
+      setBooks(books.filter(b => b.id !== bookId))
+    }
+  }
+
+  // Fuzzy search implementation
+  const fuse = useMemo(() => {
+    return new Fuse(books, {
+      keys: ['title', 'author', 'isbn', 'publisher'],
+      threshold: 0.3,
+      includeScore: true
+    })
+  }, [books])
+
+  const filteredBooks = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return books
+    }
+    const results = fuse.search(searchQuery)
+    return results.map(result => result.item)
+  }, [books, searchQuery, fuse])
 
   return (
     <div className="app">
@@ -55,6 +97,17 @@ function App() {
             <button className="btn btn-primary">Add Book</button>
             <button className="btn btn-secondary">Scan Barcode</button>
           </div>
+
+          <div className="actions">
+            <button className="btn btn-secondary" onClick={handleLoadTestData}>
+              Load Test Data
+            </button>
+            {books.length > 0 && (
+              <button className="btn btn-secondary" onClick={handleClearAll}>
+                Clear All Books
+              </button>
+            )}
+          </div>
         </div>
 
         {books.length === 0 ? (
@@ -62,11 +115,22 @@ function App() {
             <div className="empty-state-icon">📚</div>
             <h2>Your library awaits</h2>
             <p>Start building your collection by adding your first book</p>
+            <button className="btn btn-primary" onClick={handleLoadTestData} style={{ marginTop: 'var(--space-md)' }}>
+              Load Test Data
+            </button>
+          </div>
+        ) : filteredBooks.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon">🔍</div>
+            <h2>No books found</h2>
+            <p>Try adjusting your search query</p>
           </div>
         ) : (
-          <div className="book-list">
-            <p>Books will appear here</p>
-          </div>
+          <BookList
+            books={filteredBooks}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         )}
       </main>
     </div>
