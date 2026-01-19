@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Fuse from 'fuse.js'
 import BookList from './components/BookList'
+import BookDetailModal from './components/BookDetailModal'
 import AddBookModal from './components/AddBookModal'
 import EditBookModal from './components/EditBookModal'
 import BarcodeScannerModal from './components/BarcodeScannerModal'
@@ -15,6 +16,7 @@ function App() {
   const [showScannerModal, setShowScannerModal] = useState(false)
   const [showHamburger, setShowHamburger] = useState(false)
   const [editingBook, setEditingBook] = useState(null)
+  const [selectedBook, setSelectedBook] = useState(null)
 
   // Load books from localStorage on mount
   useEffect(() => {
@@ -54,9 +56,7 @@ function App() {
   }
 
   const handleDelete = (bookId) => {
-    if (window.confirm('Are you sure you want to delete this book?')) {
-      setBooks(books.filter(b => b.id !== bookId))
-    }
+    setBooks(books.filter(b => b.id !== bookId))
   }
 
   const handleAddBook = (newBook) => {
@@ -145,15 +145,24 @@ function App() {
       </header>
 
       <main className="main container">
-        <div className="controls">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search your library..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        {books.length > 0 && (
+          <div className="search-wrapper">
+            <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button className="search-clear" onClick={() => setSearchQuery('')}>×</button>
+            )}
+          </div>
+        )}
 
         {books.length === 0 ? (
           <div className="empty-state">
@@ -170,11 +179,19 @@ function App() {
         ) : (
           <BookList
             books={filteredBooks}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onBookClick={setSelectedBook}
           />
         )}
       </main>
+
+      {selectedBook && (
+        <BookDetailModal
+          book={selectedBook}
+          onClose={() => setSelectedBook(null)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
 
       {showAddModal && (
         <AddBookModal

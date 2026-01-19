@@ -5,10 +5,15 @@
   padding: var(--space-sm) var(--space-xs);
   border-bottom: var(--border-thin) solid var(--color-border);
   transition: background 0.15s ease;
+  cursor: pointer;
 }
 
 .book-row:hover {
   background: var(--color-surface);
+}
+
+.book-row:active {
+  background: var(--color-border);
 }
 
 .book-row:last-of-type {
@@ -70,30 +75,11 @@
   text-overflow: ellipsis;
 }
 
-.book-row-actions {
-  display: flex;
-  gap: var(--space-xs);
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.book-row:hover .book-row-actions {
-  opacity: 1;
-}
-
-.btn-icon {
-  padding: var(--space-xs);
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-  opacity: 0.6;
-}
-
-.btn-icon:hover {
-  transform: scale(1.15);
-  opacity: 1;
+.book-row-chevron {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+  opacity: 0.4;
 }
 
 @media (max-width: 768px) {
@@ -117,14 +103,5 @@
 
   .book-row-meta {
     font-size: 0.8rem;
-  }
-
-  .book-row-actions {
-    opacity: 1;
-  }
-
-  .btn-icon {
-    font-size: 1rem;
-    padding: var(--space-xs) 4px;
   }
 }

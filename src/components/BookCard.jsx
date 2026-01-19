@@ -1,13 +1,12 @@
 import './BookCard.css'
 
-function BookCard({ book, onEdit, onDelete }) {
+function BookCard({ book, onClick }) {
   const metaParts = []
-  if (book.author) metaParts.push(book.author)
   if (book.pageCount) metaParts.push(`${book.pageCount} pp`)
   if (book.publishYear) metaParts.push(book.publishYear)
 
   return (
-    <div className="book-row">
+    <div className="book-row" onClick={() => onClick(book)}>
       <div className="book-row-cover">
         {book.coverUrl ? (
           <img src={book.coverUrl} alt={`Cover of ${book.title}`} />
@@ -25,22 +24,7 @@ function BookCard({ book, onEdit, onDelete }) {
         )}
       </div>
 
-      <div className="book-row-actions">
-        <button
-          className="btn-icon"
-          onClick={() => onEdit(book)}
-          title="Edit book"
-        >
-          ✏️
-        </button>
-        <button
-          className="btn-icon"
-          onClick={() => onDelete(book.id)}
-          title="Delete book"
-        >
-          🗑️
-        </button>
-      </div>
+      <span className="book-row-chevron">›</span>
     </div>
   )
 }
