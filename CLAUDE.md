@@ -19,6 +19,8 @@ npm run test:debug   # Run tests in debug mode
 
 Tests require the dev server running (Playwright config auto-starts it).
 
+On the hamburger menu, there is "dev tools" > "load test data" functionality. Use that when test data is needed.
+
 ## Architecture
 
 React + Vite personal book collection manager with localStorage persistence. Mobile-first design with editorial/art deco aesthetic.
