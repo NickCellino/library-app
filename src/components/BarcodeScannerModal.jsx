@@ -1,15 +1,16 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { readBarcodes } from 'zxing-wasm/reader'
 import { v4 as uuidv4 } from '../utils/uuid'
 import './BarcodeScannerModal.css'
 
+const COOLDOWN_MS = 30000 // 30s cooldown before re-scanning same ISBN
+
 function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
-  const [isScanning, setIsScanning] = useState(true)
-  const [scannedISBN, setScannedISBN] = useState('')
-  const [bookData, setBookData] = useState(null)
-  const [error, setError] = useState('')
-  const [duplicateBook, setDuplicateBook] = useState(null)
+  const [isScanning, setIsScanning] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [loadingISBN, setLoadingISBN] = useState('')
+  const [booksAdded, setBooksAdded] = useState(0)
+  const [currentToast, setCurrentToast] = useState(null) // { type: 'success'|'duplicate'|'error', book?, message? }
   const [testModeActive, setTestModeActive] = useState(false)
   const [testHelpers, setTestHelpers] = useState(null)
 
@@ -18,12 +19,20 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
   const streamRef = useRef(null)
   const animationFrameRef = useRef(null)
   const isProcessingRef = useRef(false)
-  const scanStartTimeRef = useRef(null)
+  const recentISBNs = useRef(new Map()) // ISBN -> timestamp
+  const toastTimeoutRef = useRef(null)
+  const booksRef = useRef(books) // Keep fresh reference for duplicate check
+
+  // Keep books ref updated
+  useEffect(() => {
+    booksRef.current = books
+  }, [books])
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopCamera()
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
     }
   }, [])
 
@@ -34,22 +43,118 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
         setTestHelpers(helpers)
         if (helpers.isTestMode()) {
           setTestModeActive(true)
-          setIsScanning(false)
+        } else {
+          // Auto-start camera for real scanning
+          setIsScanning(true)
         }
       })
+    } else {
+      // Production: auto-start camera
+      setIsScanning(true)
     }
   }, [])
+
+  const stopCamera = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+  }
+
+  const showToast = useCallback((toast) => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
+    setCurrentToast(toast)
+    toastTimeoutRef.current = setTimeout(() => {
+      setCurrentToast(null)
+    }, 2500)
+  }, [])
+
+  const isOnCooldown = (isbn) => {
+    const lastScan = recentISBNs.current.get(isbn)
+    if (!lastScan) return false
+    return Date.now() - lastScan < COOLDOWN_MS
+  }
+
+  const addToCooldown = (isbn) => {
+    recentISBNs.current.set(isbn, Date.now())
+  }
+
+  const processISBN = useCallback(async (isbn) => {
+    // Check cooldown
+    if (isOnCooldown(isbn)) {
+      console.log('[Scanner] ISBN on cooldown:', isbn)
+      isProcessingRef.current = false
+      setIsLoading(false)
+      setLoadingISBN('')
+      return
+    }
+
+    addToCooldown(isbn)
+    setIsLoading(true)
+    setLoadingISBN(isbn)
+
+    // Check for duplicate
+    const existing = booksRef.current.find(b => b.isbn && b.isbn === isbn)
+    if (existing) {
+      showToast({ type: 'duplicate', book: existing })
+      setIsLoading(false)
+      setLoadingISBN('')
+      isProcessingRef.current = false
+      return
+    }
+
+    try {
+      const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      if (data.items && data.items.length > 0) {
+        const book = data.items[0].volumeInfo
+        const newBook = {
+          id: uuidv4(),
+          isbn: isbn,
+          title: book.title || '',
+          author: book.authors?.[0] || '',
+          publishYear: book.publishedDate ? new Date(book.publishedDate).getFullYear() : null,
+          publisher: book.publisher || '',
+          pageCount: book.pageCount || null,
+          coverUrl: book.imageLinks?.thumbnail || '',
+          dateAdded: new Date().toISOString()
+        }
+
+        // Auto-add the book
+        onAdd(newBook)
+        setBooksAdded(prev => prev + 1)
+        showToast({ type: 'success', book: newBook })
+      } else {
+        showToast({ type: 'error', message: `ISBN ${isbn} not found` })
+      }
+    } catch (error) {
+      console.error('[Scanner] Error fetching book:', error)
+      showToast({ type: 'error', message: `Failed to fetch: ${error.message}` })
+    } finally {
+      setIsLoading(false)
+      setLoadingISBN('')
+      isProcessingRef.current = false
+    }
+  }, [onAdd, showToast])
 
   // Test scan handler (dev only)
   const handleTestScan = async (isbn) => {
     if (!import.meta.env.DEV || !testHelpers) return
 
+    isProcessingRef.current = true
     setIsLoading(true)
-    setError('')
-    setScannedISBN('')
-    setBookData(null)
-    stopCamera()
-    setIsScanning(false)
+    setLoadingISBN(isbn)
 
     try {
       console.log('[TestMode] Loading barcode image for ISBN:', isbn)
@@ -63,35 +168,20 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
       if (results.length > 0) {
         const decodedText = results[0].text
         console.log('[TestMode] Decoded:', decodedText)
-        setScannedISBN(decodedText)
-        fetchBookData(decodedText)
+        await processISBN(decodedText)
       } else {
-        setError('Failed to decode barcode from test image')
+        showToast({ type: 'error', message: 'Failed to decode barcode' })
         setIsLoading(false)
+        setLoadingISBN('')
+        isProcessingRef.current = false
       }
     } catch (err) {
       console.error('[TestMode] Error:', err)
-      setError(`Test scan failed: ${err.message}`)
+      showToast({ type: 'error', message: `Test scan failed: ${err.message}` })
       setIsLoading(false)
+      setLoadingISBN('')
+      isProcessingRef.current = false
     }
-  }
-
-  const stopCamera = () => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current)
-      animationFrameRef.current = null
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
-      streamRef.current = null
-    }
-  }
-
-  const startScanning = () => {
-    setError('')
-    setScannedISBN('')
-    setBookData(null)
-    setIsScanning(true)
   }
 
   // Initialize camera when isScanning becomes true
@@ -101,7 +191,6 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     const initCamera = async () => {
       try {
         console.log('[Scanner] Starting camera...')
-        scanStartTimeRef.current = performance.now()
 
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
@@ -118,13 +207,13 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
         }
       } catch (err) {
         console.error('Error starting camera:', err)
-        setError('Could not access camera. Please check permissions.')
+        showToast({ type: 'error', message: 'Could not access camera' })
         setIsScanning(false)
       }
     }
 
     initCamera()
-  }, [isScanning])
+  }, [isScanning, showToast])
 
   const startScanLoop = () => {
     const video = videoRef.current
@@ -136,10 +225,10 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     canvas.height = video.videoHeight
 
     const scan = async () => {
-      if (!isScanning || isProcessingRef.current) {
-        if (isScanning && !isProcessingRef.current) {
-          animationFrameRef.current = requestAnimationFrame(scan)
-        }
+      if (!streamRef.current) return // Camera stopped
+
+      if (isProcessingRef.current) {
+        animationFrameRef.current = requestAnimationFrame(scan)
         return
       }
 
@@ -153,17 +242,12 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
 
         if (results.length > 0) {
           const decodedText = results[0].text
-          isProcessingRef.current = true
 
-          const elapsed = performance.now() - scanStartTimeRef.current
-          console.log(`[Scanner] Barcode decoded in ${elapsed.toFixed(0)}ms:`, decodedText)
-
-          setIsLoading(true)
-          setScannedISBN(decodedText)
-          setIsScanning(false)
-          stopCamera()
-          fetchBookData(decodedText)
-          return
+          if (!isOnCooldown(decodedText)) {
+            isProcessingRef.current = true
+            console.log('[Scanner] Barcode decoded:', decodedText)
+            processISBN(decodedText)
+          }
         }
       } catch (err) {
         // Ignore decode errors, keep scanning
@@ -175,99 +259,42 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     animationFrameRef.current = requestAnimationFrame(scan)
   }
 
-  const fetchBookData = async (isbn) => {
-    console.log('[BarcodeScannerModal] Starting fetchBookData for ISBN:', isbn)
-    setIsLoading(true)
-    setError('')
-    setDuplicateBook(null)
-
-    // Check for duplicate ISBN
-    const existing = books.find(b => b.isbn && b.isbn === isbn)
-    if (existing) {
-      setDuplicateBook(existing)
-      setIsLoading(false)
-      return
-    }
-
-    try {
-      const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
-      console.log('[BarcodeScannerModal] Fetching from URL:', url)
-
-      const response = await fetch(url)
-      console.log('[BarcodeScannerModal] Response status:', response.status)
-
-      if (!response.ok) {
-        throw new Error(`API returned status ${response.status}`)
-      }
-
-      const data = await response.json()
-      console.log('[BarcodeScannerModal] API response data:', data)
-
-      if (data.items && data.items.length > 0) {
-        const book = data.items[0].volumeInfo
-        const bookData = {
-          title: book.title || '',
-          author: book.authors?.[0] || '',
-          publishYear: book.publishedDate ? new Date(book.publishedDate).getFullYear() : null,
-          publisher: book.publisher || '',
-          pageCount: book.pageCount || null,
-          coverUrl: book.imageLinks?.thumbnail || ''
-        }
-        console.log('[BarcodeScannerModal] Processed book data:', bookData)
-        setBookData(bookData)
-      } else {
-        console.log('[BarcodeScannerModal] No books found in API response')
-        setError('Book not found. You can add it manually.')
-      }
-    } catch (error) {
-      console.error('[BarcodeScannerModal] Error fetching book data:', error)
-      setError(`Failed to fetch book data: ${error.message}`)
-    } finally {
-      console.log('[BarcodeScannerModal] Finished fetchBookData, isLoading set to false')
-      setIsLoading(false)
-    }
-  }
-
-  const handleAddBook = () => {
-    if (!bookData || !bookData.title || !bookData.author) {
-      setError('Book data incomplete. Please add manually.')
-      return
-    }
-
-    const newBook = {
-      id: uuidv4(),
-      isbn: scannedISBN,
-      ...bookData,
-      dateAdded: new Date().toISOString()
-    }
-
-    onAdd(newBook)
+  const handleDone = () => {
+    stopCamera()
     onClose()
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={handleDone}>
       <div className="modal-content scanner-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Scan Barcode</h2>
-          <button className="modal-close" onClick={onClose}>
+          <h2>Scan Books</h2>
+          <button className="modal-close" onClick={handleDone}>
             ✕
           </button>
         </div>
 
         <div className="scanner-content">
-          {!isScanning && !bookData && !scannedISBN && !isLoading && (
-            <div className="scanner-instructions">
-              <div className="scanner-icon">📷</div>
-              <p>Scan the ISBN barcode on the back of your book</p>
-              <button className="btn btn-primary" onClick={startScanning}>
-                Start Camera
-              </button>
+          {/* Camera view - always shown when scanning */}
+          {isScanning && (
+            <div className="scanner-view">
+              <div className="video-container">
+                <video ref={videoRef} playsInline muted />
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
+                <div className="scan-overlay">
+                  <div className="scan-frame"></div>
+                </div>
+                {isLoading && (
+                  <div className="scan-loading">
+                    <span>Looking up {loadingISBN}...</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {/* Test mode panel (dev only) */}
-          {import.meta.env.DEV && testModeActive && testHelpers && !isLoading && !scannedISBN && (
+          {import.meta.env.DEV && testModeActive && testHelpers && (
             <div className="test-mode-panel">
               <div className="test-mode-header">Test Mode</div>
               <p>Scan test barcodes without camera:</p>
@@ -277,6 +304,7 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
                     key={isbn}
                     className="btn btn-secondary"
                     onClick={() => handleTestScan(isbn)}
+                    disabled={isLoading}
                     data-testid={`test-scan-${title.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     {title}
@@ -286,67 +314,57 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
             </div>
           )}
 
-          {isScanning && (
-            <div className="scanner-view">
-              <div className="video-container">
-                <video ref={videoRef} playsInline muted />
-                <canvas ref={canvasRef} style={{ display: 'none' }} />
-                <div className="scan-overlay">
-                  <div className="scan-frame"></div>
-                </div>
-              </div>
-              <button className="btn btn-secondary" onClick={onClose}>
-                Cancel Scan
-              </button>
-            </div>
-          )}
-
-          {isLoading && (
-            <div className="scanner-instructions">
-              <div className="scanner-icon">⏳</div>
-              <h3>Fetching book details...</h3>
-              <p>ISBN: {scannedISBN}</p>
-            </div>
-          )}
-
-          {scannedISBN && !isLoading && (
-            <div className="scanned-result">
-              {bookData && (
-                <div className="book-preview">
-                  <div className="preview-cover">
-                    {bookData.coverUrl ? (
-                      <img src={bookData.coverUrl} alt={bookData.title} />
+          {/* Toast notification */}
+          {currentToast && (
+            <div className={`scan-toast scan-toast-${currentToast.type}`}>
+              {currentToast.type === 'success' && currentToast.book && (
+                <>
+                  <div className="toast-cover">
+                    {currentToast.book.coverUrl ? (
+                      <img src={currentToast.book.coverUrl} alt="" />
                     ) : (
-                      <div className="placeholder-cover">📖</div>
+                      <div className="toast-cover-placeholder">📖</div>
                     )}
                   </div>
-                  <div className="preview-info">
-                    <h3>{bookData.title}</h3>
-                    <p className="preview-author">{bookData.author}</p>
-                    {bookData.publishYear && (
-                      <p className="preview-year">{bookData.publishYear}</p>
+                  <div className="toast-info">
+                    <div className="toast-title">{currentToast.book.title}</div>
+                    <div className="toast-author">{currentToast.book.author}</div>
+                    <div className="toast-status">Added ✓</div>
+                  </div>
+                </>
+              )}
+              {currentToast.type === 'duplicate' && currentToast.book && (
+                <>
+                  <div className="toast-cover">
+                    {currentToast.book.coverUrl ? (
+                      <img src={currentToast.book.coverUrl} alt="" />
+                    ) : (
+                      <div className="toast-cover-placeholder">📖</div>
                     )}
                   </div>
-                </div>
+                  <div className="toast-info">
+                    <div className="toast-title">{currentToast.book.title}</div>
+                    <div className="toast-author">{currentToast.book.author}</div>
+                    <div className="toast-status toast-status-warn">Already in library</div>
+                  </div>
+                </>
               )}
-
-              {error && <div className="error-message">{error}</div>}
-
-              {duplicateBook && (
-                <div className="error-message">
-                  ISBN already in library: "{duplicateBook.title}" by {duplicateBook.author}
-                </div>
-              )}
-
-              {bookData && !duplicateBook && (
-                <div className="scanner-actions">
-                  <button className="btn btn-primary" onClick={handleAddBook}>
-                    Confirm
-                  </button>
+              {currentToast.type === 'error' && (
+                <div className="toast-error">
+                  <span className="toast-error-icon">⚠</span>
+                  <span>{currentToast.message}</span>
                 </div>
               )}
             </div>
           )}
+        </div>
+
+        {/* Footer with count and Done button */}
+        <div className="scanner-footer">
+          <span className="scanner-count">Added: {booksAdded} book{booksAdded !== 1 ? 's' : ''}</span>
+          <button className="btn btn-primary" onClick={handleDone}>
+            Done
+          </button>
         </div>
       </div>
     </div>
