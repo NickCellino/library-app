@@ -21,6 +21,8 @@ Tests require the dev server running (Playwright config auto-starts it).
 
 On the hamburger menu, there is "dev tools" > "load test data" functionality. Use that when test data is needed.
 
+When developing, the preferred workflow is to run the dev server and visually verify changes using Playwright MCP. Iterate on results until they look good.
+
 ## Architecture
 
 React + Vite personal book collection manager with localStorage persistence. Mobile-first design with editorial/art deco aesthetic.

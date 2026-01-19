@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Html5Qrcode } from 'html5-qrcode'
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { v4 as uuidv4 } from '../utils/uuid'
 import './BarcodeScannerModal.css'
 
@@ -14,6 +14,7 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
   const html5QrCodeRef = useRef(null)
   const isProcessingRef = useRef(false)
   const isScannerStoppedRef = useRef(true)
+  const scanStartTimeRef = useRef(null)
 
   useEffect(() => {
     return () => {
@@ -37,24 +38,46 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
 
     const initScanner = async () => {
       // Wait for DOM to update
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      // Log if native BarcodeDetector API is available
+      const hasNativeDetector = 'BarcodeDetector' in window
+      console.log('[Scanner] Native BarcodeDetector:', hasNativeDetector ? 'available' : 'not available')
 
       try {
-        html5QrCodeRef.current = new Html5Qrcode('barcode-scanner')
+        // Limit to ISBN barcode formats for faster detection
+        const formatsToSupport = [
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+        ]
+
+        html5QrCodeRef.current = new Html5Qrcode('barcode-scanner', {
+          formatsToSupport,
+          // Use native BarcodeDetector API when available (Chrome/Edge)
+          experimentalFeatures: {
+            useBarCodeDetectorIfSupported: true
+          }
+        })
         isScannerStoppedRef.current = false
+
+        scanStartTimeRef.current = performance.now()
+        console.log('[Scanner] Starting scan...')
 
         await html5QrCodeRef.current.start(
           { facingMode: 'environment' },
           {
-            fps: 10,
-            qrbox: { width: 250, height: 150 }
+            fps: 15,  // Increased from 10
+            qrbox: { width: 280, height: 160 }  // Slightly larger scan area
           },
           async (decodedText) => {
             // Prevent multiple callbacks from processing
             if (isProcessingRef.current) return
             isProcessingRef.current = true
 
-            console.log('[BarcodeScannerModal] Barcode decoded:', decodedText)
+            const elapsed = performance.now() - scanStartTimeRef.current
+            console.log(`[Scanner] Barcode decoded in ${elapsed.toFixed(0)}ms:`, decodedText)
 
             // Set loading state immediately to prevent white screen
             setIsLoading(true)
