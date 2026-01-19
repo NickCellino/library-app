@@ -10,6 +10,8 @@ const outputDir = join(__dirname, '../public/test-barcodes')
 const barcodes = [
   { isbn: '9780743273565', title: 'The Great Gatsby' },
   { isbn: '9780451524935', title: '1984' },
+  { isbn: '9781538742570', title: 'The Housemaid' },
+  { isbn: '9798889661115', title: 'Mona\'s Eyes' },
 ]
 
 mkdirSync(outputDir, { recursive: true })

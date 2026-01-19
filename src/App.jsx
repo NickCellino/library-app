@@ -61,7 +61,7 @@ function App() {
   }
 
   const handleAddBook = (newBook) => {
-    setBooks([...books, newBook])
+    setBooks(prev => [...prev, newBook])
   }
 
   const handleExport = () => {
