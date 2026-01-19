@@ -124,32 +124,52 @@ function App() {
       <header className="header">
         <div className="container">
           <div className="header-content">
-            <h1 className="logo">Library</h1>
-            <div className="header-right">
-              {books.length > 0 && (
-                <div className={`header-search ${searchExpanded ? 'expanded' : ''}`}>
-                  {searchExpanded ? (
-                    <>
-                      <input
-                        type="text"
-                        className="header-search-input"
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        autoFocus
-                      />
-                      <button
-                        className="header-search-close"
-                        onClick={() => {
-                          setSearchExpanded(false)
-                          setSearchQuery('')
-                        }}
-                        aria-label="Close search"
-                      >
-                        ×
-                      </button>
-                    </>
-                  ) : (
+            {searchExpanded ? (
+              <div className="header-search-mode">
+                <button
+                  className="header-back-btn"
+                  onClick={() => {
+                    setSearchExpanded(false)
+                    setSearchQuery('')
+                  }}
+                  aria-label="Close search"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                  </svg>
+                </button>
+                <div className="header-search-bar">
+                  <svg className="header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                  </svg>
+                  <input
+                    type="text"
+                    className="header-search-input"
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                  />
+                  {searchQuery && (
+                    <button
+                      className="header-search-clear"
+                      onClick={() => setSearchQuery('')}
+                      aria-label="Clear search"
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path fill="var(--color-primary)" d="M15.5 8.5l-7 7M8.5 8.5l7 7" stroke="var(--color-primary)" strokeWidth="2"/>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                <h1 className="logo">Library</h1>
+                <div className="header-right">
+                  {books.length > 0 && (
                     <button
                       className="header-search-btn"
                       onClick={() => setSearchExpanded(true)}
@@ -161,23 +181,23 @@ function App() {
                       </svg>
                     </button>
                   )}
+                  <div className="stats">
+                    <span className="stat">{books.length} books</span>
+                    <span className="stat-separator">·</span>
+                    <span className="stat">
+                      {new Set(books.map(b => b.author)).size} authors
+                    </span>
+                  </div>
+                  <button
+                    className="hamburger-btn"
+                    onClick={() => setShowHamburger(true)}
+                    aria-label="Open menu"
+                  >
+                    ☰
+                  </button>
                 </div>
-              )}
-              <div className="stats">
-                <span className="stat">{books.length} books</span>
-                <span className="stat-separator">·</span>
-                <span className="stat">
-                  {new Set(books.map(b => b.author)).size} authors
-                </span>
-              </div>
-              <button
-                className="hamburger-btn"
-                onClick={() => setShowHamburger(true)}
-                aria-label="Open menu"
-              >
-                ☰
-              </button>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </header>
