@@ -17,6 +17,7 @@ function App() {
   const [showHamburger, setShowHamburger] = useState(false)
   const [editingBook, setEditingBook] = useState(null)
   const [selectedBook, setSelectedBook] = useState(null)
+  const [searchExpanded, setSearchExpanded] = useState(false)
 
   // Load books from localStorage on mount
   useEffect(() => {
@@ -125,6 +126,43 @@ function App() {
           <div className="header-content">
             <h1 className="logo">Library</h1>
             <div className="header-right">
+              {books.length > 0 && (
+                <div className={`header-search ${searchExpanded ? 'expanded' : ''}`}>
+                  {searchExpanded ? (
+                    <>
+                      <input
+                        type="text"
+                        className="header-search-input"
+                        placeholder="Search..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        autoFocus
+                      />
+                      <button
+                        className="header-search-close"
+                        onClick={() => {
+                          setSearchExpanded(false)
+                          setSearchQuery('')
+                        }}
+                        aria-label="Close search"
+                      >
+                        ×
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className="header-search-btn"
+                      onClick={() => setSearchExpanded(true)}
+                      aria-label="Search"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              )}
               <div className="stats">
                 <span className="stat">{books.length} books</span>
                 <span className="stat-separator">·</span>
@@ -145,25 +183,6 @@ function App() {
       </header>
 
       <main className="main">
-        {books.length > 0 && (
-          <div className="search-wrapper">
-            <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="M21 21l-4.35-4.35"/>
-            </svg>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            {searchQuery && (
-              <button className="search-clear" onClick={() => setSearchQuery('')}>×</button>
-            )}
-          </div>
-        )}
-
         {books.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon">📚</div>

@@ -190,18 +190,6 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
               <button className="btn btn-primary" onClick={startScanning}>
                 Start Camera
               </button>
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  const testISBN = '9780743273565' // The Great Gatsby
-                  console.log('[BarcodeScannerModal] Testing with ISBN:', testISBN)
-                  setScannedISBN(testISBN)
-                  fetchBookData(testISBN)
-                }}
-                style={{ marginTop: '8px' }}
-              >
-                Test with Sample ISBN
-              </button>
             </div>
           )}
 
