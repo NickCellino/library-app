@@ -2,6 +2,20 @@
   position: relative;
 }
 
+.list-stats {
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.list-stats-separator {
+  margin: 0 0.5em;
+  opacity: 0.5;
+}
+
 .book-list {
   display: flex;
   flex-direction: column;

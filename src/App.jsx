@@ -181,13 +181,6 @@ function App() {
                       </svg>
                     </button>
                   )}
-                  <div className="stats">
-                    <span className="stat">{books.length} books</span>
-                    <span className="stat-separator">·</span>
-                    <span className="stat">
-                      {new Set(books.map(b => b.author)).size} authors
-                    </span>
-                  </div>
                   <button
                     className="hamburger-btn"
                     onClick={() => setShowHamburger(true)}
@@ -219,6 +212,8 @@ function App() {
           <BookList
             books={filteredBooks}
             onBookClick={setSelectedBook}
+            totalBooks={books.length}
+            totalAuthors={new Set(books.map(b => b.author)).size}
           />
         )}
       </main>
