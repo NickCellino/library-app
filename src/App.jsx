@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import Fuse from 'fuse.js'
 import BookList from './components/BookList'
 import AddBookModal from './components/AddBookModal'
+import EditBookModal from './components/EditBookModal'
 import BarcodeScannerModal from './components/BarcodeScannerModal'
 import { generateTestBooks } from './utils/testData'
 import './App.css'
@@ -12,6 +13,7 @@ function App() {
   const [sortBy, setSortBy] = useState('author')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showScannerModal, setShowScannerModal] = useState(false)
+  const [editingBook, setEditingBook] = useState(null)
 
   // Load books from localStorage on mount
   useEffect(() => {
@@ -43,8 +45,11 @@ function App() {
   }
 
   const handleEdit = (book) => {
-    // TODO: Implement edit modal
-    console.log('Edit book:', book)
+    setEditingBook(book)
+  }
+
+  const handleSaveEdit = (updatedBook) => {
+    setBooks(books.map(b => b.id === updatedBook.id ? updatedBook : b))
   }
 
   const handleDelete = (bookId) => {
@@ -150,6 +155,14 @@ function App() {
         <AddBookModal
           onClose={() => setShowAddModal(false)}
           onAdd={handleAddBook}
+        />
+      )}
+
+      {editingBook && (
+        <EditBookModal
+          book={editingBook}
+          onClose={() => setEditingBook(null)}
+          onSave={handleSaveEdit}
         />
       )}
 
