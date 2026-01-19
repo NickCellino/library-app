@@ -35,6 +35,8 @@ coverage/
 
 # Playwright
 .playwright-mcp/
+test-results/
+playwright-report/
 
 # Claude
 .claude/
