@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import Fuse from 'fuse.js'
 import BookList from './components/BookList'
 import AddBookModal from './components/AddBookModal'
+import BarcodeScannerModal from './components/BarcodeScannerModal'
 import { generateTestBooks } from './utils/testData'
 import './App.css'
 
@@ -10,6 +11,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('author')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showScannerModal, setShowScannerModal] = useState(false)
 
   // Load books from localStorage on mount
   useEffect(() => {
@@ -103,7 +105,9 @@ function App() {
             <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
               Add Book
             </button>
-            <button className="btn btn-secondary">Scan Barcode</button>
+            <button className="btn btn-secondary" onClick={() => setShowScannerModal(true)}>
+              Scan Barcode
+            </button>
           </div>
 
           <div className="actions">
@@ -145,6 +149,13 @@ function App() {
       {showAddModal && (
         <AddBookModal
           onClose={() => setShowAddModal(false)}
+          onAdd={handleAddBook}
+        />
+      )}
+
+      {showScannerModal && (
+        <BarcodeScannerModal
+          onClose={() => setShowScannerModal(false)}
           onAdd={handleAddBook}
         />
       )}
