@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { v4 as uuidv4 } from '../utils/uuid'
 import './AddBookModal.css'
 
-function AddBookModal({ onClose, onAdd }) {
+function AddBookModal({ onClose, onAdd, books = [] }) {
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -14,10 +14,12 @@ function AddBookModal({ onClose, onAdd }) {
   })
 
   const [isSearching, setIsSearching] = useState(false)
+  const [isbnError, setIsbnError] = useState('')
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+    if (name === 'isbn') setIsbnError('')
   }
 
   const searchByISBN = async () => {
@@ -58,6 +60,15 @@ function AddBookModal({ onClose, onAdd }) {
     if (!formData.title || !formData.author) {
       alert('Title and Author are required')
       return
+    }
+
+    // Check for duplicate ISBN
+    if (formData.isbn) {
+      const existingBook = books.find(b => b.isbn && b.isbn === formData.isbn)
+      if (existingBook) {
+        setIsbnError(`ISBN already exists: "${existingBook.title}" by ${existingBook.author}`)
+        return
+      }
     }
 
     const newBook = {
@@ -108,6 +119,7 @@ function AddBookModal({ onClose, onAdd }) {
               </button>
             </div>
             <small className="form-hint">Enter ISBN and click Auto-fill to fetch book details</small>
+            {isbnError && <div className="form-error">{isbnError}</div>}
           </div>
 
           <div className="form-group">

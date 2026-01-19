@@ -197,6 +197,7 @@ function App() {
         <AddBookModal
           onClose={() => setShowAddModal(false)}
           onAdd={handleAddBook}
+          books={books}
         />
       )}
 
@@ -212,6 +213,7 @@ function App() {
         <BarcodeScannerModal
           onClose={() => setShowScannerModal(false)}
           onAdd={handleAddBook}
+          books={books}
         />
       )}
 

@@ -3,11 +3,12 @@ import { Html5Qrcode } from 'html5-qrcode'
 import { v4 as uuidv4 } from '../utils/uuid'
 import './BarcodeScannerModal.css'
 
-function BarcodeScannerModal({ onClose, onAdd }) {
+function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
   const [isScanning, setIsScanning] = useState(false)
   const [scannedISBN, setScannedISBN] = useState('')
   const [bookData, setBookData] = useState(null)
   const [error, setError] = useState('')
+  const [duplicateBook, setDuplicateBook] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const scannerRef = useRef(null)
   const html5QrCodeRef = useRef(null)
@@ -105,6 +106,15 @@ function BarcodeScannerModal({ onClose, onAdd }) {
     console.log('[BarcodeScannerModal] Starting fetchBookData for ISBN:', isbn)
     setIsLoading(true)
     setError('')
+    setDuplicateBook(null)
+
+    // Check for duplicate ISBN
+    const existing = books.find(b => b.isbn && b.isbn === isbn)
+    if (existing) {
+      setDuplicateBook(existing)
+      setIsLoading(false)
+      return
+    }
 
     try {
       const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
@@ -240,8 +250,14 @@ function BarcodeScannerModal({ onClose, onAdd }) {
 
               {error && <div className="error-message">{error}</div>}
 
+              {duplicateBook && (
+                <div className="error-message">
+                  ISBN already in library: "{duplicateBook.title}" by {duplicateBook.author}
+                </div>
+              )}
+
               <div className="scanner-actions">
-                {bookData && (
+                {bookData && !duplicateBook && (
                   <button className="btn btn-primary" onClick={handleAddBook}>
                     Add to Library
                   </button>
@@ -250,6 +266,7 @@ function BarcodeScannerModal({ onClose, onAdd }) {
                   setScannedISBN('')
                   setBookData(null)
                   setError('')
+                  setDuplicateBook(null)
                   setIsLoading(false)
                   isProcessingRef.current = false
                   isScannerStoppedRef.current = true

@@ -101,6 +101,15 @@
   font-style: italic;
 }
 
+.form-error {
+  font-size: 0.85rem;
+  color: #d32f2f;
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(211, 47, 47, 0.1);
+  border-left: 3px solid #d32f2f;
+  margin-top: var(--space-xs);
+}
+
 .isbn-input-group {
   display: flex;
   gap: var(--space-sm);
