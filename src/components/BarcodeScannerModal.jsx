@@ -11,10 +11,13 @@ function BarcodeScannerModal({ onClose, onAdd }) {
   const [isLoading, setIsLoading] = useState(false)
   const scannerRef = useRef(null)
   const html5QrCodeRef = useRef(null)
+  const isProcessingRef = useRef(false)
+  const isScannerStoppedRef = useRef(true)
 
   useEffect(() => {
     return () => {
-      if (html5QrCodeRef.current && isScanning) {
+      if (html5QrCodeRef.current && !isScannerStoppedRef.current) {
+        isScannerStoppedRef.current = true
         html5QrCodeRef.current.stop().catch(console.error)
       }
     }
@@ -37,6 +40,7 @@ function BarcodeScannerModal({ onClose, onAdd }) {
 
       try {
         html5QrCodeRef.current = new Html5Qrcode('barcode-scanner')
+        isScannerStoppedRef.current = false
 
         await html5QrCodeRef.current.start(
           { facingMode: 'environment' },
@@ -45,6 +49,10 @@ function BarcodeScannerModal({ onClose, onAdd }) {
             qrbox: { width: 250, height: 150 }
           },
           async (decodedText) => {
+            // Prevent multiple callbacks from processing
+            if (isProcessingRef.current) return
+            isProcessingRef.current = true
+
             console.log('[BarcodeScannerModal] Barcode decoded:', decodedText)
 
             // Set loading state immediately to prevent white screen
@@ -52,11 +60,14 @@ function BarcodeScannerModal({ onClose, onAdd }) {
             setScannedISBN(decodedText)
 
             // Stop scanning after successful decode
-            try {
-              await html5QrCodeRef.current.stop()
-              console.log('[BarcodeScannerModal] Scanner stopped successfully')
-            } catch (err) {
-              console.error('[BarcodeScannerModal] Error stopping scanner:', err)
+            if (!isScannerStoppedRef.current) {
+              isScannerStoppedRef.current = true
+              try {
+                await html5QrCodeRef.current.stop()
+                console.log('[BarcodeScannerModal] Scanner stopped successfully')
+              } catch (err) {
+                console.error('[BarcodeScannerModal] Error stopping scanner:', err)
+              }
             }
 
             setIsScanning(false)
@@ -79,7 +90,8 @@ function BarcodeScannerModal({ onClose, onAdd }) {
   }, [isScanning])
 
   const stopScanning = async () => {
-    if (html5QrCodeRef.current && isScanning) {
+    if (html5QrCodeRef.current && !isScannerStoppedRef.current) {
+      isScannerStoppedRef.current = true
       try {
         await html5QrCodeRef.current.stop()
         setIsScanning(false)
@@ -239,6 +251,8 @@ function BarcodeScannerModal({ onClose, onAdd }) {
                   setBookData(null)
                   setError('')
                   setIsLoading(false)
+                  isProcessingRef.current = false
+                  isScannerStoppedRef.current = true
                 }}>
                   Scan Another
                 </button>

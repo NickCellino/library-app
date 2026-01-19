@@ -119,13 +119,31 @@ A personal book tracking application for managing your book collection. Accessib
 - **Stats.js** - Collection statistics
 - **ExportImport.js** - Data backup/restore
 
-### Next Steps
-1. ✅ Finalize feature requirements
-2. ✅ Create detailed technical architecture plan
-3. Initialize React + Vite project
-4. Install dependencies (html5-qrcode, fuse.js)
-5. Build core components with editorial design aesthetic
-6. Implement localStorage persistence
-7. Add PWA manifest for mobile installation
-8. Set up GitHub repository
-9. Deploy to Vercel
+### Implementation Status
+
+#### Completed ✅
+- [x] Finalize feature requirements
+- [x] Create detailed technical architecture plan
+- [x] Initialize React + Vite project
+- [x] Install dependencies (html5-qrcode, fuse.js, uuid)
+- [x] Build core components (App, BookList, BookCard, AddBookModal, EditBookModal, BarcodeScannerModal)
+- [x] Implement localStorage persistence
+- [x] Add PWA manifest for mobile installation
+- [x] Set up GitHub repository
+- [x] Deploy to Vercel
+- [x] Manual book entry with Google Books API auto-fill
+- [x] Barcode scanning via html5-qrcode
+- [x] View book collection with cover artwork
+- [x] Group books by author (alphabetically sorted)
+- [x] Fuzzy search with Fuse.js
+- [x] Edit and delete books
+- [x] Quick stats in header (book count, author count)
+- [x] Empty states (empty collection and no search results)
+- [x] Export/Import library as JSON
+
+#### TODO ❌
+- [ ] Duplicate detection (no ISBN check before adding)
+- [ ] Sort options UI toggle (by author, title, date added)
+- [ ] PWA icons (icon-192.png, icon-512.png referenced in manifest but missing)
+- [ ] Service worker for offline support
+- [ ] UI design revisit (improve editorial/art deco aesthetic)
