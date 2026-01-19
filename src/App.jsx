@@ -62,6 +62,44 @@ function App() {
     setBooks([...books, newBook])
   }
 
+  const handleExport = () => {
+    const dataStr = JSON.stringify(books, null, 2)
+    const dataBlob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(dataBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `library-export-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImport = (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const imported = JSON.parse(e.target?.result)
+        if (Array.isArray(imported)) {
+          setBooks(imported)
+          alert(`Successfully imported ${imported.length} books`)
+        } else {
+          alert('Invalid file format. Expected an array of books.')
+        }
+      } catch (error) {
+        console.error('Import error:', error)
+        alert('Failed to import file. Please check the file format.')
+      }
+    }
+    reader.readAsText(file)
+
+    // Reset input so same file can be imported again
+    event.target.value = ''
+  }
+
   // Fuzzy search implementation
   const fuse = useMemo(() => {
     return new Fuse(books, {
@@ -125,6 +163,23 @@ function App() {
               </button>
             )}
           </div>
+
+          {books.length > 0 && (
+            <div className="actions">
+              <button className="btn btn-secondary" onClick={handleExport}>
+                Export Library
+              </button>
+              <label className="btn btn-secondary" style={{ margin: 0, cursor: 'pointer' }}>
+                Import Library
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImport}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            </div>
+          )}
         </div>
 
         {books.length === 0 ? (
