@@ -8,6 +8,7 @@ function BarcodeScannerModal({ onClose, onAdd }) {
   const [scannedISBN, setScannedISBN] = useState('')
   const [bookData, setBookData] = useState(null)
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const scannerRef = useRef(null)
   const html5QrCodeRef = useRef(null)
 
@@ -79,6 +80,7 @@ function BarcodeScannerModal({ onClose, onAdd }) {
   }
 
   const fetchBookData = async (isbn) => {
+    setIsLoading(true)
     try {
       const response = await fetch(
         `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
@@ -102,6 +104,8 @@ function BarcodeScannerModal({ onClose, onAdd }) {
     } catch (error) {
       console.error('Error fetching book data:', error)
       setError('Failed to fetch book data.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -133,7 +137,7 @@ function BarcodeScannerModal({ onClose, onAdd }) {
         </div>
 
         <div className="scanner-content">
-          {!isScanning && !bookData && (
+          {!isScanning && !bookData && !scannedISBN && !isLoading && (
             <div className="scanner-instructions">
               <div className="scanner-icon">📷</div>
               <p>Scan the ISBN barcode on the back of your book</p>
@@ -152,7 +156,15 @@ function BarcodeScannerModal({ onClose, onAdd }) {
             </div>
           )}
 
-          {scannedISBN && (
+          {isLoading && (
+            <div className="scanner-instructions">
+              <div className="scanner-icon">⏳</div>
+              <h3>Fetching book details...</h3>
+              <p>ISBN: {scannedISBN}</p>
+            </div>
+          )}
+
+          {scannedISBN && !isLoading && (
             <div className="scanned-result">
               <div className="result-header">
                 <span className="success-icon">✓</span>
@@ -190,6 +202,7 @@ function BarcodeScannerModal({ onClose, onAdd }) {
                   setScannedISBN('')
                   setBookData(null)
                   setError('')
+                  setIsLoading(false)
                 }}>
                   Scan Another
                 </button>
