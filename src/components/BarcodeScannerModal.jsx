@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from '../utils/uuid'
 import './BarcodeScannerModal.css'
 
 function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
-  const [isScanning, setIsScanning] = useState(false)
+  const [isScanning, setIsScanning] = useState(true)
   const [scannedISBN, setScannedISBN] = useState('')
   const [bookData, setBookData] = useState(null)
   const [error, setError] = useState('')
@@ -124,11 +124,6 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     animationFrameRef.current = requestAnimationFrame(scan)
   }
 
-  const stopScanning = () => {
-    setIsScanning(false)
-    stopCamera()
-  }
-
   const fetchBookData = async (isbn) => {
     console.log('[BarcodeScannerModal] Starting fetchBookData for ISBN:', isbn)
     setIsLoading(true)
@@ -229,7 +224,7 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
                   <div className="scan-frame"></div>
                 </div>
               </div>
-              <button className="btn btn-secondary" onClick={stopScanning}>
+              <button className="btn btn-secondary" onClick={onClose}>
                 Cancel Scan
               </button>
             </div>
@@ -245,11 +240,6 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
 
           {scannedISBN && !isLoading && (
             <div className="scanned-result">
-              <div className="result-header">
-                <span className="success-icon">✓</span>
-                <span>ISBN: {scannedISBN}</span>
-              </div>
-
               {bookData && (
                 <div className="book-preview">
                   <div className="preview-cover">
@@ -277,23 +267,13 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
                 </div>
               )}
 
-              <div className="scanner-actions">
-                {bookData && !duplicateBook && (
+              {bookData && !duplicateBook && (
+                <div className="scanner-actions">
                   <button className="btn btn-primary" onClick={handleAddBook}>
-                    Add to Library
+                    Confirm
                   </button>
-                )}
-                <button className="btn btn-secondary" onClick={() => {
-                  setScannedISBN('')
-                  setBookData(null)
-                  setError('')
-                  setDuplicateBook(null)
-                  setIsLoading(false)
-                  isProcessingRef.current = false
-                }}>
-                  Scan Another
-                </button>
-              </div>
+                </div>
+              )}
             </div>
           )}
         </div>

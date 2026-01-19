@@ -37,6 +37,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   font-family: var(--font-sans);
   background: var(--color-bg);
@@ -141,6 +146,7 @@ input, textarea, select {
   padding: var(--space-xs);
   line-height: 1;
   transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .hamburger-btn:hover {
