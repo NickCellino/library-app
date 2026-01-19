@@ -71,3 +71,11 @@ React + Vite personal book collection manager with localStorage persistence. Mob
 - Playwright for e2e tests in `tests/` directory
 - Tests run against Chromium only
 - Dev server auto-started by Playwright config
+
+### ISBN Scanning Test Mode
+- Test mode enabled via `?testMode=true` URL param (dev only)
+- Barcode images stored in `public/test-barcodes/{isbn}.png`
+- Test helper in `src/utils/testModeHelpers.js`
+- Tests in `tests/barcode-scanner.spec.js` use mocked Google Books API
+- To add new test ISBN: generate EAN-13 barcode PNG, save to test-barcodes dir
+- Test code is tree-shaken from production builds via `import.meta.env.DEV` guards

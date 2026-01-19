@@ -25,6 +25,8 @@
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@vitejs/plugin-react": "^5.1.2",
+    "canvas": "^3.2.1",
+    "jsbarcode": "^3.12.3",
     "vite": "^7.3.1"
   },
   "dependencies": {
