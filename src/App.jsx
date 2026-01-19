@@ -4,15 +4,16 @@ import BookList from './components/BookList'
 import AddBookModal from './components/AddBookModal'
 import EditBookModal from './components/EditBookModal'
 import BarcodeScannerModal from './components/BarcodeScannerModal'
+import HamburgerMenu from './components/HamburgerMenu'
 import { generateTestBooks } from './utils/testData'
 import './App.css'
 
 function App() {
   const [books, setBooks] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState('author')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showScannerModal, setShowScannerModal] = useState(false)
+  const [showHamburger, setShowHamburger] = useState(false)
   const [editingBook, setEditingBook] = useState(null)
 
   // Load books from localStorage on mount
@@ -123,12 +124,21 @@ function App() {
         <div className="container">
           <div className="header-content">
             <h1 className="logo">Library</h1>
-            <div className="stats">
-              <span className="stat">{books.length} books</span>
-              <span className="stat-separator">·</span>
-              <span className="stat">
-                {new Set(books.map(b => b.author)).size} authors
-              </span>
+            <div className="header-right">
+              <div className="stats">
+                <span className="stat">{books.length} books</span>
+                <span className="stat-separator">·</span>
+                <span className="stat">
+                  {new Set(books.map(b => b.author)).size} authors
+                </span>
+              </div>
+              <button
+                className="hamburger-btn"
+                onClick={() => setShowHamburger(true)}
+                aria-label="Open menu"
+              >
+                ☰
+              </button>
             </div>
           </div>
         </div>
@@ -143,43 +153,6 @@ function App() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-
-          <div className="actions">
-            <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
-              Add Book
-            </button>
-            <button className="btn btn-secondary" onClick={() => setShowScannerModal(true)}>
-              Scan Barcode
-            </button>
-          </div>
-
-          <div className="actions">
-            <button className="btn btn-secondary" onClick={handleLoadTestData}>
-              Load Test Data
-            </button>
-            {books.length > 0 && (
-              <button className="btn btn-secondary" onClick={handleClearAll}>
-                Clear All Books
-              </button>
-            )}
-          </div>
-
-          {books.length > 0 && (
-            <div className="actions">
-              <button className="btn btn-secondary" onClick={handleExport}>
-                Export Library
-              </button>
-              <label className="btn btn-secondary" style={{ margin: 0, cursor: 'pointer' }}>
-                Import Library
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={handleImport}
-                  style={{ display: 'none' }}
-                />
-              </label>
-            </div>
-          )}
         </div>
 
         {books.length === 0 ? (
@@ -227,6 +200,28 @@ function App() {
           onAdd={handleAddBook}
         />
       )}
+
+      <HamburgerMenu
+        isOpen={showHamburger}
+        onClose={() => setShowHamburger(false)}
+        onAddBook={() => setShowAddModal(true)}
+        onImport={handleImport}
+        onExport={handleExport}
+        onLoadTestData={handleLoadTestData}
+        onClearAll={handleClearAll}
+        hasBooks={books.length > 0}
+      />
+
+      {/* Floating Action Button for barcode scanning */}
+      <button
+        className="fab"
+        onClick={() => setShowScannerModal(true)}
+        aria-label="Scan barcode"
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M4 4h2v16H4V4zm3 0h1v16H7V4zm2 0h2v16H9V4zm3 0h2v16h-2V4zm3 0h1v16h-1V4zm2 0h3v16h-3V4z"/>
+        </svg>
+      </button>
     </div>
   )
 }
