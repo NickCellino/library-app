@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import Fuse from 'fuse.js'
 import BookList from './components/BookList'
 import BookDetailModal from './components/BookDetailModal'
@@ -6,11 +6,15 @@ import AddBookModal from './components/AddBookModal'
 import EditBookModal from './components/EditBookModal'
 import BarcodeScannerModal from './components/BarcodeScannerModal'
 import HamburgerMenu from './components/HamburgerMenu'
+import { useAuth } from './hooks/useAuth'
+import { useBooks } from './hooks/useBooks'
 import { generateTestBooks } from './utils/testData'
 import './App.css'
 
 function App() {
-  const [books, setBooks] = useState([])
+  const { user, loading: authLoading, signIn, signOut, isFirebaseConfigured } = useAuth()
+  const { books, loading: booksLoading, addBook, updateBook, deleteBook, setAllBooks } = useBooks(user)
+
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showScannerModal, setShowScannerModal] = useState(false)
@@ -19,32 +23,16 @@ function App() {
   const [selectedBook, setSelectedBook] = useState(null)
   const [searchExpanded, setSearchExpanded] = useState(false)
 
-  // Load books from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem('library-books')
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored)
-        setBooks(parsed)
-      } catch (e) {
-        console.error('Failed to parse stored books:', e)
-      }
-    }
-  }, [])
-
-  // Save books to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('library-books', JSON.stringify(books))
-  }, [books])
+  const loading = authLoading || booksLoading
 
   const handleLoadTestData = () => {
     const testBooks = generateTestBooks()
-    setBooks(testBooks)
+    setAllBooks(testBooks)
   }
 
   const handleClearAll = () => {
     if (window.confirm('Are you sure you want to delete all books? This cannot be undone.')) {
-      setBooks([])
+      setAllBooks([])
     }
   }
 
@@ -53,15 +41,15 @@ function App() {
   }
 
   const handleSaveEdit = (updatedBook) => {
-    setBooks(books.map(b => b.id === updatedBook.id ? updatedBook : b))
+    updateBook(updatedBook)
   }
 
   const handleDelete = (bookId) => {
-    setBooks(books.filter(b => b.id !== bookId))
+    deleteBook(bookId)
   }
 
   const handleAddBook = (newBook) => {
-    setBooks(prev => [...prev, newBook])
+    addBook(newBook)
   }
 
   const handleExport = () => {
@@ -86,7 +74,7 @@ function App() {
       try {
         const imported = JSON.parse(e.target?.result)
         if (Array.isArray(imported)) {
-          setBooks(imported)
+          setAllBooks(imported)
           alert(`Successfully imported ${imported.length} books`)
         } else {
           alert('Invalid file format. Expected an array of books.')
@@ -118,6 +106,16 @@ function App() {
     const results = fuse.search(searchQuery)
     return results.map(result => result.item)
   }, [books, searchQuery, fuse])
+
+  if (loading) {
+    return (
+      <div className="app">
+        <div className="loading-state">
+          <div className="loading-spinner" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="app">
@@ -260,6 +258,10 @@ function App() {
         onLoadTestData={handleLoadTestData}
         onClearAll={handleClearAll}
         hasBooks={books.length > 0}
+        user={user}
+        onSignIn={signIn}
+        onSignOut={signOut}
+        isFirebaseConfigured={isFirebaseConfigured}
       />
 
       {/* Floating Action Button for barcode scanning */}
