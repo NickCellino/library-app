@@ -2,8 +2,7 @@ import { useState, useMemo } from 'react'
 import Fuse from 'fuse.js'
 import BookList from './components/BookList'
 import BookDetailModal from './components/BookDetailModal'
-import AddBookModal from './components/AddBookModal'
-import EditBookModal from './components/EditBookModal'
+import BookFormModal from './components/BookFormModal'
 import BarcodeScannerModal from './components/BarcodeScannerModal'
 import HamburgerMenu from './components/HamburgerMenu'
 import { useAuth } from './hooks/useAuth'
@@ -34,22 +33,6 @@ function App() {
     if (window.confirm('Are you sure you want to delete all books? This cannot be undone.')) {
       setAllBooks([])
     }
-  }
-
-  const handleEdit = (book) => {
-    setEditingBook(book)
-  }
-
-  const handleSaveEdit = (updatedBook) => {
-    updateBook(updatedBook)
-  }
-
-  const handleDelete = (bookId) => {
-    deleteBook(bookId)
-  }
-
-  const handleAddBook = (newBook) => {
-    addBook(newBook)
   }
 
   const handleExport = () => {
@@ -220,31 +203,31 @@ function App() {
         <BookDetailModal
           book={selectedBook}
           onClose={() => setSelectedBook(null)}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onEdit={setEditingBook}
+          onDelete={deleteBook}
         />
       )}
 
       {showAddModal && (
-        <AddBookModal
+        <BookFormModal
           onClose={() => setShowAddModal(false)}
-          onAdd={handleAddBook}
+          onSave={addBook}
           books={books}
         />
       )}
 
       {editingBook && (
-        <EditBookModal
+        <BookFormModal
           book={editingBook}
           onClose={() => setEditingBook(null)}
-          onSave={handleSaveEdit}
+          onSave={updateBook}
         />
       )}
 
       {showScannerModal && (
         <BarcodeScannerModal
           onClose={() => setShowScannerModal(false)}
-          onAdd={handleAddBook}
+          onAdd={addBook}
           books={books}
         />
       )}

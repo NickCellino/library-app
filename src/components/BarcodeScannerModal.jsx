@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { readBarcodes } from 'zxing-wasm/reader'
 import { v4 as uuidv4 } from '../utils/uuid'
+import { fetchBookByISBN } from '../utils/googleBooksApi'
 import './BarcodeScannerModal.css'
 
 const COOLDOWN_MS = 30000 // 30s cooldown before re-scanning same ISBN
@@ -108,30 +109,16 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     }
 
     try {
-      const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
-      const response = await fetch(url)
+      const bookData = await fetchBookByISBN(isbn)
 
-      if (!response.ok) {
-        throw new Error(`API returned status ${response.status}`)
-      }
-
-      const data = await response.json()
-
-      if (data.items && data.items.length > 0) {
-        const book = data.items[0].volumeInfo
+      if (bookData) {
         const newBook = {
           id: uuidv4(),
           isbn: isbn,
-          title: book.title || '',
-          author: book.authors?.[0] || '',
-          publishYear: book.publishedDate ? new Date(book.publishedDate).getFullYear() : null,
-          publisher: book.publisher || '',
-          pageCount: book.pageCount || null,
-          coverUrl: book.imageLinks?.thumbnail || '',
+          ...bookData,
           dateAdded: new Date().toISOString()
         }
 
-        // Auto-add the book
         onAdd(newBook)
         setBooksAdded(prev => prev + 1)
         showToast({ type: 'success', book: newBook })

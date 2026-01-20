@@ -1,16 +1,27 @@
 import { useState } from 'react'
 import { v4 as uuidv4 } from '../utils/uuid'
+import { fetchBookByISBN } from '../utils/googleBooksApi'
 import './AddBookModal.css'
 
-function AddBookModal({ onClose, onAdd, books = [] }) {
+/**
+ * Unified modal for adding or editing books
+ * @param {Object} props
+ * @param {Object} [props.book] - Book to edit (omit for add mode)
+ * @param {Function} props.onClose
+ * @param {Function} props.onSave - Called with book data
+ * @param {Array} [props.books] - Existing books (for duplicate ISBN check in add mode)
+ */
+function BookFormModal({ book, onClose, onSave, books = [] }) {
+  const isEditMode = Boolean(book)
+
   const [formData, setFormData] = useState({
-    title: '',
-    author: '',
-    isbn: '',
-    coverUrl: '',
-    publishYear: '',
-    publisher: '',
-    pageCount: ''
+    title: book?.title || '',
+    author: book?.author || '',
+    isbn: book?.isbn || '',
+    coverUrl: book?.coverUrl || '',
+    publishYear: book?.publishYear?.toString() || '',
+    publisher: book?.publisher || '',
+    pageCount: book?.pageCount?.toString() || ''
   })
 
   const [isSearching, setIsSearching] = useState(false)
@@ -27,21 +38,16 @@ function AddBookModal({ onClose, onAdd, books = [] }) {
 
     setIsSearching(true)
     try {
-      const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=isbn:${formData.isbn}`
-      )
-      const data = await response.json()
-
-      if (data.items && data.items.length > 0) {
-        const book = data.items[0].volumeInfo
+      const bookData = await fetchBookByISBN(formData.isbn)
+      if (bookData) {
         setFormData(prev => ({
           ...prev,
-          title: book.title || prev.title,
-          author: book.authors?.[0] || prev.author,
-          publishYear: book.publishedDate ? new Date(book.publishedDate).getFullYear().toString() : prev.publishYear,
-          publisher: book.publisher || prev.publisher,
-          pageCount: book.pageCount?.toString() || prev.pageCount,
-          coverUrl: book.imageLinks?.thumbnail || prev.coverUrl
+          title: bookData.title || prev.title,
+          author: bookData.author || prev.author,
+          publishYear: bookData.publishYear?.toString() || prev.publishYear,
+          publisher: bookData.publisher || prev.publisher,
+          pageCount: bookData.pageCount?.toString() || prev.pageCount,
+          coverUrl: bookData.coverUrl || prev.coverUrl
         }))
       } else {
         alert('No book found with that ISBN')
@@ -62,8 +68,8 @@ function AddBookModal({ onClose, onAdd, books = [] }) {
       return
     }
 
-    // Check for duplicate ISBN
-    if (formData.isbn) {
+    // Check for duplicate ISBN (only in add mode)
+    if (!isEditMode && formData.isbn) {
       const existingBook = books.find(b => b.isbn && b.isbn === formData.isbn)
       if (existingBook) {
         setIsbnError(`ISBN already exists: "${existingBook.title}" by ${existingBook.author}`)
@@ -71,8 +77,9 @@ function AddBookModal({ onClose, onAdd, books = [] }) {
       }
     }
 
-    const newBook = {
-      id: uuidv4(),
+    const savedBook = {
+      ...(isEditMode ? book : {}),
+      id: isEditMode ? book.id : uuidv4(),
       title: formData.title,
       author: formData.author,
       isbn: formData.isbn,
@@ -80,10 +87,10 @@ function AddBookModal({ onClose, onAdd, books = [] }) {
       publishYear: formData.publishYear ? parseInt(formData.publishYear) : null,
       publisher: formData.publisher,
       pageCount: formData.pageCount ? parseInt(formData.pageCount) : null,
-      dateAdded: new Date().toISOString()
+      ...(isEditMode ? {} : { dateAdded: new Date().toISOString() })
     }
 
-    onAdd(newBook)
+    onSave(savedBook)
     onClose()
   }
 
@@ -91,7 +98,7 @@ function AddBookModal({ onClose, onAdd, books = [] }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Add Book</h2>
+          <h2>{isEditMode ? 'Edit Book' : 'Add Book'}</h2>
           <button className="modal-close" onClick={onClose}>
             ✕
           </button>
@@ -100,7 +107,7 @@ function AddBookModal({ onClose, onAdd, books = [] }) {
         <form onSubmit={handleSubmit} className="book-form">
           <div className="form-group">
             <label htmlFor="isbn">ISBN</label>
-            <div className="isbn-input-group">
+            {isEditMode ? (
               <input
                 type="text"
                 id="isbn"
@@ -109,16 +116,27 @@ function AddBookModal({ onClose, onAdd, books = [] }) {
                 onChange={handleChange}
                 placeholder="9780743273565"
               />
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={searchByISBN}
-                disabled={!formData.isbn || isSearching}
-              >
-                {isSearching ? 'Searching...' : 'Auto-fill'}
-              </button>
-            </div>
-            <small className="form-hint">Enter ISBN and click Auto-fill to fetch book details</small>
+            ) : (
+              <div className="isbn-input-group">
+                <input
+                  type="text"
+                  id="isbn"
+                  name="isbn"
+                  value={formData.isbn}
+                  onChange={handleChange}
+                  placeholder="9780743273565"
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={searchByISBN}
+                  disabled={!formData.isbn || isSearching}
+                >
+                  {isSearching ? 'Searching...' : 'Auto-fill'}
+                </button>
+              </div>
+            )}
+            {!isEditMode && <small className="form-hint">Enter ISBN and click Auto-fill to fetch book details</small>}
             {isbnError && <div className="form-error">{isbnError}</div>}
           </div>
 
@@ -200,7 +218,7 @@ function AddBookModal({ onClose, onAdd, books = [] }) {
               Cancel
             </button>
             <button type="submit" className="btn btn-primary">
-              Add Book
+              {isEditMode ? 'Save Changes' : 'Add Book'}
             </button>
           </div>
         </form>
@@ -209,4 +227,4 @@ function AddBookModal({ onClose, onAdd, books = [] }) {
   )
 }
 
-export default AddBookModal
+export default BookFormModal
