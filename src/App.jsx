@@ -5,13 +5,14 @@ import BookDetailModal from './components/BookDetailModal'
 import BookFormModal from './components/BookFormModal'
 import BarcodeScannerModal from './components/BarcodeScannerModal'
 import HamburgerMenu from './components/HamburgerMenu'
+import SignInPrompt from './components/SignInPrompt'
 import { useAuth } from './hooks/useAuth'
 import { useBooks } from './hooks/useBooks'
 import { generateTestBooks } from './utils/testData'
 import './App.css'
 
 function App() {
-  const { user, loading: authLoading, signIn, signOut, isFirebaseConfigured } = useAuth()
+  const { user, loading: authLoading, signIn, signOut } = useAuth()
   const { books, loading: booksLoading, addBook, updateBook, deleteBook, setAllBooks } = useBooks(user)
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -21,8 +22,6 @@ function App() {
   const [editingBook, setEditingBook] = useState(null)
   const [selectedBook, setSelectedBook] = useState(null)
   const [searchExpanded, setSearchExpanded] = useState(false)
-
-  const loading = authLoading || booksLoading
 
   const handleLoadTestData = () => {
     const testBooks = generateTestBooks()
@@ -90,7 +89,24 @@ function App() {
     return results.map(result => result.item)
   }, [books, searchQuery, fuse])
 
-  if (loading) {
+  // Auth loading state
+  if (authLoading) {
+    return (
+      <div className="app">
+        <div className="loading-state">
+          <div className="loading-spinner" />
+        </div>
+      </div>
+    )
+  }
+
+  // Not signed in: show sign-in prompt
+  if (!user) {
+    return <SignInPrompt onSignIn={signIn} />
+  }
+
+  // Books loading state
+  if (booksLoading) {
     return (
       <div className="app">
         <div className="loading-state">
@@ -242,9 +258,7 @@ function App() {
         onClearAll={handleClearAll}
         hasBooks={books.length > 0}
         user={user}
-        onSignIn={signIn}
         onSignOut={signOut}
-        isFirebaseConfigured={isFirebaseConfigured}
       />
 
       {/* Floating Action Button for barcode scanning */}

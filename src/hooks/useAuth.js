@@ -1,29 +1,41 @@
 import { useState, useEffect } from 'react'
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut } from 'firebase/auth'
-import { auth, isFirebaseConfigured } from '../firebase/config'
+import { auth } from '../firebase/config'
+
+// Test mode: bypass real auth with fake user
+// Use URL param for unique user ID per test, fallback to fixed ID
+function getTestUser() {
+  if (import.meta.env.VITE_TEST_AUTH !== 'true') return null
+
+  // Check URL for test user ID
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search)
+    const testUserId = params.get('testUserId')
+    if (testUserId) {
+      return { uid: testUserId, email: `${testUserId}@test.com` }
+    }
+  }
+
+  return { uid: 'test-user-default', email: 'test@test.com' }
+}
 
 export function useAuth() {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [testUser] = useState(() => getTestUser())
+  const [user, setUser] = useState(testUser)
+  const [loading, setLoading] = useState(!testUser)
 
   useEffect(() => {
-    if (!isFirebaseConfigured || !auth) {
-      setLoading(false)
-      return
-    }
+    if (testUser) return
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user)
       setLoading(false)
     })
     return unsubscribe
-  }, [])
+  }, [testUser])
 
   const signIn = async () => {
-    if (!isFirebaseConfigured || !auth) {
-      console.warn('Firebase not configured')
-      return
-    }
+    if (testUser) return
     const provider = new GoogleAuthProvider()
     try {
       await signInWithPopup(auth, provider)
@@ -34,7 +46,7 @@ export function useAuth() {
   }
 
   const signOut = async () => {
-    if (!auth) return
+    if (testUser) return
     try {
       await firebaseSignOut(auth)
     } catch (error) {
@@ -43,5 +55,5 @@ export function useAuth() {
     }
   }
 
-  return { user, loading, signIn, signOut, isFirebaseConfigured }
+  return { user, loading, signIn, signOut }
 }

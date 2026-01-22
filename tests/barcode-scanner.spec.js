@@ -43,10 +43,14 @@ test.describe('Barcode Scanner Modal', () => {
       }
     })
 
-    // Navigate with testMode=true
-    await page.goto('http://localhost:5173/?testMode=true')
-    // Wait for page to be fully loaded
-    await page.waitForLoadState('networkidle')
+    // Generate unique user ID for this test to ensure fresh data
+    const testUserId = `test-user-${Date.now()}-${Math.random().toString(36).slice(2)}`
+
+    // Navigate with testMode=true and unique user ID
+    await page.goto(`http://localhost:5173/?testMode=true&testUserId=${testUserId}`)
+
+    // Wait for app to load
+    await page.waitForSelector('.fab', { timeout: 10000 })
   })
 
   test('should open scanner modal with test mode panel', async ({ page }) => {

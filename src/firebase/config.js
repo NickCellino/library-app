@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore'
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,20 +11,27 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 }
 
-// Check if Firebase is configured
-export const isFirebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId)
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+})
 
-let app = null
-let auth = null
-let db = null
-
-if (isFirebaseConfigured) {
-  app = initializeApp(firebaseConfig)
-  auth = getAuth(app)
-  db = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-  })
+// Connect to Firestore emulator in test mode
+if (import.meta.env.VITE_USE_EMULATOR === 'true') {
+  connectFirestoreEmulator(db, 'localhost', 8080)
 }
+
+// One-time cleanup of legacy localStorage data
+const cleanupLegacyStorage = () => {
+  const keys = Object.keys(localStorage)
+  for (const key of keys) {
+    if (key === 'library-books' || key.startsWith('library-migrated-')) {
+      localStorage.removeItem(key)
+    }
+  }
+}
+cleanupLegacyStorage()
 
 export { auth, db }
 export default app

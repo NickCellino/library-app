@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "emulators": "PATH=\"/opt/homebrew/opt/openjdk/bin:$PATH\" firebase emulators:start --project demo-test",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug"
@@ -26,6 +27,7 @@
     "@playwright/test": "^1.57.0",
     "@vitejs/plugin-react": "^5.1.2",
     "canvas": "^3.2.1",
+    "firebase-tools": "^14.8.0",
     "jsbarcode": "^3.12.3",
     "vite": "^7.3.1"
   },
