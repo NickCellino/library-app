@@ -24,12 +24,12 @@ export default defineConfig({
   webServer: [
     {
       command: 'npm run emulators',
-      port: 8080,
+      url: 'http://localhost:9099',  // Wait for auth emulator REST API
       reuseExistingServer: !process.env.CI,
       timeout: 60000,
     },
     {
-      command: 'VITE_USE_EMULATOR=true VITE_TEST_AUTH=true npm run dev',
+      command: 'VITE_USE_EMULATOR=true npm run dev',
       url: 'http://localhost:5173',
       reuseExistingServer: !process.env.CI,
     },

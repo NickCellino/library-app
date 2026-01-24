@@ -1,50 +1,46 @@
 import { useState, useEffect } from 'react'
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut } from 'firebase/auth'
+import { onAuthStateChanged, signInWithPopup, signInAnonymously, GoogleAuthProvider, signOut as firebaseSignOut } from 'firebase/auth'
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
 
-// Test mode: bypass real auth with fake user
-// Use URL param for unique user ID per test, fallback to fixed ID
-function getTestUser() {
-  if (import.meta.env.VITE_TEST_AUTH !== 'true') return null
-
-  // Check URL for test user ID
-  if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search)
-    const testUserId = params.get('testUserId')
-    if (testUserId) {
-      return { uid: testUserId, email: `${testUserId}@test.com` }
-    }
-  }
-
-  return { uid: 'test-user-default', email: 'test@test.com' }
-}
+const isEmulatorMode = import.meta.env.VITE_USE_EMULATOR === 'true'
 
 export function useAuth() {
-  const [testUser] = useState(() => getTestUser())
-  const [user, setUser] = useState(testUser)
-  const [loading, setLoading] = useState(!testUser)
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (testUser) return
+    let didAutoSignIn = false
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user)
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser && isEmulatorMode && !didAutoSignIn) {
+        // Auto sign-in anonymously in emulator mode (only once)
+        didAutoSignIn = true
+        try {
+          await signInAnonymously(auth)
+        } catch (error) {
+          console.error('Anonymous sign-in failed:', error)
+          setLoading(false)
+        }
+        return
+      }
+
+      setUser(firebaseUser)
       setLoading(false)
-      if (user) {
-        const userRef = doc(db, 'users', user.uid)
+
+      if (firebaseUser) {
+        const userRef = doc(db, 'users', firebaseUser.uid)
         await setDoc(userRef, {
-          email: user.email,
+          email: firebaseUser.email || 'anonymous',
           lastActive: serverTimestamp(),
           createdAt: serverTimestamp()
         }, { merge: true })
       }
     })
     return unsubscribe
-  }, [testUser])
+  }, [])
 
   const signIn = async () => {
-    if (testUser) return
     const provider = new GoogleAuthProvider()
     try {
       await signInWithPopup(auth, provider)
@@ -55,7 +51,6 @@ export function useAuth() {
   }
 
   const signOut = async () => {
-    if (testUser) return
     try {
       await firebaseSignOut(auth)
     } catch (error) {

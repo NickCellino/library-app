@@ -43,11 +43,8 @@ test.describe('Barcode Scanner Modal', () => {
       }
     })
 
-    // Generate unique user ID for this test to ensure fresh data
-    const testUserId = `test-user-${Date.now()}-${Math.random().toString(36).slice(2)}`
-
-    // Navigate with testMode=true and unique user ID
-    await page.goto(`http://localhost:5173/?testMode=true&testUserId=${testUserId}`)
+    // Navigate with testMode=true (anonymous auth provides unique user per session)
+    await page.goto(`http://localhost:5173/?testMode=true`)
 
     // Wait for app to load
     await page.waitForSelector('.fab', { timeout: 10000 })
