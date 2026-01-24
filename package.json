@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:emulate": "npm run emulators & VITE_USE_EMULATOR=true npm run dev",
+    "dev:emulate": "VITE_USE_EMULATOR=true npm run dev",
     "build": "vite build",
     "preview": "vite preview",
     "emulators": "PATH=\"/opt/homebrew/opt/openjdk/bin:$PATH\" firebase emulators:start --project demo-test",
