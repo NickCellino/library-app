@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Admin UIDs - hardcoded
+    function isAdmin() {
+      return request.auth.uid in ['ymd1Tw0yP7Mu6vgWCJ0s8FomGMq1'];
+    }
+
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+      allow read: if isAdmin();
+
+      match /books/{bookId} {
+        allow read, write: if request.auth.uid == userId;
+        allow read: if isAdmin();
+      }
+    }
+  }
+}

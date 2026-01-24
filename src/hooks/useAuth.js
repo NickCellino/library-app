@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut } from 'firebase/auth'
-import { auth } from '../firebase/config'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { auth, db } from '../firebase/config'
 
 // Test mode: bypass real auth with fake user
 // Use URL param for unique user ID per test, fallback to fixed ID
@@ -27,9 +28,17 @@ export function useAuth() {
   useEffect(() => {
     if (testUser) return
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
       setLoading(false)
+      if (user) {
+        const userRef = doc(db, 'users', user.uid)
+        await setDoc(userRef, {
+          email: user.email,
+          lastActive: serverTimestamp(),
+          createdAt: serverTimestamp()
+        }, { merge: true })
+      }
     })
     return unsubscribe
   }, [testUser])

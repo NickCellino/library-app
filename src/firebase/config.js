@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
+import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -17,9 +17,14 @@ const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 })
 
-// Connect to Firestore emulator in test mode
+// Connect to emulators in test mode
 if (import.meta.env.VITE_USE_EMULATOR === 'true') {
-  connectFirestoreEmulator(db, 'localhost', 8080)
+  try {
+    connectFirestoreEmulator(db, 'localhost', 8080)
+    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true })
+  } catch {
+    // Already connected (hot reload)
+  }
 }
 
 // One-time cleanup of legacy localStorage data

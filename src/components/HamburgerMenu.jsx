@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
 
-function HamburgerMenu({ isOpen, onClose, onAddBook, onImport, onExport, onLoadTestData, onClearAll, hasBooks, user, onSignOut }) {
+function HamburgerMenu({ isOpen, onClose, onAddBook, onImport, onExport, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin }) {
   const fileInputRef = useRef(null)
   const [showDevTools, setShowDevTools] = useState(false)
 
@@ -63,31 +63,40 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onImport, onExport, onLoadT
             </button>
           )}
 
-          <div className="hamburger-divider" />
+          {isAdmin && (
+            <>
+              <div className="hamburger-divider" />
 
-          <button
-            className="hamburger-item hamburger-dev-toggle"
-            onClick={() => setShowDevTools(!showDevTools)}
-          >
-            <span className="hamburger-icon">⚙️</span>
-            Dev Tools
-            <span className={`hamburger-chevron ${showDevTools ? 'open' : ''}`}>›</span>
-          </button>
-
-          {showDevTools && (
-            <div className="hamburger-dev-section">
-              <button className="hamburger-item hamburger-item-sub" onClick={() => handleAction(onLoadTestData)}>
-                <span className="hamburger-icon">🧪</span>
-                Load Test Data
+              <button
+                className="hamburger-item hamburger-dev-toggle"
+                onClick={() => setShowDevTools(!showDevTools)}
+              >
+                <span className="hamburger-icon">⚙️</span>
+                Dev Tools
+                <span className={`hamburger-chevron ${showDevTools ? 'open' : ''}`}>›</span>
               </button>
 
-              {hasBooks && (
-                <button className="hamburger-item hamburger-item-sub hamburger-item-danger" onClick={() => handleAction(onClearAll)}>
-                  <span className="hamburger-icon">🗑️</span>
-                  Clear All Books
-                </button>
+              {showDevTools && (
+                <div className="hamburger-dev-section">
+                  <button className="hamburger-item hamburger-item-sub" onClick={() => handleAction(onLoadTestData)}>
+                    <span className="hamburger-icon">🧪</span>
+                    Load Test Data
+                  </button>
+
+                  {hasBooks && (
+                    <button className="hamburger-item hamburger-item-sub hamburger-item-danger" onClick={() => handleAction(onClearAll)}>
+                      <span className="hamburger-icon">🗑️</span>
+                      Clear All Books
+                    </button>
+                  )}
+
+                  <button className="hamburger-item hamburger-item-sub" onClick={() => handleAction(onOpenAdmin)}>
+                    <span className="hamburger-icon">👤</span>
+                    Admin Panel
+                  </button>
+                </div>
               )}
-            </div>
+            </>
           )}
 
           <div className="hamburger-divider" />

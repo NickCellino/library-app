@@ -20,6 +20,10 @@ export function useBooks(user) {
       const firestoreBooks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
       setBooks(firestoreBooks)
       setLoading(false)
+      // Update user profile bookCount
+      const userRef = doc(db, 'users', user.uid)
+      setDoc(userRef, { bookCount: firestoreBooks.length }, { merge: true })
+        .catch(err => console.error('Failed to update bookCount:', err))
     }, (error) => {
       console.error('Firestore subscription error:', error)
       setLoading(false)
@@ -64,20 +68,30 @@ export function useBooks(user) {
   const setAllBooks = useCallback(async (newBooks) => {
     if (!user) return
     try {
-      const batch = writeBatch(db)
       const booksRef = collection(db, 'users', user.uid, 'books')
+      const MAX_BATCH_SIZE = 500
 
-      // Delete existing
-      for (const book of books) {
-        batch.delete(doc(booksRef, book.id))
+      // Build all operations
+      const allOps = [
+        ...books.map(book => ({ type: 'delete', id: book.id })),
+        ...newBooks.map(book => ({ type: 'set', book }))
+      ]
+
+      // Chunk into batches of 500 (Firestore limit)
+      for (let i = 0; i < allOps.length; i += MAX_BATCH_SIZE) {
+        const batch = writeBatch(db)
+        const chunk = allOps.slice(i, i + MAX_BATCH_SIZE)
+
+        for (const op of chunk) {
+          if (op.type === 'delete') {
+            batch.delete(doc(booksRef, op.id))
+          } else {
+            batch.set(doc(booksRef, op.book.id), op.book)
+          }
+        }
+
+        await batch.commit()
       }
-
-      // Add new
-      for (const book of newBooks) {
-        batch.set(doc(booksRef, book.id), book)
-      }
-
-      await batch.commit()
     } catch (error) {
       console.error('Failed to set books:', error)
       throw error

@@ -6,16 +6,22 @@ import BookFormModal from './components/BookFormModal'
 import BarcodeScannerModal from './components/BarcodeScannerModal'
 import HamburgerMenu from './components/HamburgerMenu'
 import SignInPrompt from './components/SignInPrompt'
+import AdminPanel from './components/AdminPanel'
 import { useAuth } from './hooks/useAuth'
 import { useBooks } from './hooks/useBooks'
+import { useAdmin } from './hooks/useAdmin'
+import { isAdmin } from './config/adminConfig'
 import { generateTestBooks } from './utils/testData'
 import './App.css'
 
 function App() {
   const { user, loading: authLoading, signIn, signOut } = useAuth()
   const { books, loading: booksLoading, addBook, updateBook, deleteBook, setAllBooks } = useBooks(user)
+  const admin = useAdmin(user)
+  const userIsAdmin = user?.email && isAdmin(user.email)
 
   const [searchQuery, setSearchQuery] = useState('')
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showScannerModal, setShowScannerModal] = useState(false)
   const [showHamburger, setShowHamburger] = useState(false)
@@ -259,7 +265,22 @@ function App() {
         hasBooks={books.length > 0}
         user={user}
         onSignOut={signOut}
+        isAdmin={userIsAdmin}
+        onOpenAdmin={() => setShowAdminPanel(true)}
       />
+
+      {showAdminPanel && (
+        <AdminPanel
+          onClose={() => setShowAdminPanel(false)}
+          users={admin.users}
+          userBooks={admin.userBooks}
+          loading={admin.loading}
+          selectedUser={admin.selectedUser}
+          fetchUsers={admin.fetchUsers}
+          fetchUserBooks={admin.fetchUserBooks}
+          clearSelectedUser={admin.clearSelectedUser}
+        />
+      )}
 
       {/* Floating Action Button for barcode scanning */}
       <button

@@ -1,0 +1,139 @@
+.admin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  animation: fadeIn 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-panel {
+  background: var(--color-surface);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.admin-close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: var(--space-xs);
+  line-height: 1;
+}
+
+.admin-close:hover {
+  color: var(--color-text);
+}
+
+.admin-title {
+  padding: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.admin-back {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--color-accent);
+  cursor: pointer;
+  padding: 0;
+}
+
+.admin-back:hover {
+  opacity: 0.8;
+}
+
+.admin-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-sm) var(--space-lg) var(--space-lg);
+}
+
+.admin-loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-xl);
+}
+
+.admin-empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--space-xl);
+}
+
+.admin-users, .admin-books {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.admin-user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  background: #141414;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.admin-user-item:hover {
+  background: #252525;
+}
+
+.admin-user-email {
+  color: var(--color-text);
+  font-size: 0.95rem;
+  word-break: break-all;
+}
+
+.admin-user-count {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  margin-left: var(--space-sm);
+}
+
+.admin-book-item {
+  padding: var(--space-md);
+  background: #141414;
+  border-radius: 8px;
+}
+
+.admin-book-title {
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.admin-book-author {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
