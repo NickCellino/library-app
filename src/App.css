@@ -9,14 +9,28 @@
 
 /* Header */
 .header {
-  background: var(--color-primary);
+  background: var(--gradient-header);
   color: var(--color-bg);
   padding: var(--space-lg) 0;
   border-bottom: var(--border-thick) solid var(--color-accent);
-  box-shadow: 0 4px 20px var(--color-shadow);
+  box-shadow:
+    0 4px 20px var(--color-shadow),
+    var(--shadow-inner-subtle);
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+/* Gold glow beneath header accent line */
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(180deg, rgba(255, 228, 94, 0.15) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .header-content {
@@ -35,7 +49,9 @@
   text-transform: uppercase;
   margin: 0;
   color: var(--color-accent);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(255, 228, 94, 0.2);
   flex-shrink: 0;
 }
 
@@ -114,7 +130,10 @@
   flex: 1;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   padding: 0 var(--space-md);
   gap: var(--space-sm);
@@ -244,6 +263,21 @@
   background: transparent;
   border: none;
   box-shadow: none;
+  position: relative;
+}
+
+/* Radial glow behind empty state */
+.empty-state::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 228, 94, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .empty-state-icon {

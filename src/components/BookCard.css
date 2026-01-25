@@ -3,13 +3,14 @@
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-sm) var(--space-md);
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
   cursor: pointer;
   position: relative;
 }
 
 .book-row:hover {
-  background: var(--color-surface);
+  background: linear-gradient(90deg, rgba(26, 26, 26, 0.8) 0%, rgba(30, 30, 30, 0.6) 50%, rgba(26, 26, 26, 0.4) 100%);
+  box-shadow: var(--shadow-elevation-1);
 }
 
 .book-row:active {
@@ -38,6 +39,12 @@
   overflow: hidden;
   border-radius: 4px;
   background: var(--color-bg);
+  box-shadow: var(--shadow-elevation-1);
+  transition: box-shadow 0.15s ease;
+}
+
+.book-row:hover .book-row-cover {
+  box-shadow: var(--shadow-elevation-2);
 }
 
 .book-row-cover img {
@@ -52,7 +59,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #252525 50%, #1f1f1f 100%);
 }
 
 .book-row-cover-placeholder .book-icon {

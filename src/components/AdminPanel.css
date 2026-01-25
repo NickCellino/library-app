@@ -2,6 +2,8 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 200;
   animation: fadeIn 0.2s ease;
   display: flex;
@@ -10,7 +12,7 @@
 }
 
 .admin-panel {
-  background: var(--color-surface);
+  background: var(--gradient-surface);
   border-radius: 12px;
   width: 90%;
   max-width: 500px;
@@ -19,6 +21,7 @@
   flex-direction: column;
   position: relative;
   animation: slideUp 0.25s ease;
+  box-shadow: var(--shadow-elevation-3);
 }
 
 @keyframes slideUp {
@@ -100,11 +103,15 @@
   border-radius: 8px;
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-inner-subtle);
 }
 
 .admin-user-item:hover {
-  background: #252525;
+  background: linear-gradient(90deg, #1a1a1a 0%, #202020 50%, #1a1a1a 100%);
+  box-shadow:
+    var(--shadow-inner-subtle),
+    var(--shadow-elevation-1);
 }
 
 .admin-user-email {
@@ -124,6 +131,7 @@
   padding: var(--space-md);
   background: #141414;
   border-radius: 8px;
+  box-shadow: var(--shadow-inner-subtle);
 }
 
 .admin-book-title {

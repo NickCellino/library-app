@@ -14,6 +14,22 @@
   --color-border: #2a2a2a; /* Dark borders */
   --color-shadow: rgba(0, 0, 0, 0.3);
 
+  /* Gradients */
+  --gradient-surface: linear-gradient(180deg, #1f1f1f 0%, #1a1a1a 50%, #141414 100%);
+  --gradient-header: linear-gradient(180deg, #2d3840 0%, #232c33 100%);
+
+  /* Layered shadows */
+  --shadow-elevation-1: 0 1px 2px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.2);
+  --shadow-elevation-2: 0 4px 8px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.25);
+  --shadow-elevation-3: 0 8px 16px rgba(0,0,0,0.35), 0 16px 48px rgba(0,0,0,0.3);
+  --shadow-inner-subtle: inset 0 1px 0 rgba(255,255,255,0.03);
+  --shadow-glow-gold: 0 0 20px rgba(255, 228, 94, 0.15);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(26, 26, 26, 0.85);
+  --glass-blur: blur(12px);
+  --glass-border: rgba(255, 255, 255, 0.05);
+
   /* Typography */
   --font-serif: 'Cormorant Garamond', serif;
   --font-sans: 'Montserrat', sans-serif;
@@ -49,6 +65,29 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+/* Subtle noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.015;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Radial vignette */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(0,0,0,0.4) 100%);
+  pointer-events: none;
+  z-index: 9998;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -115,10 +154,13 @@ input, textarea, select {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: var(--color-accent);
+  background: linear-gradient(135deg, #ffec8a 0%, var(--color-accent) 50%, #e6c940 100%);
   color: var(--color-primary);
   border: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 24px rgba(255, 228, 94, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -129,7 +171,10 @@ input, textarea, select {
 
 .fab:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.35),
+    0 0 32px rgba(255, 228, 94, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .fab:active {
@@ -175,8 +220,10 @@ input, textarea, select {
   bottom: 0;
   width: 280px;
   max-width: 85vw;
-  background: var(--color-surface);
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+  background: var(--gradient-surface);
+  box-shadow:
+    -4px 0 20px rgba(0, 0, 0, 0.3),
+    inset 1px 0 0 rgba(255, 255, 255, 0.03);
   animation: slideIn 0.25s ease;
   display: flex;
   flex-direction: column;
@@ -220,7 +267,7 @@ input, textarea, select {
   background: none;
   text-align: left;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 300;
   color: var(--color-text);
   cursor: pointer;
   border-radius: 8px;

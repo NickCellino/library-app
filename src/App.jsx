@@ -14,11 +14,13 @@ import { isAdmin } from './config/adminConfig'
 import { generateTestBooks } from './utils/testData'
 import './App.css'
 
+const isEmulatorMode = import.meta.env.VITE_USE_EMULATOR === 'true'
+
 function App() {
   const { user, loading: authLoading, signIn, signOut } = useAuth()
   const { books, loading: booksLoading, addBook, updateBook, deleteBook, setAllBooks } = useBooks(user)
   const admin = useAdmin(user)
-  const userIsAdmin = user?.email && isAdmin(user.email)
+  const userIsAdmin = (user?.email && isAdmin(user.email)) || isEmulatorMode
 
   const [searchQuery, setSearchQuery] = useState('')
   const [showAdminPanel, setShowAdminPanel] = useState(false)
