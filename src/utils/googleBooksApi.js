@@ -4,12 +4,18 @@
  * @returns {Promise<{title, author, publishYear, publisher, pageCount, coverUrl}|null>}
  */
 export async function fetchBookByISBN(isbn) {
-  const response = await fetch(
-    `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
-  )
+  const apiKey = import.meta.env.VITE_FIREBASE_API_KEY
+  const url = apiKey
+    ? `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${apiKey}`
+    : `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
+
+  const response = await fetch(url)
 
   if (!response.ok) {
-    throw new Error(`API returned status ${response.status}`)
+    if (response.status === 429) {
+      throw new Error('Rate limit exceeded. Try again in a moment.')
+    }
+    throw new Error(`API error: ${response.status}`)
   }
 
   const data = await response.json()
