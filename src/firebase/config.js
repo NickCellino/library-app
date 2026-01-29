@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app'
 import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator } from 'firebase/firestore'
 import { getStorage, connectStorageEmulator } from 'firebase/storage'
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -27,11 +28,14 @@ try {
   // Storage will be undefined if not available
 }
 
+const functions = getFunctions(app)
+
 // Connect to emulators in test mode
 if (import.meta.env.VITE_USE_EMULATOR === 'true') {
   try {
     connectFirestoreEmulator(db, 'localhost', 8080)
     connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true })
+    connectFunctionsEmulator(functions, 'localhost', 5001)
     if (storage) {
       connectStorageEmulator(storage, 'localhost', 9199)
     }
@@ -51,5 +55,5 @@ const cleanupLegacyStorage = () => {
 }
 cleanupLegacyStorage()
 
-export { auth, db, storage }
+export { auth, db, storage, functions }
 export default app

@@ -1,14 +1,15 @@
-import { onRequest } from 'firebase-functions/v2/https'
-import { verifyAuth } from './auth.js'
+import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { extractTextFromImage } from './visionClient.js'
 import { parseOcrText, generateSearchQueries } from './textParser.js'
 import { searchWithMultipleQueries } from './bookSearch.js'
 
+const MAX_IMAGE_SIZE = 10_000_000 // ~7.5MB decoded image
+
 /**
  * Cloud Function: Recognize book cover using Vision API
  *
- * POST body: { imageBase64: string }
- * Headers: Authorization: Bearer <firebase-id-token>
+ * Request data: { imageBase64: string }
+ * Requires Firebase Auth
  *
  * Response: {
  *   rawText: string,
@@ -17,32 +18,25 @@ import { searchWithMultipleQueries } from './bookSearch.js'
  *   books: Array<{ title, author, coverUrl, ... }>
  * }
  */
-export const recognizeCover = onRequest(
+export const recognizeCover = onCall(
   {
-    cors: true,
     maxInstances: 10,
     memory: '512MiB'
   },
-  async (req, res) => {
-    // Only accept POST
-    if (req.method !== 'POST') {
-      res.status(405).json({ error: 'Method not allowed' })
-      return
+  async (request) => {
+    // Auth is automatic with callable functions
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    try {
-      // Verify auth
-      await verifyAuth(req.headers.authorization)
-    } catch (error) {
-      res.status(401).json({ error: error.message })
-      return
-    }
+    const { imageBase64 } = request.data || {}
 
-    // Validate input
-    const { imageBase64 } = req.body
     if (!imageBase64) {
-      res.status(400).json({ error: 'Missing imageBase64 in request body' })
-      return
+      throw new HttpsError('invalid-argument', 'Missing imageBase64')
+    }
+
+    if (imageBase64.length > MAX_IMAGE_SIZE) {
+      throw new HttpsError('invalid-argument', 'Image too large')
     }
 
     // Strip data URI prefix if present
@@ -61,15 +55,10 @@ export const recognizeCover = onRequest(
       // 4. Search Google Books
       const books = await searchWithMultipleQueries(searchQueries, 8)
 
-      res.json({
-        rawText,
-        candidates,
-        searchQueries,
-        books
-      })
+      return { rawText, candidates, searchQueries, books }
     } catch (error) {
-      console.error('recognizeCover error:', error)
-      res.status(500).json({ error: 'Failed to process image: ' + error.message })
+      console.error('recognizeCover error:', error, 'uid:', request.auth.uid)
+      throw new HttpsError('internal', 'Failed to process image')
     }
   }
 )
