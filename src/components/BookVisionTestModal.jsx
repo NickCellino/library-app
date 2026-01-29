@@ -79,6 +79,7 @@ function BookVisionTestModal({ onClose }) {
   const handleRetry = () => {
     setResults(null)
     setError(null)
+    startCamera()
   }
 
   return (
