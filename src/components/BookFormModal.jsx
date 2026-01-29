@@ -271,7 +271,6 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
                 <input
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   onChange={handleImageSelect}
                   disabled={uploadingCover}
                   style={{ display: 'none' }}
