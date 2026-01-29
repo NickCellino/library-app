@@ -125,3 +125,18 @@ resource "google_apikeys_key" "library_app" {
     }
   }
 }
+
+# API Key for server-side use (Cloud Functions)
+resource "google_apikeys_key" "library_app_server" {
+  name         = "library-app-server-key"
+  display_name = "Library App Server (Cloud Functions)"
+
+  restrictions {
+    # No browser/IP restrictions for server-side use
+
+    # Only allow Books API
+    api_targets {
+      service = "books.googleapis.com"
+    }
+  }
+}

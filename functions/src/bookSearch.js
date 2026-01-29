@@ -1,8 +1,11 @@
 /**
  * Search Google Books API for matching books
  */
+import { defineSecret } from 'firebase-functions/params'
 
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes'
+
+export const googleBooksApiKey = defineSecret('GOOGLE_BOOKS_API_KEY')
 
 /**
  * Search Google Books with a query
@@ -17,6 +20,7 @@ export async function searchBooks(query, maxResults = 5) {
   url.searchParams.set('q', query)
   url.searchParams.set('maxResults', maxResults.toString())
   url.searchParams.set('printType', 'books')
+  url.searchParams.set('key', googleBooksApiKey.value())
 
   try {
     const response = await fetch(url.toString())

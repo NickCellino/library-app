@@ -1,7 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { extractTextFromImage } from './visionClient.js'
 import { parseOcrText, generateSearchQueries } from './textParser.js'
-import { searchWithMultipleQueries } from './bookSearch.js'
+import { searchWithMultipleQueries, googleBooksApiKey } from './bookSearch.js'
 
 const MAX_IMAGE_SIZE = 10_000_000 // ~7.5MB decoded image
 
@@ -21,7 +21,8 @@ const MAX_IMAGE_SIZE = 10_000_000 // ~7.5MB decoded image
 export const recognizeCover = onCall(
   {
     maxInstances: 10,
-    memory: '512MiB'
+    memory: '512MiB',
+    secrets: [googleBooksApiKey]
   },
   async (request) => {
     // Auth is automatic with callable functions

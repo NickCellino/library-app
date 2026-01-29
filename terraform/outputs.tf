@@ -9,6 +9,17 @@ output "api_key_id" {
   value       = google_apikeys_key.library_app.id
 }
 
+output "server_api_key_value" {
+  description = "API Key for server-side use (Cloud Functions)"
+  value       = google_apikeys_key.library_app_server.key_string
+  sensitive   = true
+}
+
+output "server_api_key_id" {
+  description = "Server API Key resource ID"
+  value       = google_apikeys_key.library_app_server.id
+}
+
 output "enabled_apis" {
   description = "List of enabled APIs"
   value = [

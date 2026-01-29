@@ -84,11 +84,42 @@ npm run preview
 
 ## Deployment
 
-This app can be deployed to any static hosting service:
+### Frontend (Vercel)
+Connect your GitHub repo and deploy automatically, or use Netlify/GitHub Pages.
 
-- **Vercel**: Connect your GitHub repo and deploy automatically
-- **Netlify**: Drag and drop the `dist` folder after running `npm run build`
-- **GitHub Pages**: Use the `gh-pages` branch workflow
+### Firebase Setup (One-time)
+
+```bash
+# Set Google Books API key (stored in Secret Manager)
+firebase functions:secrets:set GOOGLE_BOOKS_API_KEY
+```
+
+### Firebase Deployment
+
+```bash
+# Deploy everything
+firebase deploy
+
+# Deploy specific services
+firebase deploy --only functions
+firebase deploy --only firestore:rules
+firebase deploy --only storage:rules
+
+# Deploy multiple
+firebase deploy --only functions,firestore:rules
+```
+
+### Local Development with Emulators
+
+```bash
+# Start all emulators (Firestore, Auth, Storage, Functions)
+firebase emulators:start
+
+# Run app against emulators
+VITE_USE_EMULATOR=true npm run dev
+```
+
+Emulator UI: http://localhost:4000
 
 ## Project Structure
 
