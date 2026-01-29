@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "library-app-d4987"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

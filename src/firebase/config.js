@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator } from 'firebase/firestore'
+import { getStorage, connectStorageEmulator } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,11 +18,23 @@ const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 })
 
+// Initialize storage (will work with emulator even if not set up in production)
+let storage
+try {
+  storage = getStorage(app)
+} catch (error) {
+  console.warn('Firebase Storage initialization failed:', error)
+  // Storage will be undefined if not available
+}
+
 // Connect to emulators in test mode
 if (import.meta.env.VITE_USE_EMULATOR === 'true') {
   try {
     connectFirestoreEmulator(db, 'localhost', 8080)
     connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true })
+    if (storage) {
+      connectStorageEmulator(storage, 'localhost', 9199)
+    }
   } catch {
     // Already connected (hot reload)
   }
@@ -38,5 +51,5 @@ const cleanupLegacyStorage = () => {
 }
 cleanupLegacyStorage()
 
-export { auth, db }
+export { auth, db, storage }
 export default app

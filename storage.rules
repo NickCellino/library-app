@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/covers/{bookId} {
+      // Allow read for owner or admin
+      allow read: if request.auth.uid == userId
+                  || request.auth.uid == 'ymd1Tw0yP7Mu6vgWCJ0s8FomGMq1';
+
+      // Allow write for owner only
+      allow write: if request.auth.uid == userId
+                   && request.resource.contentType.matches('image/.*')
+                   && request.resource.size < 5 * 1024 * 1024; // 5MB limit
+    }
+  }
+}

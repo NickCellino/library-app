@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { v4 as uuidv4 } from '../utils/uuid'
 import { fetchBookByISBN } from '../utils/googleBooksApi'
+import { processImageFile } from '../utils/imageProcessor'
+import { uploadBookCover, deleteBookCover, isFirebaseStorageUrl } from '../utils/firebaseStorage'
+import { auth } from '../firebase/config'
 import './AddBookModal.css'
 
 /**
@@ -26,6 +29,7 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
 
   const [isSearching, setIsSearching] = useState(false)
   const [isbnError, setIsbnError] = useState('')
+  const [uploadingCover, setUploadingCover] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -58,6 +62,57 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
     } finally {
       setIsSearching(false)
     }
+  }
+
+  const handleImageSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const user = auth.currentUser
+    if (!user) {
+      alert('You must be logged in to upload images')
+      return
+    }
+
+    // Check file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image too large. Maximum size is 5MB')
+      return
+    }
+
+    setUploadingCover(true)
+    try {
+      // Process image (resize & compress)
+      const processedBlob = await processImageFile(file)
+
+      // Upload to Firebase Storage
+      const bookId = isEditMode ? book.id : uuidv4()
+      const downloadURL = await uploadBookCover(user, bookId, processedBlob)
+
+      // Update form data with new URL
+      setFormData(prev => ({ ...prev, coverUrl: downloadURL }))
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert('Failed to upload image. Please try again.')
+    } finally {
+      setUploadingCover(false)
+    }
+  }
+
+  const handleClearCover = async () => {
+    const user = auth.currentUser
+    if (!user) return
+
+    // If it's a Firebase Storage URL, delete from storage
+    if (isEditMode && formData.coverUrl && isFirebaseStorageUrl(formData.coverUrl)) {
+      try {
+        await deleteBookCover(user, book.id)
+      } catch (error) {
+        console.error('Error deleting cover:', error)
+      }
+    }
+
+    setFormData(prev => ({ ...prev, coverUrl: '' }))
   }
 
   const handleSubmit = (e) => {
@@ -202,15 +257,49 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="coverUrl">Cover Image URL</label>
+            <label>Cover Image</label>
+
+            {formData.coverUrl && (
+              <div className="cover-preview">
+                <img src={formData.coverUrl} alt="Book cover preview" />
+              </div>
+            )}
+
+            <div className="cover-actions">
+              <label className="btn btn-secondary photo-upload-btn">
+                {uploadingCover ? 'Uploading...' : 'Choose Photo'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImageSelect}
+                  disabled={uploadingCover}
+                  style={{ display: 'none' }}
+                />
+              </label>
+
+              {formData.coverUrl && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleClearCover}
+                  disabled={uploadingCover}
+                >
+                  Clear Cover
+                </button>
+              )}
+            </div>
+
             <input
               type="url"
               id="coverUrl"
               name="coverUrl"
               value={formData.coverUrl}
               onChange={handleChange}
-              placeholder="https://..."
+              placeholder="Or paste URL..."
+              className="cover-url-input"
             />
+            <small className="form-hint">Upload a photo or paste an image URL</small>
           </div>
 
           <div className="form-actions">

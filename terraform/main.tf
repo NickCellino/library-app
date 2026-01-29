@@ -43,6 +43,13 @@ resource "google_project_service" "auth" {
   disable_on_destroy = false
 }
 
+# Enable Firebase Storage API
+resource "google_project_service" "storage" {
+  service = "storage.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 # API Key with restrictions
 # Manages the Firebase auto-generated key
 resource "google_apikeys_key" "library_app" {
@@ -53,7 +60,8 @@ resource "google_apikeys_key" "library_app" {
     browser_key_restrictions {
       allowed_referrers = concat(
         [
-          "localhost:*",
+          "http://localhost/*",
+          "localhost:*/*",
           "https://library-app-d4987.firebaseapp.com/*",
           "https://*.vercel.app/*"
         ],
@@ -85,6 +93,11 @@ resource "google_apikeys_key" "library_app" {
     # General Firebase
     api_targets {
       service = "firebase.googleapis.com"
+    }
+
+    # Firebase Storage
+    api_targets {
+      service = "storage.googleapis.com"
     }
   }
 }
