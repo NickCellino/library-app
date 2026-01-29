@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
 
-function HamburgerMenu({ isOpen, onClose, onAddBook, onImport, onExport, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin }) {
+function HamburgerMenu({ isOpen, onClose, onAddBook, onImport, onExport, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin, onTestVision }) {
   const fileInputRef = useRef(null)
   const [showDevTools, setShowDevTools] = useState(false)
 
@@ -93,6 +93,11 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onImport, onExport, onLoadT
                   <button className="hamburger-item hamburger-item-sub" onClick={() => handleAction(onOpenAdmin)}>
                     <span className="hamburger-icon">👤</span>
                     Admin Panel
+                  </button>
+
+                  <button className="hamburger-item hamburger-item-sub" onClick={() => handleAction(onTestVision)}>
+                    <span className="hamburger-icon">📷</span>
+                    Test Book Vision
                   </button>
                 </div>
               )}

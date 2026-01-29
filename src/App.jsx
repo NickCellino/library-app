@@ -5,6 +5,7 @@ import BookDetailModal from './components/BookDetailModal'
 import BookFormModal from './components/BookFormModal'
 import BarcodeScannerModal from './components/BarcodeScannerModal'
 import HamburgerMenu from './components/HamburgerMenu'
+import BookVisionTestModal from './components/BookVisionTestModal'
 import SignInPrompt from './components/SignInPrompt'
 import AdminPanel from './components/AdminPanel'
 import { useAuth } from './hooks/useAuth'
@@ -30,6 +31,7 @@ function App() {
   const [editingBook, setEditingBook] = useState(null)
   const [selectedBook, setSelectedBook] = useState(null)
   const [searchExpanded, setSearchExpanded] = useState(false)
+  const [showVisionTestModal, setShowVisionTestModal] = useState(false)
 
   const handleLoadTestData = () => {
     const testBooks = generateTestBooks()
@@ -269,6 +271,7 @@ function App() {
         onSignOut={signOut}
         isAdmin={userIsAdmin}
         onOpenAdmin={() => setShowAdminPanel(true)}
+        onTestVision={() => setShowVisionTestModal(true)}
       />
 
       {showAdminPanel && (
@@ -282,6 +285,10 @@ function App() {
           fetchUserBooks={admin.fetchUserBooks}
           clearSelectedUser={admin.clearSelectedUser}
         />
+      )}
+
+      {showVisionTestModal && (
+        <BookVisionTestModal onClose={() => setShowVisionTestModal(false)} />
       )}
 
       {/* Floating Action Button for barcode scanning */}

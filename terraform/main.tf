@@ -50,6 +50,30 @@ resource "google_project_service" "storage" {
   disable_on_destroy = false
 }
 
+# Enable Cloud Vision API
+resource "google_project_service" "vision_api" {
+  service            = "vision.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Enable Cloud Functions API
+resource "google_project_service" "cloudfunctions" {
+  service            = "cloudfunctions.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Enable Cloud Build API (required for Cloud Functions)
+resource "google_project_service" "cloudbuild" {
+  service            = "cloudbuild.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Enable Cloud Run API (required for 2nd gen Cloud Functions)
+resource "google_project_service" "cloudrun" {
+  service            = "run.googleapis.com"
+  disable_on_destroy = false
+}
+
 # API Key with restrictions
 # Manages the Firebase auto-generated key
 resource "google_apikeys_key" "library_app" {

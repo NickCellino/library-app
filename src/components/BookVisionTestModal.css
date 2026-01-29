@@ -1,0 +1,283 @@
+.vision-test-modal {
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.vision-test-content {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Camera section */
+.vision-camera-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.vision-video-container {
+  position: relative;
+  width: 100%;
+  border: var(--border-medium) solid var(--color-border);
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000;
+}
+
+.vision-video-container video {
+  width: 100%;
+  display: block;
+}
+
+.vision-video-container canvas {
+  display: none;
+}
+
+.vision-capture-btn {
+  align-self: center;
+  padding: var(--space-md) var(--space-xl);
+  font-size: 1rem;
+}
+
+.vision-capture-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading state */
+.vision-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  color: var(--color-text-muted);
+}
+
+.vision-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-highlight);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Results section */
+.vision-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.vision-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.vision-section-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: var(--border-thin) solid var(--color-border);
+  padding-bottom: var(--space-xs);
+}
+
+/* Raw OCR text */
+.vision-raw-text {
+  background: var(--color-bg);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: 4px;
+  padding: var(--space-md);
+  font-family: monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  max-height: 150px;
+  overflow-y: auto;
+  color: var(--color-text-muted);
+}
+
+.vision-raw-text:empty::before {
+  content: '(No text detected)';
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* Candidates */
+.vision-candidates {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.vision-candidate-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.vision-candidate-label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vision-candidate-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.vision-candidate-tag {
+  background: var(--color-highlight);
+  color: white;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 3px;
+  font-size: 0.85rem;
+}
+
+.vision-candidate-tag.author {
+  background: var(--color-secondary);
+}
+
+.vision-no-candidates {
+  color: var(--color-text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* Search queries */
+.vision-queries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.vision-query-tag {
+  background: var(--color-bg);
+  border: var(--border-thin) solid var(--color-border);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 3px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Book matches */
+.vision-books {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.vision-book-card {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-bg);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: 4px;
+}
+
+.vision-book-cover {
+  flex-shrink: 0;
+  width: 60px;
+  height: 85px;
+  overflow: hidden;
+  border: var(--border-thin) solid var(--color-border);
+  background: white;
+}
+
+.vision-book-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vision-book-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: var(--color-border);
+}
+
+.vision-book-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vision-book-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vision-book-author {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  margin: var(--space-xs) 0 0;
+}
+
+.vision-book-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: var(--space-xs) 0 0;
+}
+
+.vision-no-books {
+  color: var(--color-text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: var(--space-lg);
+}
+
+/* Error state */
+.vision-error {
+  background: rgba(var(--color-secondary-rgb, 139, 0, 0), 0.1);
+  border: var(--border-thin) solid var(--color-secondary);
+  border-radius: 4px;
+  padding: var(--space-md);
+  color: var(--color-secondary);
+  text-align: center;
+}
+
+/* Footer */
+.vision-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-top: var(--border-thin) solid var(--color-border);
+  background: linear-gradient(0deg, #0a0a0a 0%, #0f0f0f 100%);
+}
+
+@media (max-width: 768px) {
+  .vision-test-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    height: 100%;
+    border-radius: 0;
+  }
+}
