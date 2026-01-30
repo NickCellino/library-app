@@ -98,9 +98,14 @@ React + Vite personal book collection manager with Firebase backend. Mobile-firs
 - Emulator ports: Firestore 8080, Auth 9099, Functions 5001, Storage 9199
 
 ### Testing
-- Playwright for e2e tests in `tests/` directory
-- Tests run against Chromium only
-- Dev server auto-started by Playwright config
+- **E2E Tests**: Playwright in `tests/` directory (Chromium only, dev server auto-started)
+- **Cloud Functions Tests**: Mocha in `functions/test/` directory
+  - Run: `cd functions && npm test`
+  - Tests `recognizeCover` function locally (not deployed)
+  - Requires: `gcloud auth application-default login` for Vision API
+  - Uses real Vision API + Google Books API
+  - API key auto-loaded from `functions/.secret.local`
+  - To run a specific test: `npm test -- --grep "finds matching book in top results"`
 
 ### ISBN Scanning Test Mode
 - Test mode enabled via `?testMode=true` URL param (dev only)
