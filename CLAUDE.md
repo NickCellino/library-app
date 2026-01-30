@@ -105,7 +105,45 @@ React + Vite personal book collection manager with Firebase backend. Mobile-firs
   - Requires: `gcloud auth application-default login` for Vision API
   - Uses real Vision API + Google Books API
   - API key auto-loaded from `functions/.secret.local`
-  - To run a specific test: `npm test -- --grep "finds matching book in top results"`
+  - Run benchmark only: `cd functions && npm test -- --grep "BENCHMARK"`
+
+### Iterating on Book Cover Recognition
+
+The `recognizeCover` function uses OCR + Google Books search. A benchmark test scores ranking quality.
+
+**Benchmark scoring**: position 0 = 100, position 1 = 90, ..., not found = 0
+
+**Iteration workflow**:
+1. Run benchmark: `cd functions && npm test -- --grep "BENCHMARK"`
+2. Note current average score and which books need improvement
+3. Debug specific failures with inline node script:
+   ```bash
+   node -e "
+   import { readFileSync } from 'fs';
+   import { extractTextFromImage } from './src/visionClient.js';
+   import { parseOcrText, generateSearchQueries } from './src/textParser.js';
+   const img = readFileSync('./test/fixtures/FILENAME.jpeg');
+   const rawText = await extractTextFromImage(img.toString('base64'));
+   const candidates = parseOcrText(rawText);
+   console.log('Raw:', rawText);
+   console.log('Titles:', candidates.titleCandidates);
+   console.log('Authors:', candidates.authorCandidates);
+   console.log('Queries:', generateSearchQueries(candidates));
+   "
+   ```
+4. Modify relevant file based on issue:
+   - **textParser.js**: OCR text parsing, title/author detection, query generation
+   - **bookSearch.js**: Google Books search, result scoring/ranking
+   - **commonFirstNames.js**: First name list for author detection
+5. Re-run benchmark to measure improvement
+6. Repeat until satisfied
+
+**Adding test fixtures**: Photos must be actual JPEG (not HEIF with .jpeg extension). Convert with: `sips -s format jpeg input.heic --out output.jpeg`
+
+**Common issues**:
+- Title split across lines → improve ALL CAPS word joining in textParser
+- Author misdetected as title → add name to commonFirstNames.js or improve looksLikeName()
+- Wrong book ranked first → adjust scoring weights in bookSearch.js scoreResult()
 
 ### ISBN Scanning Test Mode
 - Test mode enabled via `?testMode=true` URL param (dev only)

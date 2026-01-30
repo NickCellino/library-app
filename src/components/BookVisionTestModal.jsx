@@ -100,13 +100,6 @@ function BookVisionTestModal({ onClose }) {
                 <video ref={videoRef} playsInline muted />
                 <canvas ref={canvasRef} />
               </div>
-              <button
-                className="btn btn-primary vision-capture-btn"
-                onClick={captureAndProcess}
-                disabled={isCapturing}
-              >
-                {isCapturing ? 'Capturing...' : 'Capture'}
-              </button>
             </div>
           )}
 
@@ -214,14 +207,20 @@ function BookVisionTestModal({ onClose }) {
         </div>
 
         <div className="vision-footer">
+          {!isProcessing && !results && (
+            <button
+              className="btn btn-primary vision-capture-btn"
+              onClick={captureAndProcess}
+              disabled={isCapturing}
+            >
+              {isCapturing ? 'Capturing...' : 'Capture'}
+            </button>
+          )}
           {results && (
-            <button className="btn btn-secondary" onClick={handleRetry}>
+            <button className="btn btn-primary" onClick={handleRetry}>
               Try Again
             </button>
           )}
-          <button className="btn btn-primary" onClick={onClose}>
-            Done
-          </button>
         </div>
       </div>
     </div>

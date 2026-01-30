@@ -53,8 +53,8 @@ export const recognizeCover = onCall(
       // 3. Generate search queries
       const searchQueries = generateSearchQueries(candidates)
 
-      // 4. Search Google Books
-      const books = await searchWithMultipleQueries(searchQueries, 8)
+      // 4. Search Google Books with scoring based on candidates
+      const books = await searchWithMultipleQueries(searchQueries, 8, candidates)
 
       return { rawText, candidates, searchQueries, books }
     } catch (error) {

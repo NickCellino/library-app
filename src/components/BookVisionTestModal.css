@@ -39,16 +39,6 @@
   display: none;
 }
 
-.vision-capture-btn {
-  align-self: center;
-  padding: var(--space-md) var(--space-xl);
-  font-size: 1rem;
-}
-
-.vision-capture-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 /* Loading state */
 .vision-loading {
@@ -266,11 +256,22 @@
 /* Footer */
 .vision-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: var(--space-md);
   padding: var(--space-md) var(--space-lg);
   border-top: var(--border-thin) solid var(--color-border);
   background: linear-gradient(0deg, #0a0a0a 0%, #0f0f0f 100%);
+}
+
+.vision-footer .btn {
+  padding: var(--space-md) var(--space-xl);
+  font-size: 1rem;
+  min-width: 150px;
+}
+
+.vision-footer .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
