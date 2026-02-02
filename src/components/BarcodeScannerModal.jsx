@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { readBarcodes } from 'zxing-wasm/reader'
 import { v4 as uuidv4 } from '../utils/uuid'
 import { fetchBookByISBN } from '../utils/googleBooksApi'
+import { playSound } from '../utils/soundManager'
 import './BarcodeScannerModal.css'
 
 const COOLDOWN_MS = 30000 // 30s cooldown before re-scanning same ISBN
@@ -121,6 +122,7 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
 
         onAdd(newBook)
         setBooksAdded(prev => prev + 1)
+        playSound()
         showToast({ type: 'success', book: newBook })
       } else {
         showToast({ type: 'error', message: `ISBN ${isbn} not found` })
