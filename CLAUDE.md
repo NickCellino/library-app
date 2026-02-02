@@ -99,6 +99,10 @@ React + Vite personal book collection manager with Firebase backend. Mobile-firs
 
 ### Testing
 - **E2E Tests**: Playwright in `tests/` directory (Chromium only, dev server auto-started)
+- **Unit Tests**: Vitest in `src/` directory
+  - Run: `npm run test:unit`
+  - Run with UI: `npm run test:unit:ui`
+  - Tests utility functions and business logic in isolation
 - **Cloud Functions Tests**: Mocha in `functions/test/` directory
   - Run: `cd functions && npm test`
   - Tests `recognizeCover` function locally (not deployed)

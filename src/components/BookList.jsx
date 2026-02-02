@@ -1,5 +1,6 @@
 import React, { useRef, useMemo, useState, useCallback } from 'react'
 import BookCard from './BookCard'
+import { sortAuthors, getAvailableLetters, findAuthorForLetter } from '../utils/sortBooks'
 import './BookList.css'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('')
@@ -26,42 +27,25 @@ function BookList({ books, onBookClick, totalBooks, totalAuthors }) {
   }
 
   // Sort authors by last name
-  const sortedAuthors = Object.keys(booksByAuthor).sort((a, b) => {
-    const lastNameA = getLastName(a).toLowerCase()
-    const lastNameB = getLastName(b).toLowerCase()
-    return lastNameA.localeCompare(lastNameB)
-  })
+  const sortedAuthors = sortAuthors(Object.keys(booksByAuthor))
 
   // Get available letters from authors' last names
   const availableLetters = useMemo(() => {
-    const letters = new Set()
-    sortedAuthors.forEach(author => {
-      const lastName = getLastName(author)
-      const firstChar = lastName[0].toUpperCase()
-      if (/[A-Z]/.test(firstChar)) {
-        letters.add(firstChar)
-      } else {
-        letters.add('#')
-      }
-    })
-    return letters
+    return getAvailableLetters(sortedAuthors)
   }, [sortedAuthors])
 
   // Find author by last name initial
-  const findAuthorForLetter = useCallback((letter) => {
-    if (letter === '#') {
-      return sortedAuthors.find(a => !/^[A-Z]/i.test(getLastName(a)))
-    }
-    return sortedAuthors.find(a => getLastName(a).toUpperCase().startsWith(letter))
+  const findAuthorForLetterCallback = useCallback((letter) => {
+    return findAuthorForLetter(letter, sortedAuthors)
   }, [sortedAuthors])
 
   // Handle scroll to letter
   const scrollToLetter = useCallback((letter) => {
-    const author = findAuthorForLetter(letter)
+    const author = findAuthorForLetterCallback(letter)
     if (author && authorRefs.current[author]) {
       authorRefs.current[author].scrollIntoView({ behavior: 'auto', block: 'start' })
     }
-  }, [findAuthorForLetter])
+  }, [findAuthorForLetterCallback])
 
   // Handle touch/mouse on alphabet bar
   const handleAlphabetInteraction = useCallback((e) => {
