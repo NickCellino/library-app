@@ -34,3 +34,35 @@ export async function fetchBookByISBN(isbn) {
     coverUrl: book.imageLinks?.thumbnail || ''
   }
 }
+
+/**
+ * Fetch book cover from Google Books API by title and author
+ * @param {string} title - Book title to search for
+ * @param {string} author - Book author to search for
+ * @returns {Promise<string>} Cover URL or empty string if not found
+ */
+export async function fetchBookCoverByTitleAuthor(title, author) {
+  const apiKey = import.meta.env.VITE_FIREBASE_API_KEY
+  const query = `intitle:${title}+inauthor:${author}`
+  const url = apiKey
+    ? `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${apiKey}`
+    : `https://www.googleapis.com/books/v1/volumes?q=${query}`
+
+  const response = await fetch(url)
+
+  if (!response.ok) {
+    if (response.status === 429) {
+      throw new Error('Rate limit exceeded. Try again in a moment.')
+    }
+    throw new Error(`API error: ${response.status}`)
+  }
+
+  const data = await response.json()
+
+  if (!data.items || data.items.length === 0) {
+    return ''
+  }
+
+  const book = data.items[0].volumeInfo
+  return book.imageLinks?.thumbnail || ''
+}

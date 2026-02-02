@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { v4 as uuidv4 } from '../utils/uuid'
-import { fetchBookByISBN } from '../utils/googleBooksApi'
+import { fetchBookByISBN, fetchBookCoverByTitleAuthor } from '../utils/googleBooksApi'
 import { processImageFile } from '../utils/imageProcessor'
 import { uploadBookCover, deleteBookCover, isFirebaseStorageUrl } from '../utils/firebaseStorage'
 import { auth } from '../firebase/config'
@@ -30,6 +30,7 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
   const [isSearching, setIsSearching] = useState(false)
   const [isbnError, setIsbnError] = useState('')
   const [uploadingCover, setUploadingCover] = useState(false)
+  const [isResettingCover, setIsResettingCover] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -61,6 +62,33 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
       alert('Failed to fetch book data')
     } finally {
       setIsSearching(false)
+    }
+  }
+
+  const resetCoverFromISBN = async () => {
+    setIsResettingCover(true)
+    try {
+      let coverUrl = ''
+      
+      if (formData.isbn) {
+        // Primary: ISBN search
+        const bookData = await fetchBookByISBN(formData.isbn)
+        coverUrl = bookData?.coverUrl || ''
+      } else if (formData.title && formData.author) {
+        // Fallback: title + author search
+        coverUrl = await fetchBookCoverByTitleAuthor(formData.title, formData.author)
+      }
+      
+      if (coverUrl) {
+        setFormData(prev => ({ ...prev, coverUrl }))
+      } else {
+        alert('No cover image found')
+      }
+    } catch (error) {
+      console.error('Error resetting cover:', error)
+      alert('Failed to fetch cover image')
+    } finally {
+      setIsResettingCover(false)
     }
   }
 
@@ -282,9 +310,20 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
                   type="button"
                   className="btn btn-secondary"
                   onClick={handleClearCover}
-                  disabled={uploadingCover}
+                  disabled={uploadingCover || isResettingCover}
                 >
                   Clear Cover
+                </button>
+              )}
+
+              {isEditMode && (formData.isbn || (formData.title && formData.author)) && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={resetCoverFromISBN}
+                  disabled={uploadingCover || isResettingCover}
+                >
+                  {isResettingCover ? 'Resetting...' : 'Reset Image'}
                 </button>
               )}
             </div>

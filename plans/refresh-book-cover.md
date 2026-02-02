@@ -1,1 +1,1 @@
-I want to be be able to refresh the book cover from google books.
+I want to be be able to refresh the book cover from google books. In other words, I want a button on the "edit book" page called "reset image" or something similar. That should fetch the book from the Google Books API using the ISBN and update the image url for the book to be the one returned by Google Books API.

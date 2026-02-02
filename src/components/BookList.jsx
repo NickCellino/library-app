@@ -19,14 +19,25 @@ function BookList({ books, onBookClick, totalBooks, totalAuthors }) {
     return acc
   }, {})
 
-  // Sort authors alphabetically
-  const sortedAuthors = Object.keys(booksByAuthor).sort()
+  // Helper to extract last name from author string
+  const getLastName = (author) => {
+    const parts = author.trim().split(/\s+/)
+    return parts.length > 1 ? parts[1] : parts[0]
+  }
 
-  // Get available letters from authors
+  // Sort authors by last name
+  const sortedAuthors = Object.keys(booksByAuthor).sort((a, b) => {
+    const lastNameA = getLastName(a).toLowerCase()
+    const lastNameB = getLastName(b).toLowerCase()
+    return lastNameA.localeCompare(lastNameB)
+  })
+
+  // Get available letters from authors' last names
   const availableLetters = useMemo(() => {
     const letters = new Set()
     sortedAuthors.forEach(author => {
-      const firstChar = author[0].toUpperCase()
+      const lastName = getLastName(author)
+      const firstChar = lastName[0].toUpperCase()
       if (/[A-Z]/.test(firstChar)) {
         letters.add(firstChar)
       } else {
@@ -36,12 +47,12 @@ function BookList({ books, onBookClick, totalBooks, totalAuthors }) {
     return letters
   }, [sortedAuthors])
 
-  // Find author index for a given letter
+  // Find author by last name initial
   const findAuthorForLetter = useCallback((letter) => {
     if (letter === '#') {
-      return sortedAuthors.find(a => !/^[A-Z]/i.test(a))
+      return sortedAuthors.find(a => !/^[A-Z]/i.test(getLastName(a)))
     }
-    return sortedAuthors.find(a => a.toUpperCase().startsWith(letter))
+    return sortedAuthors.find(a => getLastName(a).toUpperCase().startsWith(letter))
   }, [sortedAuthors])
 
   // Handle scroll to letter
