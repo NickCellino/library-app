@@ -4,6 +4,7 @@ import BookList from './components/BookList'
 import BookDetailModal from './components/BookDetailModal'
 import BookFormModal from './components/BookFormModal'
 import BarcodeScannerModal from './components/BarcodeScannerModal'
+import BookSearchModal from './components/BookSearchModal'
 import HamburgerMenu from './components/HamburgerMenu'
 import BookVisionTestModal from './components/BookVisionTestModal'
 import SignInPrompt from './components/SignInPrompt'
@@ -27,6 +28,7 @@ function App() {
   const [showAdminPanel, setShowAdminPanel] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showScannerModal, setShowScannerModal] = useState(false)
+  const [showSearchModal, setShowSearchModal] = useState(false)
   const [showHamburger, setShowHamburger] = useState(false)
   const [editingBook, setEditingBook] = useState(null)
   const [selectedBook, setSelectedBook] = useState(null)
@@ -258,10 +260,19 @@ function App() {
         />
       )}
 
+      {showSearchModal && (
+        <BookSearchModal
+          onClose={() => setShowSearchModal(false)}
+          onAdd={addBook}
+          books={books}
+        />
+      )}
+
       <HamburgerMenu
         isOpen={showHamburger}
         onClose={() => setShowHamburger(false)}
         onAddBook={() => setShowAddModal(true)}
+        onSearchBooks={() => setShowSearchModal(true)}
         onImport={handleImport}
         onExport={handleExport}
         onLoadTestData={handleLoadTestData}

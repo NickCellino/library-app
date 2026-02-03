@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { loadSoundPreferences, saveSoundPreferences } from '../utils/soundManager'
 
-function HamburgerMenu({ isOpen, onClose, onAddBook, onImport, onExport, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin, onTestVision }) {
+function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onImport, onExport, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin, onTestVision }) {
   const fileInputRef = useRef(null)
   const [showDevTools, setShowDevTools] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
@@ -52,29 +52,15 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onImport, onExport, onLoadT
         </button>
 
         <nav className="hamburger-nav">
+          <button className="hamburger-item" onClick={() => handleAction(onSearchBooks)}>
+            <span className="hamburger-icon">🔍</span>
+            Add Book (Search)
+          </button>
+
           <button className="hamburger-item" onClick={() => handleAction(onAddBook)}>
             <span className="hamburger-icon">📖</span>
-            Add Book
+            Add Book (Manual)
           </button>
-
-          <button className="hamburger-item" onClick={handleImportClick}>
-            <span className="hamburger-icon">📥</span>
-            Import Library
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleFileChange}
-            style={{ display: 'none' }}
-          />
-
-          {hasBooks && (
-            <button className="hamburger-item" onClick={() => handleAction(onExport)}>
-              <span className="hamburger-icon">📤</span>
-              Export Library
-            </button>
-          )}
 
           <div className="hamburger-divider" />
 

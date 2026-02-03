@@ -31,6 +31,8 @@ On the hamburger menu, there is "dev tools" > "load test data" functionality. Us
 
 When developing, the preferred workflow is to run the dev server and visually verify changes using Playwright MCP. Iterate on results until they look good.
 
+**IMPORTANT for manual testing with Playwright MCP**: Always use `npm run dev:emulate` instead of `npm run dev`. Emulator mode auto-signs in anonymously, avoiding Google OAuth popups. Regular dev mode requires real Google authentication which blocks Playwright testing.
+
 ## Architecture
 
 React + Vite personal book collection manager with Firebase backend. Mobile-first design with editorial/art deco aesthetic.
