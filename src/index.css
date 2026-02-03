@@ -192,6 +192,9 @@ input, textarea, select {
   line-height: 1;
   transition: opacity 0.2s ease;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hamburger-btn:hover {
@@ -218,15 +221,18 @@ input, textarea, select {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 280px;
+  width: 320px;
   max-width: 85vw;
-  background: var(--gradient-surface);
+  background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
   box-shadow:
-    -4px 0 20px rgba(0, 0, 0, 0.3),
-    inset 1px 0 0 rgba(255, 255, 255, 0.03);
-  animation: slideIn 0.25s ease;
+    -8px 0 40px rgba(0, 0, 0, 0.6),
+    inset 1px 0 0 rgba(255, 228, 94, 0.08);
+  animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   flex-direction: column;
+  border-left: 1px solid rgba(255, 228, 94, 0.15);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 @keyframes slideIn {
@@ -234,80 +240,171 @@ input, textarea, select {
   to { transform: translateX(0); }
 }
 
+/* Scrollbar styling for drawer */
+.hamburger-drawer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hamburger-drawer::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.hamburger-drawer::-webkit-scrollbar-thumb {
+  background: rgba(255, 228, 94, 0.3);
+  border-radius: 4px;
+}
+
+.hamburger-drawer::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 228, 94, 0.5);
+}
+
 .hamburger-close {
   position: absolute;
-  top: var(--space-md);
-  right: var(--space-md);
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 1.25rem;
   color: var(--color-text-muted);
   cursor: pointer;
-  padding: var(--space-xs);
+  padding: 8px;
   line-height: 1;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .hamburger-close:hover {
-  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-accent);
+  border-color: rgba(255, 228, 94, 0.3);
 }
 
 .hamburger-nav {
-  margin-top: calc(var(--space-xl) + var(--space-lg));
+  margin-top: calc(var(--space-xl) + var(--space-xl));
   display: flex;
   flex-direction: column;
-  padding: 0 var(--space-sm);
+  padding: 0 var(--space-md);
+  gap: var(--space-xs);
 }
 
 .hamburger-item {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-md);
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-md);
   border: none;
-  background: none;
+  background: transparent;
   text-align: left;
-  font-size: 1rem;
-  font-weight: 300;
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
   color: var(--color-text);
   cursor: pointer;
-  border-radius: 8px;
-  transition: background 0.15s ease;
+  border-radius: 10px;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.hamburger-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-accent);
+  transform: translateX(-3px);
+  transition: transform 0.2s ease;
 }
 
 .hamburger-item:hover {
-  background: #252525;
+  background: rgba(255, 228, 94, 0.08);
+  transform: translateX(2px);
+}
+
+.hamburger-item:hover::before {
+  transform: translateX(0);
 }
 
 .hamburger-icon {
-  font-size: 1.25rem;
-  width: 28px;
-  text-align: center;
+  font-size: 1.4rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 228, 94, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 228, 94, 0.2);
 }
 
 .hamburger-item-danger {
-  color: #c0392b;
+  color: #ff6b6b;
+}
+
+.hamburger-item-danger .hamburger-icon {
+  background: rgba(255, 107, 107, 0.15);
+  border-color: rgba(255, 107, 107, 0.3);
 }
 
 .hamburger-item-danger:hover {
-  background: rgba(192, 57, 43, 0.15);
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.hamburger-item-danger:hover::before {
+  background: #ff6b6b;
 }
 
 .hamburger-divider {
   height: 1px;
-  background: var(--color-border);
-  margin: var(--space-sm) var(--space-md);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 228, 94, 0.2) 20%,
+    rgba(255, 228, 94, 0.2) 80%,
+    transparent 100%
+  );
+  margin: var(--space-md) var(--space-sm);
+  position: relative;
+}
+
+.hamburger-divider::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 4px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 228, 94, 0.5);
 }
 
 /* Dev Tools Section */
 .hamburger-dev-toggle {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.hamburger-dev-toggle .hamburger-icon {
+  background: rgba(107, 140, 174, 0.15);
+  border-color: rgba(107, 140, 174, 0.3);
 }
 
 .hamburger-chevron {
   margin-left: auto;
-  transition: transform 0.2s ease;
-  color: var(--color-text-muted);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--color-accent);
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 .hamburger-chevron.open {
@@ -315,19 +412,31 @@ input, textarea, select {
 }
 
 .hamburger-dev-section {
-  background: #141414;
-  margin: 0 var(--space-xs);
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  margin: var(--space-xs) 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: var(--space-xs) 0;
 }
 
 .hamburger-item-sub {
-  font-size: 0.9rem;
-  padding-left: calc(var(--space-md) + 8px);
+  font-size: 0.875rem;
+  padding-left: var(--space-lg);
+  padding-right: var(--space-md);
+}
+
+.hamburger-item-sub .hamburger-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 1.2rem;
 }
 
 /* Auth Section */
 .hamburger-auth-section {
-  padding: var(--space-sm) var(--space-md);
+  margin-top: auto;
+  padding: var(--space-md);
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  border-top: 1px solid rgba(255, 228, 94, 0.1);
 }
 
 .hamburger-auth-hint {
@@ -338,14 +447,21 @@ input, textarea, select {
 }
 
 .hamburger-item-primary {
-  background: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #e6c940 100%);
   color: var(--color-primary);
   font-weight: 600;
   justify-content: center;
+  box-shadow:
+    0 4px 12px rgba(255, 228, 94, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .hamburger-item-primary:hover {
-  background: #ffec8a;
+  background: linear-gradient(135deg, #ffec8a 0%, #ffe45e 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 16px rgba(255, 228, 94, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 /* Sound Toggle */
@@ -394,24 +510,69 @@ input, textarea, select {
 .hamburger-user-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: var(--space-sm) var(--space-md);
-  background: #141414;
-  border-radius: 8px;
-  margin-bottom: var(--space-sm);
+  gap: 6px;
+  padding: var(--space-md);
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  margin-bottom: var(--space-md);
+  border: 1px solid rgba(255, 228, 94, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.hamburger-user-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-accent) 50%,
+    transparent 100%
+  );
 }
 
 .hamburger-user-email {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--color-text);
   word-break: break-all;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .hamburger-sync-status {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--color-highlight);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hamburger-sync-status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--color-highlight);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-highlight);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
 }
 
 /* Loading State */
