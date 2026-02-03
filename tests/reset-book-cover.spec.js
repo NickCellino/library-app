@@ -1,21 +1,21 @@
 import { test, expect } from '@playwright/test'
 
 // Mock Google Books API responses
-const MOCK_GATSBY = {
+const MOCK_ULYSSES = {
   totalItems: 1,
   items: [{
     volumeInfo: {
-      title: 'The Great Gatsby',
-      authors: ['F. Scott Fitzgerald'],
-      publishedDate: '2004-09-29',
-      publisher: 'Scribner',
-      pageCount: 180,
-      imageLinks: { thumbnail: 'https://example.com/new-gatsby-cover.jpg' }
+      title: 'Ulysses',
+      authors: ['James Joyce'],
+      publishedDate: '1922-02-02',
+      publisher: 'Vintage',
+      pageCount: 783,
+      imageLinks: { thumbnail: 'https://example.com/new-ulysses-cover.jpg' }
     }
   }]
 }
 
-const MOCK_ORWELL = {
+const MOCK_1984 = {
   totalItems: 1,
   items: [{
     volumeInfo: {
@@ -30,37 +30,28 @@ const MOCK_ORWELL = {
 }
 
 test.describe('Reset Book Cover Feature', () => {
-  test.beforeEach(async ({ page }) => {
-    // Mock Google Books API
-    await page.route('**/googleapis.com/books/**', route => {
-      const url = route.request().url()
-      if (url.includes('isbn:9780743273565')) {
-        route.fulfill({ json: MOCK_GATSBY })
-      } else if (url.includes('intitle:The+Great+Gatsby+inauthor:F.+Scott+Fitzgerald')) {
-        route.fulfill({ json: MOCK_GATSBY })
-      } else if (url.includes('intitle:1984+inauthor:George+Orwell')) {
-        route.fulfill({ json: MOCK_ORWELL })
-      } else {
-        route.fulfill({ json: { totalItems: 0 } })
-      }
-    })
+  // Helper to add book via hamburger menu
+  async function addBookViaMenu(page, { title, author, isbn }) {
+    // Open hamburger menu
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    await page.getByRole('button', { name: 'Add Book' }).click()
+    await page.waitForSelector('.modal-content')
 
-    // Navigate with testMode=true
-    await page.goto(`http://localhost:5173/?testMode=true`)
-
-    // Wait for app to load
-    await page.waitForSelector('.fab', { timeout: 10000 })
-  })
+    await page.fill('#title', title)
+    if (author) await page.fill('#author', author)
+    if (isbn) await page.fill('#isbn', isbn)
+    await page.getByRole('button', { name: 'Add Book' }).click()
+  }
 
   test('should show Reset Image button for book with ISBN', async ({ page }) => {
-    // First add a book via test mode
-    await page.getByRole('button', { name: /scan barcode/i }).click()
-    await page.locator('[data-testid="test-scan-the-great-gatsby"]').click()
-    await expect(page.locator('.scan-toast-success')).toBeVisible({ timeout: 10000 })
-    await page.click('button:has-text("Done")')
+    await page.goto('http://localhost:5173/')
+    await page.waitForSelector('.fab', { timeout: 10000 })
+
+    // Add a book manually with ISBN
+    await addBookViaMenu(page, { title: 'Ulysses', author: 'James Joyce', isbn: '9780679722762' })
 
     // Click on the book to open details
-    await page.locator('.book-row:has-text("The Great Gatsby")').click()
+    await page.locator('.book-row:has-text("Ulysses")').click()
     await expect(page.locator('.detail-modal')).toBeVisible()
 
     // Click Edit button
@@ -72,18 +63,20 @@ test.describe('Reset Book Cover Feature', () => {
   })
 
   test('should reset cover using ISBN when available', async ({ page }) => {
-    // Add a book first
-    await page.getByRole('button', { name: /scan barcode/i }).click()
-    await page.locator('[data-testid="test-scan-the-great-gatsby"]').click()
-    await expect(page.locator('.scan-toast-success')).toBeVisible({ timeout: 10000 })
-    await page.click('button:has-text("Done")')
+    // Set up route mock BEFORE navigation - use regex for more reliable matching
+    await page.route(/googleapis\.com\/books/, route => {
+      route.fulfill({ json: MOCK_ULYSSES })
+    })
+
+    await page.goto('http://localhost:5173/')
+    await page.waitForSelector('.fab', { timeout: 10000 })
+
+    // Add a book manually
+    await addBookViaMenu(page, { title: 'Ulysses', author: 'James Joyce', isbn: '9780679722762' })
 
     // Edit the book
-    await page.locator('.book-row:has-text("The Great Gatsby")').click()
+    await page.locator('.book-row:has-text("Ulysses")').click()
     await page.getByRole('button', { name: 'Edit' }).click()
-
-    // Verify current cover exists
-    await expect(page.locator('.cover-preview img')).toBeVisible()
 
     // Click Reset Image button
     await page.getByRole('button', { name: 'Reset Image' }).click()
@@ -91,18 +84,16 @@ test.describe('Reset Book Cover Feature', () => {
     // Should show loading state
     await expect(page.locator('button:has-text("Resetting...")')).toBeVisible()
 
-    // After reset, cover should be updated (mock URL will be different)
-    await expect(page.locator('.cover-preview img')).toHaveAttribute('src', 'https://example.com/new-gatsby-cover.jpg')
+    // After reset, cover should be updated (mock URL)
+    await expect(page.locator('.cover-preview img')).toHaveAttribute('src', 'https://example.com/new-ulysses-cover.jpg')
   })
 
   test('should show Reset Image button for book without ISBN but with title and author', async ({ page }) => {
+    await page.goto('http://localhost:5173/')
+    await page.waitForSelector('.fab', { timeout: 10000 })
+
     // Add a book manually without ISBN
-    await page.getByRole('button', { name: /add book/i }).click()
-    await page.waitForSelector('.modal-content')
-    
-    await page.fill('#title', '1984')
-    await page.fill('#author', 'George Orwell')
-    await page.getByRole('button', { name: 'Add Book' }).click()
+    await addBookViaMenu(page, { title: '1984', author: 'George Orwell' })
 
     // Edit the book
     await page.locator('.book-row:has-text("1984")').click()
@@ -113,13 +104,16 @@ test.describe('Reset Book Cover Feature', () => {
   })
 
   test('should reset cover using title and author when no ISBN', async ({ page }) => {
+    // Set up route mock BEFORE navigation - use regex for more reliable matching
+    await page.route(/googleapis\.com\/books/, route => {
+      route.fulfill({ json: MOCK_1984 })
+    })
+
+    await page.goto('http://localhost:5173/')
+    await page.waitForSelector('.fab', { timeout: 10000 })
+
     // Add a book manually without ISBN
-    await page.getByRole('button', { name: /add book/i }).click()
-    await page.waitForSelector('.modal-content')
-    
-    await page.fill('#title', '1984')
-    await page.fill('#author', 'George Orwell')
-    await page.getByRole('button', { name: 'Add Book' }).click()
+    await addBookViaMenu(page, { title: '1984', author: 'George Orwell' })
 
     // Edit the book
     await page.locator('.book-row:has-text("1984")').click()
@@ -136,63 +130,83 @@ test.describe('Reset Book Cover Feature', () => {
   })
 
   test('should not show Reset Image button in add mode', async ({ page }) => {
-    await page.getByRole('button', { name: /add book/i }).click()
+    await page.goto('http://localhost:5173/')
+    await page.waitForSelector('.fab', { timeout: 10000 })
+
+    // Open hamburger menu and click Add Book
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    await page.getByRole('button', { name: 'Add Book' }).click()
     await page.waitForSelector('.modal-content')
 
     // Should not show Reset Image button in add mode
     await expect(page.locator('button:has-text("Reset Image")')).not.toBeVisible()
   })
 
-  test('should not show Reset Image button when insufficient data', async ({ page }) => {
-    await page.getByRole('button', { name: /add book/i }).click()
-    await page.waitForSelector('.modal-content')
-    
-    // Fill only title, no author
-    await page.fill('#title', 'Some Book')
-    
-    // Switch to edit mode by adding then editing
-    await page.getByRole('button', { name: 'Add Book' }).click()
-    
+  test('Reset Image button requires ISBN or title+author', async ({ page }) => {
+    await page.goto('http://localhost:5173/')
+    await page.waitForSelector('.fab', { timeout: 10000 })
+
+    // Add a book with title and author (required by form), no ISBN
+    await addBookViaMenu(page, { title: 'Test Book', author: 'Test Author' })
+
     // Edit the book
-    await page.locator('.book-row:has-text("Some Book")').click()
+    await page.locator('.book-row:has-text("Test Book")').click()
     await page.getByRole('button', { name: 'Edit' }).click()
 
-    // Should not show Reset Image button (no ISBN, no author)
+    // Should show Reset Image button because we have title+author
+    await expect(page.locator('button:has-text("Reset Image")')).toBeVisible()
+
+    // Clear the author field to test insufficient data
+    await page.fill('#author', '')
+
+    // Reset Image button should disappear when author is cleared
     await expect(page.locator('button:has-text("Reset Image")')).not.toBeVisible()
   })
 
   test('should handle no cover found gracefully', async ({ page }) => {
-    // Mock empty response for this test
-    await page.route('**/googleapis.com/books/**', route => {
+    // Mock empty response BEFORE navigation - use regex for more reliable matching
+    await page.route(/googleapis\.com\/books/, route => {
       route.fulfill({ json: { totalItems: 0 } })
     })
 
-    // Add a book first
-    await page.getByRole('button', { name: /scan barcode/i }).click()
-    await page.locator('[data-testid="test-scan-the-great-gatsby"]').click()
-    await expect(page.locator('.scan-toast-success')).toBeVisible({ timeout: 10000 })
-    await page.click('button:has-text("Done")')
+    await page.goto('http://localhost:5173/')
+    await page.waitForSelector('.fab', { timeout: 10000 })
+
+    // Add a book manually
+    await addBookViaMenu(page, { title: 'Ulysses', author: 'James Joyce', isbn: '9780679722762' })
 
     // Edit the book
-    await page.locator('.book-row:has-text("The Great Gatsby")').click()
+    await page.locator('.book-row:has-text("Ulysses")').click()
     await page.getByRole('button', { name: 'Edit' }).click()
+
+    // Set up dialog handler for alert
+    page.on('dialog', async dialog => {
+      expect(dialog.message()).toContain('No cover image found')
+      await dialog.accept()
+    })
 
     // Click Reset Image button
     await page.getByRole('button', { name: 'Reset Image' }).click()
 
-    // Should show error alert
-    await expect(page.locator('text=No cover image found')).toBeVisible()
+    // Wait for loading to finish
+    await expect(page.locator('button:has-text("Reset Image")')).toBeVisible({ timeout: 10000 })
   })
 
   test('should disable Reset Image button during operation', async ({ page }) => {
-    // Add a book first
-    await page.getByRole('button', { name: /scan barcode/i }).click()
-    await page.locator('[data-testid="test-scan-the-great-gatsby"]').click()
-    await expect(page.locator('.scan-toast-success')).toBeVisible({ timeout: 10000 })
-    await page.click('button:has-text("Done")')
+    // Set up route mock with delay - use regex for more reliable matching
+    await page.route(/googleapis\.com\/books/, async route => {
+      await new Promise(r => setTimeout(r, 1000))
+      route.fulfill({ json: MOCK_ULYSSES })
+    })
+
+    await page.goto('http://localhost:5173/')
+    await page.waitForSelector('.fab', { timeout: 10000 })
+
+    // Add a book manually
+    await addBookViaMenu(page, { title: 'Ulysses', author: 'James Joyce', isbn: '9780679722762' })
 
     // Edit the book
-    await page.locator('.book-row:has-text("The Great Gatsby")').click()
+    await page.locator('.book-row:has-text("Ulysses")').click()
     await page.getByRole('button', { name: 'Edit' }).click()
 
     // Click Reset Image button

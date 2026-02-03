@@ -1,11 +1,12 @@
 import { defineConfig, devices } from '@playwright/test'
+import path from 'path'
 
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1, // Chrome only supports one fake video file globally
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:5173',
@@ -17,7 +18,16 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          args: [
+            '--use-fake-ui-for-media-stream',
+            '--use-fake-device-for-media-stream',
+            `--use-file-for-fake-video-capture=${path.resolve('tests/fixtures/barcode-scan-test.mjpeg')}`,
+          ],
+        },
+      },
     },
   ],
 

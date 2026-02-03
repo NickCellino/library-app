@@ -8,13 +8,11 @@ import './BarcodeScannerModal.css'
 const COOLDOWN_MS = 30000 // 30s cooldown before re-scanning same ISBN
 
 function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
-  const [isScanning, setIsScanning] = useState(false)
+  const [isScanning, setIsScanning] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingISBN, setLoadingISBN] = useState('')
   const [booksAdded, setBooksAdded] = useState(0)
   const [currentToast, setCurrentToast] = useState(null) // { type: 'success'|'duplicate'|'error', book?, message? }
-  const [testModeActive, setTestModeActive] = useState(false)
-  const [testHelpers, setTestHelpers] = useState(null)
 
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
@@ -35,24 +33,6 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     return () => {
       stopCamera()
       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
-    }
-  }, [])
-
-  // Load test helpers and check for test mode on mount (dev only)
-  useEffect(() => {
-    if (import.meta.env.DEV) {
-      import('../utils/testModeHelpers.js').then(helpers => {
-        setTestHelpers(helpers)
-        if (helpers.isTestMode()) {
-          setTestModeActive(true)
-        } else {
-          // Auto-start camera for real scanning
-          setIsScanning(true)
-        }
-      })
-    } else {
-      // Production: auto-start camera
-      setIsScanning(true)
     }
   }, [])
 
@@ -136,42 +116,6 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
       isProcessingRef.current = false
     }
   }, [onAdd, showToast])
-
-  // Test scan handler (dev only)
-  const handleTestScan = async (isbn) => {
-    if (!import.meta.env.DEV || !testHelpers) return
-
-    isProcessingRef.current = true
-    setIsLoading(true)
-    setLoadingISBN(isbn)
-
-    try {
-      console.log('[TestMode] Loading barcode image for ISBN:', isbn)
-      const imageData = await testHelpers.loadBarcodeImageData(isbn)
-
-      console.log('[TestMode] Decoding barcode...')
-      const results = await readBarcodes(imageData, {
-        formats: ['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E']
-      })
-
-      if (results.length > 0) {
-        const decodedText = results[0].text
-        console.log('[TestMode] Decoded:', decodedText)
-        await processISBN(decodedText)
-      } else {
-        showToast({ type: 'error', message: 'Failed to decode barcode' })
-        setIsLoading(false)
-        setLoadingISBN('')
-        isProcessingRef.current = false
-      }
-    } catch (err) {
-      console.error('[TestMode] Error:', err)
-      showToast({ type: 'error', message: `Test scan failed: ${err.message}` })
-      setIsLoading(false)
-      setLoadingISBN('')
-      isProcessingRef.current = false
-    }
-  }
 
   // Initialize camera when isScanning becomes true
   useEffect(() => {
@@ -278,27 +222,6 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
                     <span>Looking up {loadingISBN}...</span>
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* Test mode panel (dev only) */}
-          {import.meta.env.DEV && testModeActive && testHelpers && (
-            <div className="test-mode-panel">
-              <div className="test-mode-header">Test Mode</div>
-              <p>Scan test barcodes without camera:</p>
-              <div className="test-mode-buttons">
-                {testHelpers.TEST_ISBNS.map(({ isbn, title }) => (
-                  <button
-                    key={isbn}
-                    className="btn btn-secondary"
-                    onClick={() => handleTestScan(isbn)}
-                    disabled={isLoading}
-                    data-testid={`test-scan-${title.toLowerCase().replace(/\s+/g, '-')}`}
-                  >
-                    {title}
-                  </button>
-                ))}
               </div>
             </div>
           )}

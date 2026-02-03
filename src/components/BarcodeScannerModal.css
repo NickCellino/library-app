@@ -314,52 +314,6 @@
   width: 100%;
 }
 
-/* Test mode panel (dev only) */
-.test-mode-panel {
-  width: 100%;
-  padding: var(--space-md);
-  background: #fffbe6;
-  border: 2px dashed #d4a800;
-  border-radius: 4px;
-  text-align: center;
-}
-
-.test-mode-header {
-  font-weight: 600;
-  color: #8a6d00;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--space-sm);
-}
-
-.test-mode-panel p {
-  color: #6b5500;
-  margin: 0 0 var(--space-md);
-  font-size: 0.9rem;
-}
-
-.test-mode-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.test-mode-buttons .btn {
-  background: #fff;
-  border-color: #d4a800;
-  color: #6b5500;
-}
-
-.test-mode-buttons .btn:hover {
-  background: #fff9d6;
-}
-
-.test-mode-buttons .btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 @media (max-width: 768px) {
   .scanner-modal {
     max-width: 100%;

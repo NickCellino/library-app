@@ -149,13 +149,15 @@ The `recognizeCover` function uses OCR + Google Books search. A benchmark test s
 - Author misdetected as title → add name to commonFirstNames.js or improve looksLikeName()
 - Wrong book ranked first → adjust scoring weights in bookSearch.js scoreResult()
 
-### ISBN Scanning Test Mode
-- Test mode enabled via `?testMode=true` URL param (dev only)
-- Barcode images stored in `public/test-barcodes/{isbn}.png`
-- Test helper in `src/utils/testModeHelpers.js`
-- Tests in `tests/barcode-scanner.spec.js` use mocked Google Books API
-- To add new test ISBN: generate EAN-13 barcode PNG, save to test-barcodes dir
-- Test code is tree-shaken from production builds via `import.meta.env.DEV` guards
+### Barcode Scanner Testing
+- Tests use Chrome's fake camera via MJPEG video file
+- Video fixture: `tests/fixtures/barcode-scan-test.mjpeg` (Ulysses then Creative Act barcodes)
+- Playwright config sets `--use-fake-device-for-media-stream` Chrome flags
+- Tests must run sequentially (workers: 1) since Chrome only supports one fake video globally
+- To update video fixtures:
+  1. Record MOV files of book barcodes
+  2. Combine with ffmpeg: `ffmpeg -i book1.MOV -i book2.MOV -filter_complex "[0:v][1:v]concat=n=2:v=1:a=0,fps=15,scale=640:480" -q:v 5 barcode-scan-test.mjpeg`
+  3. Update mock ISBNs in test files to match
 
 ### Admin Access
 - Admin emails configured in `src/config/adminConfig.js`
