@@ -50,9 +50,53 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
   const showToast = useCallback((toast) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
     setCurrentToast(toast)
-    toastTimeoutRef.current = setTimeout(() => {
-      setCurrentToast(null)
-    }, 2500)
+
+    // Only auto-dismiss if not interactive
+    if (!toast.interactive) {
+      toastTimeoutRef.current = setTimeout(() => {
+        setCurrentToast(null)
+      }, 2500)
+    }
+  }, [])
+
+  const handleAddDuplicate = useCallback(async (isbn) => {
+    setCurrentToast(null)
+
+    // Remove from cooldown to allow re-processing
+    recentISBNs.current.delete(isbn)
+
+    // Re-fetch from Google Books API
+    setIsLoading(true)
+    setLoadingISBN(isbn)
+
+    try {
+      const bookData = await fetchBookByISBN(isbn)
+      if (bookData) {
+        const newBook = {
+          id: uuidv4(),
+          isbn: isbn,
+          ...bookData,
+          dateAdded: new Date().toISOString()
+        }
+        onAdd(newBook)
+        setBooksAdded(prev => prev + 1)
+        playSound()
+        showToast({ type: 'success', book: newBook })
+      } else {
+        showToast({ type: 'error', message: `ISBN ${isbn} not found` })
+      }
+    } catch (error) {
+      showToast({ type: 'error', message: `Failed: ${error.message}` })
+    } finally {
+      setIsLoading(false)
+      setLoadingISBN('')
+      isProcessingRef.current = false
+    }
+  }, [onAdd, showToast])
+
+  const handleDismissToast = useCallback(() => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
+    setCurrentToast(null)
   }, [])
 
   const isOnCooldown = (isbn) => {
@@ -82,7 +126,12 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     // Check for duplicate
     const existing = booksRef.current.find(b => b.isbn && b.isbn === isbn)
     if (existing) {
-      showToast({ type: 'duplicate', book: existing })
+      showToast({
+        type: 'duplicate',
+        book: existing,
+        interactive: true,
+        onAction: () => handleAddDuplicate(isbn)
+      })
       setIsLoading(false)
       setLoadingISBN('')
       isProcessingRef.current = false
@@ -258,6 +307,22 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
                     <div className="toast-title">{currentToast.book.title}</div>
                     <div className="toast-author">{currentToast.book.author}</div>
                     <div className="toast-status toast-status-warn">Already in library</div>
+                    {currentToast.interactive && (
+                      <div className="toast-actions">
+                        <button
+                          className="toast-btn toast-btn-secondary"
+                          onClick={handleDismissToast}
+                        >
+                          Keep Scanning
+                        </button>
+                        <button
+                          className="toast-btn toast-btn-primary"
+                          onClick={currentToast.onAction}
+                        >
+                          Add Anyway
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </>
               )}
