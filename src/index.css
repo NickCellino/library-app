@@ -190,11 +190,15 @@ input, textarea, select {
   cursor: pointer;
   padding: var(--space-xs);
   line-height: 1;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, font-size 0.3s ease;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.header-scrolled .hamburger-btn {
+  font-size: 1.5rem;
 }
 
 .hamburger-btn:hover {

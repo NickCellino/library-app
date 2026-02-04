@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Fuse from 'fuse.js'
 import BookList from './components/BookList'
 import BookDetailModal from './components/BookDetailModal'
@@ -34,6 +34,7 @@ function App() {
   const [selectedBook, setSelectedBook] = useState(null)
   const [searchExpanded, setSearchExpanded] = useState(false)
   const [showVisionTestModal, setShowVisionTestModal] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   const handleLoadTestData = () => {
     const testBooks = generateTestBooks()
@@ -46,43 +47,6 @@ function App() {
     }
   }
 
-  const handleExport = () => {
-    const dataStr = JSON.stringify(books, null, 2)
-    const dataBlob = new Blob([dataStr], { type: 'application/json' })
-    const url = URL.createObjectURL(dataBlob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `library-export-${new Date().toISOString().split('T')[0]}.json`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }
-
-  const handleImport = (event) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      try {
-        const imported = JSON.parse(e.target?.result)
-        if (Array.isArray(imported)) {
-          setAllBooks(imported)
-          alert(`Successfully imported ${imported.length} books`)
-        } else {
-          alert('Invalid file format. Expected an array of books.')
-        }
-      } catch (error) {
-        console.error('Import error:', error)
-        alert('Failed to import file. Please check the file format.')
-      }
-    }
-    reader.readAsText(file)
-
-    // Reset input so same file can be imported again
-    event.target.value = ''
-  }
 
   // Fuzzy search implementation
   const fuse = useMemo(() => {
@@ -100,6 +64,15 @@ function App() {
     const results = fuse.search(searchQuery)
     return results.map(result => result.item)
   }, [books, searchQuery, fuse])
+
+  // Track scroll position for header shrink effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Auth loading state
   if (authLoading) {
@@ -130,7 +103,7 @@ function App() {
 
   return (
     <div className="app">
-      <header className="header">
+      <header className={`header ${isScrolled ? 'header-scrolled' : ''}`}>
         <div className="container">
           <div className="header-content">
             {searchExpanded ? (
@@ -273,8 +246,6 @@ function App() {
         onClose={() => setShowHamburger(false)}
         onAddBook={() => setShowAddModal(true)}
         onSearchBooks={() => setShowSearchModal(true)}
-        onImport={handleImport}
-        onExport={handleExport}
         onLoadTestData={handleLoadTestData}
         onClearAll={handleClearAll}
         hasBooks={books.length > 0}

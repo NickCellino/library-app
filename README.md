@@ -12,8 +12,6 @@ A beautiful, mobile-first book tracking application with an editorial/art deco d
 - **💾 Auto-Save** - All changes are automatically saved to localStorage
 
 ### Data Management
-- **📤 Export** - Download your entire library as JSON for backup
-- **📥 Import** - Restore your library from a JSON backup file
 - **🧪 Test Data** - Load sample books for testing and demonstration
 
 ### Design
@@ -77,8 +75,6 @@ npm run preview
    - Use the search bar to filter your collection
 
 3. **Data Management**
-   - Click "Export Library" to download your collection as JSON
-   - Click "Import Library" to restore from a backup file
    - Use "Load Test Data" to populate with sample books for testing
    - Use "Clear All Books" to remove all books from your library
 

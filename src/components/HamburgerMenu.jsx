@@ -1,9 +1,8 @@
-import { useRef, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { loadSoundPreferences, saveSoundPreferences } from '../utils/soundManager'
 
-function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onImport, onExport, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin, onTestVision }) {
-  const fileInputRef = useRef(null)
+function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin, onTestVision }) {
   const [showDevTools, setShowDevTools] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
 
@@ -22,15 +21,6 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onImport, on
       document.body.style.overflow = ''
     }
   }, [isOpen])
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click()
-  }
-
-  const handleFileChange = (e) => {
-    onImport(e)
-    onClose()
-  }
 
   const handleAction = (action) => {
     action()
@@ -72,35 +62,6 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onImport, on
               <span className="hamburger-toggle-knob" />
             </div>
           </div>
-
-          <div className="hamburger-divider" />
-
-          <Link to="/install" className="hamburger-item" onClick={onClose}>
-            <span className="hamburger-icon">📱</span>
-            Install as App
-          </Link>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleFileChange}
-            style={{ display: 'none' }}
-          />
-
-          <button className="hamburger-item" onClick={handleImportClick}>
-            <span className="hamburger-icon">📥</span>
-            Import Books
-          </button>
-
-          {hasBooks && (
-            <button className="hamburger-item" onClick={() => handleAction(onExport)}>
-              <span className="hamburger-icon">📤</span>
-              Export Books
-            </button>
-          )}
-
-          <div className="hamburger-divider" />
 
           {isAdmin && (
             <>

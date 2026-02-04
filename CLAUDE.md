@@ -74,7 +74,7 @@ React + Vite personal book collection manager with Firebase backend. Mobile-firs
 - **BookDetailModal.jsx** - Full book details view with edit/delete actions
 - **BookFormModal.jsx** - Unified add/edit book form with Google Books API auto-fill via ISBN
 - **BarcodeScannerModal.jsx** - Uses zxing-wasm for ISBN barcode scanning, then fetches from Google Books API
-- **HamburgerMenu.jsx** - Navigation menu with import/export, sign out, admin access
+- **HamburgerMenu.jsx** - Navigation menu with sign out, admin access
 - **SignInPrompt.jsx** - Landing page for unauthenticated users
 - **AdminPanel.jsx** - Admin-only panel to view all users and their books
 - **BookVisionTestModal.jsx** - Test tool for book cover recognition
