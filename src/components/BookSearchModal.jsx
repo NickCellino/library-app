@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { v4 as uuidv4 } from '../utils/uuid'
 import { searchBooks } from '../utils/googleBooksApi'
-import { playSound } from '../utils/soundManager'
 import './BookSearchModal.css'
 
 function BookSearchModal({ onClose, onAdd, books = [] }) {
@@ -105,7 +104,6 @@ function BookSearchModal({ onClose, onAdd, books = [] }) {
 
     onAdd(newBook)
     setBooksAdded(prev => prev + 1)
-    playSound()
     showToast({ type: 'success', book: newBook })
   }, [onAdd, showToast])
 
@@ -133,7 +131,6 @@ function BookSearchModal({ onClose, onAdd, books = [] }) {
 
     onAdd(newBook)
     setBooksAdded(prev => prev + 1)
-    playSound()
     showToast({ type: 'success', book: newBook })
   }, [onAdd, showToast, handleAddDuplicate])
 

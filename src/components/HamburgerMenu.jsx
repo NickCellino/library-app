@@ -1,15 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { loadSoundPreferences, saveSoundPreferences } from '../utils/soundManager'
 
 function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin, onTestVision }) {
   const [showDevTools, setShowDevTools] = useState(false)
-  const [soundEnabled, setSoundEnabled] = useState(true)
-
-  useEffect(() => {
-    const prefs = loadSoundPreferences()
-    setSoundEnabled(prefs.enabled)
-  }, [])
 
   useEffect(() => {
     if (isOpen) {
@@ -25,12 +17,6 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestDa
   const handleAction = (action) => {
     action()
     onClose()
-  }
-
-  const handleSoundToggle = () => {
-    const newState = !soundEnabled
-    setSoundEnabled(newState)
-    saveSoundPreferences(newState, null)
   }
 
   if (!isOpen) return null
@@ -54,14 +40,6 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestDa
           </button>
 
           <div className="hamburger-divider" />
-
-          <div className="hamburger-item hamburger-toggle" onClick={handleSoundToggle}>
-            <span className="hamburger-icon">{soundEnabled ? '🔔' : '🔕'}</span>
-            <span className="hamburger-toggle-label">Scan Sound</span>
-            <div className={`hamburger-toggle-switch ${soundEnabled ? 'on' : ''}`}>
-              <span className="hamburger-toggle-knob" />
-            </div>
-          </div>
 
           {isAdmin && (
             <>
