@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-In all interactions and commit messages, be extremely concise and sacrific grammar for the sake of concision.
+In all interactions and commit messages, be extremely concise.
 
 ## Build and Development Commands
 

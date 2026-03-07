@@ -10,8 +10,7 @@ import BookVisionTestModal from './components/BookVisionTestModal'
 import SignInPrompt from './components/SignInPrompt'
 import AdminPanel from './components/AdminPanel'
 import ListsViewModal from './components/ListsViewModal'
-import ListDetailModal from './components/ListDetailModal'
-import AddToListModal from './components/AddToListModal'
+import ListDetailPage from './components/ListDetailPage'
 import DeleteListConfirmModal from './components/DeleteListConfirmModal'
 import { useAuth } from './hooks/useAuth'
 import { useBooks } from './hooks/useBooks'
@@ -52,10 +51,12 @@ function App() {
   const [isScrolled, setIsScrolled] = useState(false)
   
   const [showListsModal, setShowListsModal] = useState(false)
-  const [selectedList, setSelectedList] = useState(null)
-  const [showListDetail, setShowListDetail] = useState(false)
-  const [showAddToList, setShowAddToList] = useState(false)
+  const [selectedListId, setSelectedListId] = useState(null)
   const [listToDelete, setListToDelete] = useState(null)
+  
+  const selectedList = useMemo(() => {
+    return lists.find(list => list.id === selectedListId) || null
+  }, [lists, selectedListId])
 
   const handleLoadTestData = () => {
     const testBooks = generateTestBooks()
@@ -78,16 +79,18 @@ function App() {
   }
 
   const handleSelectList = (list) => {
-    setSelectedList(list)
+    setSelectedListId(list.id)
     setShowListsModal(false)
-    setShowListDetail(true)
   }
 
   const handleDeleteList = async (listId) => {
     await deleteList(listId)
-    setShowListDetail(false)
-    setSelectedList(null)
+    setSelectedListId(null)
     setListToDelete(null)
+  }
+
+  const handleBackToLibrary = () => {
+    setSelectedListId(null)
   }
 
 
@@ -141,6 +144,22 @@ function App() {
           <div className="loading-spinner" />
         </div>
       </div>
+    )
+  }
+
+  // Viewing a list
+  if (selectedList) {
+    return (
+      <ListDetailPage
+        list={selectedList}
+        books={books}
+        onBack={handleBackToLibrary}
+        onRemoveBook={(bookId) => removeBookFromList(selectedList.id, bookId)}
+        onUpdateListName={updateList}
+        onDeleteList={() => setListToDelete(selectedList)}
+        addBookToList={addBookToList}
+        addBook={addBook}
+      />
     )
   }
 
@@ -253,7 +272,6 @@ function App() {
           onOpenList={(list) => {
             setSelectedBook(null)
             setSelectedList(list)
-            setShowListDetail(true)
           }}
         />
       )}
@@ -335,36 +353,6 @@ function App() {
           onCreateList={handleCreateList}
           onDeleteList={(list) => setListToDelete(list)}
           loading={listsLoading}
-        />
-      )}
-
-      {showListDetail && selectedList && (
-        <ListDetailModal
-          isOpen={showListDetail}
-          onClose={() => {
-            setShowListDetail(false)
-            setSelectedList(null)
-          }}
-          list={selectedList}
-          books={books}
-          onAddBooks={() => setShowAddToList(true)}
-          onRemoveBook={(bookId) => removeBookFromList(selectedList.id, bookId)}
-          onUpdateListName={updateList}
-          onDeleteList={() => setListToDelete(selectedList)}
-        />
-      )}
-
-      {showAddToList && selectedList && (
-        <AddToListModal
-          isOpen={showAddToList}
-          onClose={() => setShowAddToList(false)}
-          list={selectedList}
-          books={books}
-          onAddBook={(bookId) => addBookToList(selectedList.id, bookId)}
-          onAddNewBook={async (book) => {
-            await addBook(book)
-            await addBookToList(selectedList.id, book.id)
-          }}
         />
       )}
 
