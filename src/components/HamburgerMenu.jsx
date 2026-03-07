@@ -29,6 +29,11 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestDa
         </button>
 
         <nav className="hamburger-nav">
+          <button className="hamburger-item" onClick={() => handleAction(onShowLists)}>
+            <span className="hamburger-icon">📚</span>
+            My Lists
+          </button>
+
           <button className="hamburger-item" onClick={() => handleAction(onSearchBooks)}>
             <span className="hamburger-icon">🔍</span>
             Add Book (Search)
@@ -38,8 +43,6 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestDa
             <span className="hamburger-icon">📖</span>
             Add Book (Manual)
           </button>
-
-          <div className="hamburger-divider" />
 
           {isAdmin && (
             <>
@@ -81,13 +84,6 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestDa
               )}
             </>
           )}
-
-          <div className="hamburger-divider" />
-
-          <button className="hamburger-item" onClick={() => handleAction(onShowLists)}>
-            <span className="hamburger-icon">📚</span>
-            My Lists
-          </button>
 
           <div className="hamburger-divider" />
 

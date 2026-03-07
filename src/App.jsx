@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Fuse from 'fuse.js'
 import BookList from './components/BookList'
 import BookDetailModal from './components/BookDetailModal'
@@ -10,8 +11,6 @@ import BookVisionTestModal from './components/BookVisionTestModal'
 import SignInPrompt from './components/SignInPrompt'
 import AdminPanel from './components/AdminPanel'
 import ListsViewModal from './components/ListsViewModal'
-import ListDetailPage from './components/ListDetailPage'
-import DeleteListConfirmModal from './components/DeleteListConfirmModal'
 import { useAuth } from './hooks/useAuth'
 import { useBooks } from './hooks/useBooks'
 import { useLists } from './hooks/useLists'
@@ -23,16 +22,13 @@ import './App.css'
 const isEmulatorMode = import.meta.env.VITE_USE_EMULATOR === 'true'
 
 function App() {
+  const navigate = useNavigate()
   const { user, loading: authLoading, signIn, signOut } = useAuth()
   const { books, loading: booksLoading, addBook, updateBook, deleteBook, setAllBooks } = useBooks(user)
   const { 
     lists, 
     loading: listsLoading, 
     addList, 
-    updateList, 
-    deleteList, 
-    addBookToList, 
-    removeBookFromList, 
     removeBookFromAllLists 
   } = useLists(user)
   const admin = useAdmin(user)
@@ -51,12 +47,6 @@ function App() {
   const [isScrolled, setIsScrolled] = useState(false)
   
   const [showListsModal, setShowListsModal] = useState(false)
-  const [selectedListId, setSelectedListId] = useState(null)
-  const [listToDelete, setListToDelete] = useState(null)
-  
-  const selectedList = useMemo(() => {
-    return lists.find(list => list.id === selectedListId) || null
-  }, [lists, selectedListId])
 
   const handleLoadTestData = () => {
     const testBooks = generateTestBooks()
@@ -79,18 +69,7 @@ function App() {
   }
 
   const handleSelectList = (list) => {
-    setSelectedListId(list.id)
-    setShowListsModal(false)
-  }
-
-  const handleDeleteList = async (listId) => {
-    await deleteList(listId)
-    setSelectedListId(null)
-    setListToDelete(null)
-  }
-
-  const handleBackToLibrary = () => {
-    setSelectedListId(null)
+    navigate(`/list/${list.id}`)
   }
 
 
@@ -144,22 +123,6 @@ function App() {
           <div className="loading-spinner" />
         </div>
       </div>
-    )
-  }
-
-  // Viewing a list
-  if (selectedList) {
-    return (
-      <ListDetailPage
-        list={selectedList}
-        books={books}
-        onBack={handleBackToLibrary}
-        onRemoveBook={(bookId) => removeBookFromList(selectedList.id, bookId)}
-        onUpdateListName={updateList}
-        onDeleteList={() => setListToDelete(selectedList)}
-        addBookToList={addBookToList}
-        addBook={addBook}
-      />
     )
   }
 
@@ -271,7 +234,7 @@ function App() {
           lists={lists}
           onOpenList={(list) => {
             setSelectedBook(null)
-            setSelectedList(list)
+            navigate(`/list/${list.id}`)
           }}
         />
       )}
@@ -351,18 +314,7 @@ function App() {
           lists={lists}
           onSelectList={handleSelectList}
           onCreateList={handleCreateList}
-          onDeleteList={(list) => setListToDelete(list)}
           loading={listsLoading}
-        />
-      )}
-
-      {listToDelete && (
-        <DeleteListConfirmModal
-          isOpen={!!listToDelete}
-          onClose={() => setListToDelete(null)}
-          onConfirm={() => handleDeleteList(listToDelete.id)}
-          list={listToDelete}
-          books={books}
         />
       )}
 

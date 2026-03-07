@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { formatRelativeTime } from '../utils/dateUtils'
 import './ListsViewModal.css'
 
-function ListsViewModal({ isOpen, onClose, lists, onSelectList, onCreateList, onDeleteList, loading }) {
+function ListsViewModal({ isOpen, onClose, lists, onSelectList, onCreateList, loading }) {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newListName, setNewListName] = useState('')
   const [creating, setCreating] = useState(false)
@@ -29,11 +29,6 @@ function ListsViewModal({ isOpen, onClose, lists, onSelectList, onCreateList, on
     } finally {
       setCreating(false)
     }
-  }
-
-  const handleDeleteClick = (e, list) => {
-    e.stopPropagation()
-    onDeleteList(list)
   }
 
   return (
@@ -121,13 +116,6 @@ function ListsViewModal({ isOpen, onClose, lists, onSelectList, onCreateList, on
                       <span>{formatRelativeTime(list.updatedAt)}</span>
                     </div>
                   </div>
-                  <button 
-                    className="lists-item-delete"
-                    onClick={(e) => handleDeleteClick(e, list)}
-                    title="Delete list"
-                  >
-                    🗑️
-                  </button>
                 </div>
               ))}
             </div>
