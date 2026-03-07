@@ -20,7 +20,6 @@ describe('BookDetailModal', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubGlobal('confirm', vi.fn(() => true))
   })
 
   it('renders nothing when no book provided', () => {
@@ -35,7 +34,14 @@ describe('BookDetailModal', () => {
 
   it('displays book author', () => {
     render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
-    expect(screen.getByText('F. Scott Fitzgerald')).toBeInTheDocument()
+    expect(screen.getByText(mockBook.author)).toBeInTheDocument()
+  })
+
+  it('handles book without author', () => {
+    const bookWithoutAuthor = { ...mockBook, author: null }
+    render(<BookDetailModal book={bookWithoutAuthor} onClose={mockOnClose} />)
+    expect(screen.getByText(mockBook.title)).toBeInTheDocument()
+    expect(screen.queryByText(mockBook.author)).not.toBeInTheDocument()
   })
 
   it('displays book cover image', () => {
@@ -53,22 +59,22 @@ describe('BookDetailModal', () => {
 
   it('displays publish year', () => {
     render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
-    expect(screen.getByText('1925')).toBeInTheDocument()
+    expect(screen.getByText(mockBook.publishYear.toString())).toBeInTheDocument()
   })
 
   it('displays publisher', () => {
     render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
-    expect(screen.getByText('Scribner')).toBeInTheDocument()
+    expect(screen.getByText(mockBook.publisher)).toBeInTheDocument()
   })
 
   it('displays page count', () => {
     render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
-    expect(screen.getByText('180 pages')).toBeInTheDocument()
+    expect(screen.getByText(`${mockBook.pageCount} pages`)).toBeInTheDocument()
   })
 
   it('displays ISBN', () => {
     render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
-    expect(screen.getByText('ISBN: 9780743273565')).toBeInTheDocument()
+    expect(screen.getByText(`ISBN: ${mockBook.isbn}`)).toBeInTheDocument()
   })
 
   it('has edit button', () => {
@@ -98,20 +104,38 @@ describe('BookDetailModal', () => {
       expect(mockOnClose).toHaveBeenCalled()
     })
 
-    it('calls onDelete with book id when delete clicked', () => {
+    it('calls onDelete with book id when delete confirmed', () => {
+      vi.stubGlobal('confirm', vi.fn(() => true))
       render(
-        <BookDetailModal 
-          book={mockBook} 
-          onClose={mockOnClose} 
-          onEdit={mockOnEdit} 
-          onDelete={mockOnDelete} 
+        <BookDetailModal
+          book={mockBook}
+          onClose={mockOnClose}
+          onEdit={mockOnEdit}
+          onDelete={mockOnDelete}
         />
       )
-      
+
       fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
-      
-      expect(mockOnDelete).toHaveBeenCalledWith('123')
+
+      expect(mockOnDelete).toHaveBeenCalledWith(mockBook.id)
       expect(mockOnClose).toHaveBeenCalled()
+    })
+
+    it('does not delete when user cancels confirmation', () => {
+      vi.stubGlobal('confirm', vi.fn(() => false))
+      render(
+        <BookDetailModal
+          book={mockBook}
+          onClose={mockOnClose}
+          onEdit={mockOnEdit}
+          onDelete={mockOnDelete}
+        />
+      )
+
+      fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+
+      expect(mockOnDelete).not.toHaveBeenCalled()
+      expect(mockOnClose).not.toHaveBeenCalled()
     })
   })
 

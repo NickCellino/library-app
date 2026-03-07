@@ -49,14 +49,14 @@ describe('BookList', () => {
   describe('grouping', () => {
     it('groups books by author', () => {
       render(<BookList books={mockBooks} onBookClick={mockOnBookClick} />)
-      expect(screen.getAllByText('Jane Austen').length).toBeGreaterThan(0)
-      expect(screen.getAllByText('George Orwell').length).toBeGreaterThan(0)
+      expect(screen.getAllByText('Jane Austen')[0]).toBeInTheDocument()
+      expect(screen.getAllByText('George Orwell')[0]).toBeInTheDocument()
     })
 
     it('displays multiple books under same author', () => {
       render(<BookList books={mockBooks} onBookClick={mockOnBookClick} />)
-      const janeAustenDivider = screen.getAllByText('Jane Austen')
-      expect(janeAustenDivider.length).toBeGreaterThan(0)
+      expect(screen.getByText('Book A')).toBeInTheDocument()
+      expect(screen.getByText('Book B')).toBeInTheDocument()
     })
 
     it('handles unknown author', () => {

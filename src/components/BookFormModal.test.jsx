@@ -79,24 +79,22 @@ describe('BookFormModal', () => {
   })
 
   describe('form validation', () => {
-    it('shows alert when submitting without title', async () => {
-      vi.stubGlobal('alert', vi.fn())
+    it('does not save when submitting without title', () => {
       render(<BookFormModal onClose={mockOnClose} onSave={mockOnSave} />)
-      
+
       fireEvent.change(screen.getByLabelText('Author *'), { target: { value: 'Some Author' } })
       fireEvent.click(screen.getByRole('button', { name: 'Add Book' }))
-      
+
       expect(mockOnSave).not.toHaveBeenCalled()
       expect(mockOnClose).not.toHaveBeenCalled()
     })
 
-    it('shows alert when submitting without author', async () => {
-      vi.stubGlobal('alert', vi.fn())
+    it('does not save when submitting without author', () => {
       render(<BookFormModal onClose={mockOnClose} onSave={mockOnSave} />)
-      
+
       fireEvent.change(screen.getByLabelText('Title *'), { target: { value: 'Some Title' } })
       fireEvent.click(screen.getByRole('button', { name: 'Add Book' }))
-      
+
       expect(mockOnSave).not.toHaveBeenCalled()
       expect(mockOnClose).not.toHaveBeenCalled()
     })
@@ -104,13 +102,12 @@ describe('BookFormModal', () => {
 
   describe('form submission', () => {
     it('calls onSave with form data when valid', () => {
-      vi.stubGlobal('alert', vi.fn())
       render(<BookFormModal onClose={mockOnClose} onSave={mockOnSave} />)
-      
+
       fireEvent.change(screen.getByLabelText('Title *'), { target: { value: 'New Book' } })
       fireEvent.change(screen.getByLabelText('Author *'), { target: { value: 'New Author' } })
       fireEvent.click(screen.getByRole('button', { name: 'Add Book' }))
-      
+
       expect(mockOnSave).toHaveBeenCalledTimes(1)
       const savedBook = mockOnSave.mock.calls[0][0]
       expect(savedBook.title).toBe('New Book')
@@ -119,35 +116,32 @@ describe('BookFormModal', () => {
     })
 
     it('calls onClose after successful save', () => {
-      vi.stubGlobal('alert', vi.fn())
       render(<BookFormModal onClose={mockOnClose} onSave={mockOnSave} />)
-      
+
       fireEvent.change(screen.getByLabelText('Title *'), { target: { value: 'New Book' } })
       fireEvent.change(screen.getByLabelText('Author *'), { target: { value: 'New Author' } })
       fireEvent.click(screen.getByRole('button', { name: 'Add Book' }))
-      
+
       expect(mockOnClose).toHaveBeenCalledTimes(1)
     })
 
     it('generates new id for new books', () => {
-      vi.stubGlobal('alert', vi.fn())
       render(<BookFormModal onClose={mockOnClose} onSave={mockOnSave} />)
-      
+
       fireEvent.change(screen.getByLabelText('Title *'), { target: { value: 'New Book' } })
       fireEvent.change(screen.getByLabelText('Author *'), { target: { value: 'New Author' } })
       fireEvent.click(screen.getByRole('button', { name: 'Add Book' }))
-      
+
       const savedBook = mockOnSave.mock.calls[0][0]
       expect(savedBook.id).toMatch(/^[0-9a-f-]{36}$/)
     })
 
     it('preserves existing book id in edit mode', () => {
-      vi.stubGlobal('alert', vi.fn())
       const existingBook = { id: 'existing-id', title: 'Book', author: 'Author' }
       render(<BookFormModal book={existingBook} onClose={mockOnClose} onSave={mockOnSave} />)
-      
+
       fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }))
-      
+
       const savedBook = mockOnSave.mock.calls[0][0]
       expect(savedBook.id).toBe('existing-id')
     })
@@ -173,27 +167,45 @@ describe('BookFormModal', () => {
   })
 
   describe('ISBN duplicate check', () => {
-    it('shows error for duplicate ISBN in add mode', async () => {
-      vi.stubGlobal('alert', vi.fn())
+    it('shows error for duplicate ISBN in add mode', () => {
       const existingBooks = [
         { isbn: '1234567890', title: 'Existing', author: 'Author' }
       ]
-      
+
       render(
-        <BookFormModal 
-          books={existingBooks} 
-          onClose={mockOnClose} 
-          onSave={mockOnSave} 
+        <BookFormModal
+          books={existingBooks}
+          onClose={mockOnClose}
+          onSave={mockOnSave}
         />
       )
-      
+
       fireEvent.change(screen.getByLabelText('Title *'), { target: { value: 'New Book' } })
       fireEvent.change(screen.getByLabelText('Author *'), { target: { value: 'New Author' } })
       fireEvent.change(screen.getByLabelText('ISBN'), { target: { value: '1234567890' } })
       fireEvent.click(screen.getByRole('button', { name: 'Add Book' }))
-      
+
       expect(mockOnSave).not.toHaveBeenCalled()
       expect(screen.getByText(/ISBN already exists/)).toBeInTheDocument()
+    })
+
+    it('allows keeping same ISBN in edit mode', () => {
+      const existingBook = { id: '1', title: 'Book', author: 'Author', isbn: '1234567890' }
+      const existingBooks = [existingBook]
+
+      render(
+        <BookFormModal
+          book={existingBook}
+          books={existingBooks}
+          onClose={mockOnClose}
+          onSave={mockOnSave}
+        />
+      )
+
+      fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }))
+
+      expect(mockOnSave).toHaveBeenCalled()
+      expect(screen.queryByText(/ISBN already exists/)).not.toBeInTheDocument()
     })
   })
 })
