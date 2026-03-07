@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+
+vi.mock('../firebase/config', () => ({
+  auth: { currentUser: null },
+  db: {},
+  storage: {},
+}))
+
 import BookFormModal from '../components/BookFormModal'
 
 describe('BookFormModal', () => {
