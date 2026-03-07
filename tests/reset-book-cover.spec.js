@@ -34,7 +34,7 @@ test.describe('Reset Book Cover Feature', () => {
   async function addBookViaMenu(page, { title, author, isbn }) {
     // Open hamburger menu
     await page.getByRole('button', { name: 'Open menu' }).click()
-    await page.getByRole('button', { name: 'Add Book' }).click()
+    await page.getByRole('button', { name: 'Add Book (Manual)' }).click()
     await page.waitForSelector('.modal-content')
 
     await page.fill('#title', title)
@@ -135,7 +135,7 @@ test.describe('Reset Book Cover Feature', () => {
 
     // Open hamburger menu and click Add Book
     await page.getByRole('button', { name: 'Open menu' }).click()
-    await page.getByRole('button', { name: 'Add Book' }).click()
+    await page.getByRole('button', { name: 'Add Book (Manual)' }).click()
     await page.waitForSelector('.modal-content')
 
     // Should not show Reset Image button in add mode

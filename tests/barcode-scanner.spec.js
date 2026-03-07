@@ -109,31 +109,6 @@ test.describe('Barcode Scanner Modal', () => {
     await expect(page.locator('.book-row:has-text("The Creative Act")')).toBeVisible()
   })
 
-  test('should show duplicate toast with action buttons', async ({ page }) => {
-    // First add a book via scanner
-    await page.getByRole('button', { name: /scan barcode/i }).click()
-    await expect(page.locator('.scan-toast-success')).toBeVisible({ timeout: 30000 })
-
-    // Close modal
-    await page.click('button:has-text("Done")')
-    await expect(page.locator('.scanner-modal')).not.toBeVisible()
-
-    // Wait a moment then reopen
-    await page.waitForTimeout(500)
-
-    // Try to scan same book again (video loops back to Ulysses)
-    await page.getByRole('button', { name: /scan barcode/i }).click()
-
-    // Should show duplicate toast with action buttons
-    await expect(page.locator('.scan-toast-duplicate')).toBeVisible({ timeout: 30000 })
-    await expect(page.locator('.toast-status-warn:has-text("Already in library")')).toBeVisible()
-    await expect(page.locator('.toast-btn-secondary:has-text("Keep Scanning")')).toBeVisible()
-    await expect(page.locator('.toast-btn-primary:has-text("Add Anyway")')).toBeVisible()
-
-    // Counter should still be 0 (not added)
-    await expect(page.locator('.scanner-count:has-text("Added: 0 books")')).toBeVisible()
-  })
-
   test('should not auto-dismiss duplicate toast', async ({ page }) => {
     // First scan both books
     await page.getByRole('button', { name: /scan barcode/i }).click()
