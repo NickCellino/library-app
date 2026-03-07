@@ -1,0 +1,191 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import BookDetailModal from '../components/BookDetailModal'
+
+describe('BookDetailModal', () => {
+  const mockBook = {
+    id: '123',
+    title: 'The Great Gatsby',
+    author: 'F. Scott Fitzgerald',
+    isbn: '9780743273565',
+    publishYear: 1925,
+    publisher: 'Scribner',
+    pageCount: 180,
+    coverUrl: 'https://example.com/cover.jpg'
+  }
+
+  const mockOnClose = vi.fn()
+  const mockOnEdit = vi.fn()
+  const mockOnDelete = vi.fn()
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('confirm', vi.fn(() => true))
+  })
+
+  it('renders nothing when no book provided', () => {
+    const { container } = render(<BookDetailModal book={null} onClose={mockOnClose} />)
+    expect(container.firstChild).toBeNull()
+  })
+
+  it('displays book title', () => {
+    render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
+    expect(screen.getByText('The Great Gatsby')).toBeInTheDocument()
+  })
+
+  it('displays book author', () => {
+    render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
+    expect(screen.getByText('F. Scott Fitzgerald')).toBeInTheDocument()
+  })
+
+  it('displays book cover image', () => {
+    render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
+    const img = screen.getByAltText('Cover of The Great Gatsby')
+    expect(img).toBeInTheDocument()
+    expect(img.src).toBe('https://example.com/cover.jpg')
+  })
+
+  it('displays placeholder when no cover', () => {
+    const bookWithoutCover = { ...mockBook, coverUrl: null }
+    render(<BookDetailModal book={bookWithoutCover} onClose={mockOnClose} />)
+    expect(screen.getByText('📖')).toBeInTheDocument()
+  })
+
+  it('displays publish year', () => {
+    render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
+    expect(screen.getByText('1925')).toBeInTheDocument()
+  })
+
+  it('displays publisher', () => {
+    render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
+    expect(screen.getByText('Scribner')).toBeInTheDocument()
+  })
+
+  it('displays page count', () => {
+    render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
+    expect(screen.getByText('180 pages')).toBeInTheDocument()
+  })
+
+  it('displays ISBN', () => {
+    render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
+    expect(screen.getByText('ISBN: 9780743273565')).toBeInTheDocument()
+  })
+
+  it('has edit button', () => {
+    render(<BookDetailModal book={mockBook} onClose={mockOnClose} onEdit={mockOnEdit} />)
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument()
+  })
+
+  it('has delete button', () => {
+    render(<BookDetailModal book={mockBook} onClose={mockOnClose} onDelete={mockOnDelete} />)
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
+  })
+
+  describe('button actions', () => {
+    it('calls onEdit with book when edit clicked', () => {
+      render(
+        <BookDetailModal 
+          book={mockBook} 
+          onClose={mockOnClose} 
+          onEdit={mockOnEdit} 
+          onDelete={mockOnDelete} 
+        />
+      )
+      
+      fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+      
+      expect(mockOnEdit).toHaveBeenCalledWith(mockBook)
+      expect(mockOnClose).toHaveBeenCalled()
+    })
+
+    it('calls onDelete with book id when delete clicked', () => {
+      render(
+        <BookDetailModal 
+          book={mockBook} 
+          onClose={mockOnClose} 
+          onEdit={mockOnEdit} 
+          onDelete={mockOnDelete} 
+        />
+      )
+      
+      fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+      
+      expect(mockOnDelete).toHaveBeenCalledWith('123')
+      expect(mockOnClose).toHaveBeenCalled()
+    })
+  })
+
+  describe('closing', () => {
+    it('calls onClose when close button clicked', () => {
+      render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
+      
+      fireEvent.click(screen.getByRole('button', { name: /×/ }))
+      
+      expect(mockOnClose).toHaveBeenCalledTimes(1)
+    })
+
+    it('calls onClose when backdrop clicked', () => {
+      const { container } = render(<BookDetailModal book={mockBook} onClose={mockOnClose} />)
+      
+      fireEvent.click(container.querySelector('.detail-overlay'))
+      
+      expect(mockOnClose).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('lists', () => {
+    it('displays lists containing the book', () => {
+      const lists = [
+        { id: 'list1', name: 'Favorites', bookIds: ['123'] },
+        { id: 'list2', name: 'Read', bookIds: ['123', '456'] }
+      ]
+      
+      render(
+        <BookDetailModal 
+          book={mockBook} 
+          onClose={mockOnClose} 
+          lists={lists} 
+        />
+      )
+      
+      expect(screen.getByText('Favorites')).toBeInTheDocument()
+      expect(screen.getByText('Read')).toBeInTheDocument()
+    })
+
+    it('does not show list section when book not in any list', () => {
+      const lists = [
+        { id: 'list1', name: 'Favorites', bookIds: ['other-book'] }
+      ]
+      
+      render(
+        <BookDetailModal 
+          book={mockBook} 
+          onClose={mockOnClose} 
+          lists={lists} 
+        />
+      )
+      
+      expect(screen.queryByText('In:')).not.toBeInTheDocument()
+    })
+
+    it('calls onOpenList when list badge clicked', () => {
+      const mockOnOpenList = vi.fn()
+      const lists = [
+        { id: 'list1', name: 'Favorites', bookIds: ['123'] }
+      ]
+      
+      render(
+        <BookDetailModal 
+          book={mockBook} 
+          onClose={mockOnClose} 
+          lists={lists}
+          onOpenList={mockOnOpenList}
+        />
+      )
+      
+      fireEvent.click(screen.getByText('Favorites'))
+      
+      expect(mockOnOpenList).toHaveBeenCalledWith(lists[0])
+    })
+  })
+})
