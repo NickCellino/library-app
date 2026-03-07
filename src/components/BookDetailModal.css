@@ -102,6 +102,34 @@
   margin-bottom: var(--space-md);
 }
 
+.list-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.badge-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.list-badge {
+  background: var(--color-accent);
+  color: #0a0a0a;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  font-weight: 500;
+}
+
+.list-badge:hover {
+  transform: translateY(-1px);
+}
+
 .detail-meta {
   display: flex;
   flex-direction: column;

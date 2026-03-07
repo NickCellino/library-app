@@ -5,7 +5,7 @@ import './BookList.css'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('')
 
-function BookList({ books, onBookClick, totalBooks, totalAuthors }) {
+function BookList({ books, onBookClick, totalBooks, totalAuthors, showRemove = false, onRemove }) {
   const listRef = useRef(null)
   const authorRefs = useRef({})
   const [activeIndex, setActiveIndex] = useState(null)
@@ -96,6 +96,8 @@ function BookList({ books, onBookClick, totalBooks, totalAuthors }) {
                 key={book.id}
                 book={book}
                 onClick={onBookClick}
+                showRemove={showRemove}
+                onRemove={onRemove}
               />
             ))}
           </React.Fragment>

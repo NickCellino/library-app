@@ -9,8 +9,13 @@ import HamburgerMenu from './components/HamburgerMenu'
 import BookVisionTestModal from './components/BookVisionTestModal'
 import SignInPrompt from './components/SignInPrompt'
 import AdminPanel from './components/AdminPanel'
+import ListsViewModal from './components/ListsViewModal'
+import ListDetailModal from './components/ListDetailModal'
+import AddToListModal from './components/AddToListModal'
+import DeleteListConfirmModal from './components/DeleteListConfirmModal'
 import { useAuth } from './hooks/useAuth'
 import { useBooks } from './hooks/useBooks'
+import { useLists } from './hooks/useLists'
 import { useAdmin } from './hooks/useAdmin'
 import { isAdmin } from './config/adminConfig'
 import { generateTestBooks } from './utils/testData'
@@ -21,6 +26,16 @@ const isEmulatorMode = import.meta.env.VITE_USE_EMULATOR === 'true'
 function App() {
   const { user, loading: authLoading, signIn, signOut } = useAuth()
   const { books, loading: booksLoading, addBook, updateBook, deleteBook, setAllBooks } = useBooks(user)
+  const { 
+    lists, 
+    loading: listsLoading, 
+    addList, 
+    updateList, 
+    deleteList, 
+    addBookToList, 
+    removeBookFromList, 
+    removeBookFromAllLists 
+  } = useLists(user)
   const admin = useAdmin(user)
   const userIsAdmin = (user?.email && isAdmin(user.email)) || isEmulatorMode
 
@@ -35,6 +50,12 @@ function App() {
   const [searchExpanded, setSearchExpanded] = useState(false)
   const [showVisionTestModal, setShowVisionTestModal] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  
+  const [showListsModal, setShowListsModal] = useState(false)
+  const [selectedList, setSelectedList] = useState(null)
+  const [showListDetail, setShowListDetail] = useState(false)
+  const [showAddToList, setShowAddToList] = useState(false)
+  const [listToDelete, setListToDelete] = useState(null)
 
   const handleLoadTestData = () => {
     const testBooks = generateTestBooks()
@@ -45,6 +66,28 @@ function App() {
     if (window.confirm('Are you sure you want to delete all books? This cannot be undone.')) {
       setAllBooks([])
     }
+  }
+
+  const handleDeleteBook = async (bookId) => {
+    await removeBookFromAllLists(bookId)
+    await deleteBook(bookId)
+  }
+
+  const handleCreateList = async (name) => {
+    await addList(name)
+  }
+
+  const handleSelectList = (list) => {
+    setSelectedList(list)
+    setShowListsModal(false)
+    setShowListDetail(true)
+  }
+
+  const handleDeleteList = async (listId) => {
+    await deleteList(listId)
+    setShowListDetail(false)
+    setSelectedList(null)
+    setListToDelete(null)
   }
 
 
@@ -205,7 +248,13 @@ function App() {
           book={selectedBook}
           onClose={() => setSelectedBook(null)}
           onEdit={setEditingBook}
-          onDelete={deleteBook}
+          onDelete={handleDeleteBook}
+          lists={lists}
+          onOpenList={(list) => {
+            setSelectedBook(null)
+            setSelectedList(list)
+            setShowListDetail(true)
+          }}
         />
       )}
 
@@ -254,6 +303,10 @@ function App() {
         isAdmin={userIsAdmin}
         onOpenAdmin={() => setShowAdminPanel(true)}
         onTestVision={() => setShowVisionTestModal(true)}
+        onShowLists={() => {
+          setShowHamburger(false)
+          setShowListsModal(true)
+        }}
       />
 
       {showAdminPanel && (
@@ -271,6 +324,58 @@ function App() {
 
       {showVisionTestModal && (
         <BookVisionTestModal onClose={() => setShowVisionTestModal(false)} />
+      )}
+
+      {showListsModal && (
+        <ListsViewModal
+          isOpen={showListsModal}
+          onClose={() => setShowListsModal(false)}
+          lists={lists}
+          onSelectList={handleSelectList}
+          onCreateList={handleCreateList}
+          onDeleteList={(list) => setListToDelete(list)}
+          loading={listsLoading}
+        />
+      )}
+
+      {showListDetail && selectedList && (
+        <ListDetailModal
+          isOpen={showListDetail}
+          onClose={() => {
+            setShowListDetail(false)
+            setSelectedList(null)
+          }}
+          list={selectedList}
+          books={books}
+          onAddBooks={() => setShowAddToList(true)}
+          onRemoveBook={(bookId) => removeBookFromList(selectedList.id, bookId)}
+          onUpdateListName={updateList}
+          onDeleteList={() => setListToDelete(selectedList)}
+        />
+      )}
+
+      {showAddToList && selectedList && (
+        <AddToListModal
+          isOpen={showAddToList}
+          onClose={() => setShowAddToList(false)}
+          list={selectedList}
+          books={books}
+          onAddBook={(bookId) => addBookToList(selectedList.id, bookId)}
+          onAddNewBook={async (book) => {
+            await addBook(book)
+            await addBookToList(selectedList.id, book.id)
+          }}
+        />
+      )}
+
+      {listToDelete && (
+        <DeleteListConfirmModal
+          isOpen={!!listToDelete}
+          onClose={() => setListToDelete(null)}
+          onConfirm={() => handleDeleteList(listToDelete.id)}
+          list={listToDelete}
+          books={books}
+        />
       )}
 
       {/* Floating Action Button for barcode scanning */}

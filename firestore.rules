@@ -14,6 +14,11 @@ service cloud.firestore {
         allow read, write: if request.auth.uid == userId;
         allow read: if isAdmin();
       }
+
+      match /lists/{listId} {
+        allow read, write: if request.auth.uid == userId;
+        allow read: if isAdmin();
+      }
     }
   }
 }

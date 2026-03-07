@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin, onTestVision }) {
+function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin, onTestVision, onShowLists }) {
   const [showDevTools, setShowDevTools] = useState(false)
 
   useEffect(() => {
@@ -81,6 +81,13 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestDa
               )}
             </>
           )}
+
+          <div className="hamburger-divider" />
+
+          <button className="hamburger-item" onClick={() => handleAction(onShowLists)}>
+            <span className="hamburger-icon">📚</span>
+            My Lists
+          </button>
 
           <div className="hamburger-divider" />
 

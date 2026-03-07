@@ -1,6 +1,6 @@
 import './BookDetailModal.css'
 
-function BookDetailModal({ book, onClose, onEdit, onDelete }) {
+function BookDetailModal({ book, onClose, onEdit, onDelete, lists = [], onOpenList }) {
   if (!book) return null
 
   const handleBackdropClick = (e) => {
@@ -13,6 +13,8 @@ function BookDetailModal({ book, onClose, onEdit, onDelete }) {
       onClose()
     }
   }
+
+  const containingLists = lists.filter(list => list.bookIds.includes(book.id))
 
   return (
     <div className="detail-overlay" onClick={handleBackdropClick}>
@@ -33,6 +35,21 @@ function BookDetailModal({ book, onClose, onEdit, onDelete }) {
           <div className="detail-info">
             <h2 className="detail-title">{book.title}</h2>
             {book.author && <p className="detail-author">{book.author}</p>}
+
+            {containingLists.length > 0 && (
+              <div className="list-badges">
+                <span className="badge-label">In:</span>
+                {containingLists.map(list => (
+                  <span 
+                    key={list.id} 
+                    className="list-badge"
+                    onClick={() => onOpenList && onOpenList(list)}
+                  >
+                    {list.name}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="detail-meta">
               {book.publishYear && <span>{book.publishYear}</span>}

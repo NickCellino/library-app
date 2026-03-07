@@ -1,0 +1,230 @@
+.list-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 150;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.list-detail-modal {
+  background: var(--gradient-surface);
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  border-radius: 16px 16px 0 0;
+  position: relative;
+  animation: slideUp 0.25s ease;
+  overflow-y: auto;
+  box-shadow:
+    var(--shadow-elevation-3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.list-detail-close {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: var(--space-xs);
+  line-height: 1;
+  z-index: 10;
+}
+
+.list-detail-header {
+  padding: var(--space-lg);
+  padding-right: var(--space-xl);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.list-detail-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.list-detail-edit-icon {
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.list-detail-title:hover .list-detail-edit-icon {
+  opacity: 0.5;
+}
+
+.list-detail-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.list-detail-edit-form input {
+  width: 100%;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-family: var(--font-serif);
+  font-weight: 600;
+}
+
+.list-detail-edit-form input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.list-detail-edit-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.list-detail-edit-cancel,
+.list-detail-edit-save {
+  flex: 1;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.list-detail-edit-cancel {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.list-detail-edit-save {
+  background: var(--color-accent);
+  border: none;
+  color: #0a0a0a;
+}
+
+.list-detail-edit-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.list-detail-edit-error {
+  color: #e74c3c;
+  font-size: 0.85rem;
+}
+
+.list-detail-actions {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.list-detail-add-btn {
+  width: 100%;
+  background: var(--color-accent);
+  color: #0a0a0a;
+  border: none;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.list-detail-add-btn:hover {
+  transform: translateY(-1px);
+}
+
+.list-detail-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 200px;
+}
+
+.list-detail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  text-align: center;
+  padding: var(--space-lg);
+}
+
+.list-detail-empty-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-md);
+  opacity: 0.5;
+}
+
+.list-detail-empty-title {
+  font-size: 1.2rem;
+  color: var(--color-text);
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.list-detail-empty-subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.list-detail-footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.list-detail-delete-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.list-detail-delete-btn:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+@media (min-width: 769px) {
+  .list-detail-overlay {
+    align-items: center;
+  }
+
+  .list-detail-modal {
+    border-radius: 16px;
+    max-height: 90vh;
+  }
+}

@@ -1,9 +1,14 @@
 import './BookCard.css'
 
-function BookCard({ book, onClick }) {
+function BookCard({ book, onClick, showRemove = false, onRemove }) {
   const metaParts = []
   if (book.pageCount) metaParts.push(`${book.pageCount} pp`)
   if (book.publishYear) metaParts.push(book.publishYear)
+
+  const handleRemove = (e) => {
+    e.stopPropagation()
+    if (onRemove) onRemove(book.id)
+  }
 
   return (
     <div className="book-row" onClick={() => onClick(book)}>
@@ -24,6 +29,16 @@ function BookCard({ book, onClick }) {
           <span className="book-row-meta">{metaParts.join(' · ')}</span>
         )}
       </div>
+
+      {showRemove && (
+        <button 
+          className="book-row-remove"
+          onClick={handleRemove}
+          title="Remove from list"
+        >
+          ×
+        </button>
+      )}
     </div>
   )
 }
