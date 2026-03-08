@@ -53,3 +53,5 @@ terraform/terraform.tfvars
 playwright-screenshots/
 .vercel
 .env*.local
+
+.agents/
