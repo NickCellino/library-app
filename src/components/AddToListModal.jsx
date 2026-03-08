@@ -6,6 +6,8 @@ import { fetchBookByISBN } from '../utils/googleBooksApi'
 import BookCard from './BookCard'
 import './AddToListModal.css'
 
+const COOLDOWN_MS = 5000 // 5s cooldown before re-scanning same ISBN
+
 function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook }) {
   const [activeTab, setActiveTab] = useState('search')
   const [searchQuery, setSearchQuery] = useState('')
@@ -15,12 +17,13 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
   const [isScanning, setIsScanning] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingISBN, setLoadingISBN] = useState('')
-  
+
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const streamRef = useRef(null)
   const animationFrameRef = useRef(null)
   const isProcessingRef = useRef(false)
+  const recentISBNs = useRef(new Map()) // ISBN -> timestamp
   const toastTimeoutRef = useRef(null)
   const booksRef = useRef(books)
   const listRef = useRef(list)
@@ -47,6 +50,16 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
       setCurrentToast(null)
     }, 2500)
   }, [])
+
+  const isOnCooldown = (isbn) => {
+    const lastScan = recentISBNs.current.get(isbn)
+    if (!lastScan) return false
+    return Date.now() - lastScan < COOLDOWN_MS
+  }
+
+  const addToCooldown = (isbn) => {
+    recentISBNs.current.set(isbn, Date.now())
+  }
 
   const fuse = useMemo(() => {
     return new Fuse(books, {
@@ -155,8 +168,11 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
 
         if (results.length > 0) {
           const isbn = results[0].text
-          isProcessingRef.current = true
-          await processISBN(isbn)
+          if (!isOnCooldown(isbn)) {
+            isProcessingRef.current = true
+            addToCooldown(isbn)
+            await processISBN(isbn)
+          }
         }
       } catch (err) {
         // Ignore decode errors
