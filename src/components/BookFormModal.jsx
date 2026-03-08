@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { v4 as uuidv4 } from '../utils/uuid'
 import { fetchBookByISBN, fetchBookCoverByTitleAuthor } from '../utils/googleBooksApi'
+import { searchBookCovers } from '../utils/bookCoverSearch'
 import { processImageFile } from '../utils/imageProcessor'
 import { uploadBookCover, deleteBookCover, isFirebaseStorageUrl } from '../utils/firebaseStorage'
 import { auth } from '../firebase/config'
@@ -31,6 +32,8 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
   const [isbnError, setIsbnError] = useState('')
   const [uploadingCover, setUploadingCover] = useState(false)
   const [isResettingCover, setIsResettingCover] = useState(false)
+  const [coverSearchResults, setCoverSearchResults] = useState([])
+  const [isSearchingCovers, setIsSearchingCovers] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -141,6 +144,36 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
     }
 
     setFormData(prev => ({ ...prev, coverUrl: '' }))
+    setCoverSearchResults([])
+  }
+
+  const handleSearchCovers = async () => {
+    if (!formData.title && !formData.author) {
+      alert('Please enter at least a title or author to search for covers')
+      return
+    }
+
+    setIsSearchingCovers(true)
+    setCoverSearchResults([])
+
+    try {
+      const covers = await searchBookCovers(formData.title, formData.author)
+      if (covers.length === 0) {
+        alert('No cover images found for this book')
+      } else {
+        setCoverSearchResults(covers)
+      }
+    } catch (error) {
+      console.error('Error searching covers:', error)
+      alert(error.message || 'Failed to search for covers')
+    } finally {
+      setIsSearchingCovers(false)
+    }
+  }
+
+  const handleSelectCover = (coverUrl) => {
+    setFormData(prev => ({ ...prev, coverUrl }))
+    setCoverSearchResults([])
   }
 
   const handleSubmit = (e) => {
@@ -310,7 +343,7 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
                   type="button"
                   className="btn btn-secondary"
                   onClick={handleClearCover}
-                  disabled={uploadingCover || isResettingCover}
+                  disabled={uploadingCover || isResettingCover || isSearchingCovers}
                 >
                   Clear Cover
                 </button>
@@ -321,12 +354,42 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
                   type="button"
                   className="btn btn-secondary"
                   onClick={resetCoverFromISBN}
-                  disabled={uploadingCover || isResettingCover}
+                  disabled={uploadingCover || isResettingCover || isSearchingCovers}
                 >
                   {isResettingCover ? 'Resetting...' : 'Reset Image'}
                 </button>
               )}
+
+              {(formData.title || formData.author) && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleSearchCovers}
+                  disabled={uploadingCover || isResettingCover || isSearchingCovers}
+                >
+                  {isSearchingCovers ? 'Searching...' : 'Find Online'}
+                </button>
+              )}
             </div>
+
+            {coverSearchResults.length > 0 && (
+              <div className="cover-search-results">
+                <p className="cover-search-hint">Click an image to use it:</p>
+                <div className="cover-search-grid">
+                  {coverSearchResults.map((cover, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      className="cover-search-option"
+                      onClick={() => handleSelectCover(cover.url)}
+                      title={cover.source}
+                    >
+                      <img src={cover.url} alt={`Cover option ${index + 1}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <input
               type="url"
