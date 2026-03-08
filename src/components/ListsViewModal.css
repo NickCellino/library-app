@@ -36,53 +36,47 @@
   to { transform: translateY(0); }
 }
 
-.lists-close {
-  position: absolute;
-  top: var(--space-sm);
-  right: var(--space-sm);
-  background: none;
-  border: none;
-  font-size: 1.75rem;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: var(--space-xs);
-  line-height: 1;
-}
-
 .lists-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-md);
-  padding-right: var(--space-xl);
 }
 
-.lists-header h2 {
+.lists-back {
+  background: none;
+  border: none;
   font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-text);
-  margin: 0;
-}
-
-.lists-create-btn {
-  background: var(--color-accent);
-  color: #0a0a0a;
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  font-size: 1.5rem;
-  font-weight: 600;
   cursor: pointer;
+  padding: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: transform 0.15s ease;
+  gap: var(--space-sm);
+  transition: opacity 0.15s ease;
 }
 
-.lists-create-btn:hover {
-  transform: scale(1.05);
+.lists-back:hover {
+  opacity: 0.8;
+}
+
+.lists-add-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 228, 94, 0.3);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-md);
+  transition: all 0.15s ease;
+}
+
+.lists-add-btn:hover {
+  background: rgba(255, 228, 94, 0.1);
+  border-color: rgba(255, 228, 94, 0.5);
 }
 
 .lists-create-form {
@@ -184,22 +178,6 @@
   font-size: 0.9rem;
   color: var(--color-text-muted);
   margin: 0 0 var(--space-md) 0;
-}
-
-.lists-empty-btn {
-  background: var(--color-accent);
-  color: #0a0a0a;
-  border: none;
-  padding: var(--space-sm) var(--space-lg);
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-}
-
-.lists-empty-btn:hover {
-  transform: translateY(-1px);
 }
 
 .lists-items {

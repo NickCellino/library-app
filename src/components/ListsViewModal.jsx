@@ -34,16 +34,16 @@ function ListsViewModal({ isOpen, onClose, lists, onSelectList, onCreateList, lo
   return (
     <div className="lists-overlay" onClick={handleBackdropClick}>
       <div className="lists-modal">
-        <button className="lists-close" onClick={onClose}>×</button>
-
         <div className="lists-header">
-          <h2>My Lists</h2>
+          <button className="lists-back" onClick={onClose}>
+            ← My Lists
+          </button>
           {!showCreateForm && (
             <button 
-              className="lists-create-btn"
+              className="lists-add-btn"
               onClick={() => setShowCreateForm(true)}
             >
-              +
+              Add list
             </button>
           )}
         </div>
@@ -91,14 +91,7 @@ function ListsViewModal({ isOpen, onClose, lists, onSelectList, onCreateList, lo
               <div className="lists-empty-icon">📚</div>
               <p className="lists-empty-title">No lists yet</p>
               <p className="lists-empty-subtitle">Create your first list to organize your books</p>
-              {!showCreateForm && (
-                <button 
-                  className="lists-empty-btn"
-                  onClick={() => setShowCreateForm(true)}
-                >
-                  Create List
-                </button>
-              )}
+    
             </div>
           ) : (
             <div className="lists-items">
