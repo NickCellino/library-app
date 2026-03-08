@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onOpenAdmin, onTestVision, onShowLists }) {
+function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onTestVision, onShowLists }) {
   const [showDevTools, setShowDevTools] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (isOpen) {
@@ -71,7 +73,7 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestDa
                     </button>
                   )}
 
-                  <button className="hamburger-item hamburger-item-sub" onClick={() => handleAction(onOpenAdmin)}>
+                  <button className="hamburger-item hamburger-item-sub" onClick={() => { onClose(); navigate('/admin'); }}>
                     <span className="hamburger-icon">👤</span>
                     Admin Panel
                   </button>

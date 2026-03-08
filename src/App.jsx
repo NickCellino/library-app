@@ -9,12 +9,10 @@ import BookSearchModal from './components/BookSearchModal'
 import HamburgerMenu from './components/HamburgerMenu'
 import BookVisionTestModal from './components/BookVisionTestModal'
 import SignInPrompt from './components/SignInPrompt'
-import AdminPanel from './components/AdminPanel'
 import ListsViewModal from './components/ListsViewModal'
 import { useAuth } from './hooks/useAuth'
 import { useBooks } from './hooks/useBooks'
 import { useLists } from './hooks/useLists'
-import { useAdmin } from './hooks/useAdmin'
 import { isAdmin } from './config/adminConfig'
 import { generateTestBooks } from './utils/testData'
 import './App.css'
@@ -31,11 +29,9 @@ function App() {
     addList, 
     removeBookFromAllLists 
   } = useLists(user)
-  const admin = useAdmin(user)
   const userIsAdmin = (user?.email && isAdmin(user.email)) || isEmulatorMode
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [showAdminPanel, setShowAdminPanel] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showScannerModal, setShowScannerModal] = useState(false)
   const [showSearchModal, setShowSearchModal] = useState(false)
@@ -282,26 +278,12 @@ function App() {
         user={user}
         onSignOut={signOut}
         isAdmin={userIsAdmin}
-        onOpenAdmin={() => setShowAdminPanel(true)}
         onTestVision={() => setShowVisionTestModal(true)}
         onShowLists={() => {
           setShowHamburger(false)
           setShowListsModal(true)
         }}
       />
-
-      {showAdminPanel && (
-        <AdminPanel
-          onClose={() => setShowAdminPanel(false)}
-          users={admin.users}
-          userBooks={admin.userBooks}
-          loading={admin.loading}
-          selectedUser={admin.selectedUser}
-          fetchUsers={admin.fetchUsers}
-          fetchUserBooks={admin.fetchUserBooks}
-          clearSelectedUser={admin.clearSelectedUser}
-        />
-      )}
 
       {showVisionTestModal && (
         <BookVisionTestModal onClose={() => setShowVisionTestModal(false)} />

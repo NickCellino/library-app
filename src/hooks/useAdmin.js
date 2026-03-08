@@ -6,8 +6,10 @@ import { isAdmin } from '../config/adminConfig'
 export function useAdmin(user) {
   const [users, setUsers] = useState([])
   const [userBooks, setUserBooks] = useState([])
+  const [userLists, setUserLists] = useState([])
   const [loading, setLoading] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
+  const [selectedList, setSelectedList] = useState(null)
 
   const canAccess = user?.email && isAdmin(user.email)
 
@@ -43,19 +45,46 @@ export function useAdmin(user) {
     }
   }, [canAccess])
 
+  const fetchUserLists = useCallback(async (uid) => {
+    if (!canAccess) return
+    setLoading(true)
+    try {
+      const listsRef = collection(db, 'users', uid, 'lists')
+      const q = query(listsRef, orderBy('updatedAt', 'desc'))
+      const snapshot = await getDocs(q)
+      const lists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      setUserLists(lists)
+    } catch (error) {
+      console.error('Failed to fetch user lists:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [canAccess])
+
   const clearSelectedUser = useCallback(() => {
     setSelectedUser(null)
     setUserBooks([])
+    setUserLists([])
+    setSelectedList(null)
+  }, [])
+
+  const clearSelectedList = useCallback(() => {
+    setSelectedList(null)
   }, [])
 
   return {
     users,
     userBooks,
+    userLists,
     loading,
     selectedUser,
+    selectedList,
     canAccess,
     fetchUsers,
     fetchUserBooks,
-    clearSelectedUser
+    fetchUserLists,
+    clearSelectedUser,
+    clearSelectedList,
+    setSelectedList
   }
 }
