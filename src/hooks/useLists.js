@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { collection, doc, onSnapshot, setDoc, deleteDoc, writeBatch, query, orderBy } from 'firebase/firestore'
+import { collection, doc, onSnapshot, setDoc, deleteDoc, writeBatch, query, orderBy, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { v4 as uuidv4 } from '../utils/uuid'
 
@@ -85,13 +85,10 @@ export function useLists(user) {
     
     if (list.bookIds.includes(bookId)) return
 
-    const updatedList = {
-      ...list,
-      bookIds: [...list.bookIds, bookId],
+    await updateDoc(doc(db, 'users', user.uid, 'lists', listId), {
+      bookIds: arrayUnion(bookId),
       updatedAt: new Date().toISOString()
-    }
-
-    await setDoc(doc(db, 'users', user.uid, 'lists', listId), updatedList)
+    })
   }, [user, lists])
 
   const removeBookFromList = useCallback(async (listId, bookId) => {
@@ -100,31 +97,27 @@ export function useLists(user) {
     const list = lists.find(l => l.id === listId)
     if (!list) return
 
-    const updatedList = {
-      ...list,
-      bookIds: list.bookIds.filter(id => id !== bookId),
+    await updateDoc(doc(db, 'users', user.uid, 'lists', listId), {
+      bookIds: arrayRemove(bookId),
       updatedAt: new Date().toISOString()
-    }
-
-    await setDoc(doc(db, 'users', user.uid, 'lists', listId), updatedList)
+    })
   }, [user, lists])
 
   const removeBookFromAllLists = useCallback(async (bookId) => {
     if (!user) return
-    
+
     const batch = writeBatch(db)
-    
+
     lists.forEach(list => {
       if (list.bookIds.includes(bookId)) {
-        const updatedList = {
-          ...list,
-          bookIds: list.bookIds.filter(id => id !== bookId),
+        const listRef = doc(db, 'users', user.uid, 'lists', list.id)
+        batch.update(listRef, {
+          bookIds: arrayRemove(bookId),
           updatedAt: new Date().toISOString()
-        }
-        batch.set(doc(db, 'users', user.uid, 'lists', list.id), updatedList)
+        })
       }
     })
-    
+
     await batch.commit()
   }, [user, lists])
 
