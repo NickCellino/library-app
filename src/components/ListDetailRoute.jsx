@@ -68,12 +68,12 @@ function ListDetailRoute() {
   }
 
   const handleBack = () => {
-    navigate('/')
+    navigate('/lists')
   }
 
   const handleDeleteList = async () => {
     await deleteList(listId)
-    navigate('/')
+    navigate('/lists')
   }
 
   return (

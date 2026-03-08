@@ -9,7 +9,6 @@ import BookSearchModal from './components/BookSearchModal'
 import HamburgerMenu from './components/HamburgerMenu'
 import BookVisionTestModal from './components/BookVisionTestModal'
 import SignInPrompt from './components/SignInPrompt'
-import ListsViewModal from './components/ListsViewModal'
 import { useAuth } from './hooks/useAuth'
 import { useBooks } from './hooks/useBooks'
 import { useLists } from './hooks/useLists'
@@ -25,8 +24,6 @@ function App() {
   const { books, loading: booksLoading, addBook, updateBook, deleteBook, setAllBooks } = useBooks(user)
   const { 
     lists, 
-    loading: listsLoading, 
-    addList, 
     removeBookFromAllLists 
   } = useLists(user)
   const userIsAdmin = (user?.email && isAdmin(user.email)) || isEmulatorMode
@@ -41,8 +38,6 @@ function App() {
   const [searchExpanded, setSearchExpanded] = useState(false)
   const [showVisionTestModal, setShowVisionTestModal] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  
-  const [showListsModal, setShowListsModal] = useState(false)
 
   const handleLoadTestData = () => {
     const testBooks = generateTestBooks()
@@ -59,15 +54,6 @@ function App() {
     await removeBookFromAllLists(bookId)
     await deleteBook(bookId)
   }
-
-  const handleCreateList = async (name) => {
-    await addList(name)
-  }
-
-  const handleSelectList = (list) => {
-    navigate(`/list/${list.id}`)
-  }
-
 
   // Fuzzy search implementation
   const fuse = useMemo(() => {
@@ -281,23 +267,12 @@ function App() {
         onTestVision={() => setShowVisionTestModal(true)}
         onShowLists={() => {
           setShowHamburger(false)
-          setShowListsModal(true)
+          navigate('/lists')
         }}
       />
 
       {showVisionTestModal && (
         <BookVisionTestModal onClose={() => setShowVisionTestModal(false)} />
-      )}
-
-      {showListsModal && (
-        <ListsViewModal
-          isOpen={showListsModal}
-          onClose={() => setShowListsModal(false)}
-          lists={lists}
-          onSelectList={handleSelectList}
-          onCreateList={handleCreateList}
-          loading={listsLoading}
-        />
       )}
 
       {/* Floating Action Button for barcode scanning */}

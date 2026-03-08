@@ -1,67 +1,3 @@
-.lists-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 150;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.lists-modal {
-  background: var(--gradient-surface);
-  width: 100%;
-  max-width: 500px;
-  max-height: 85vh;
-  border-radius: 16px 16px 0 0;
-  padding: var(--space-lg);
-  position: relative;
-  animation: slideUp 0.25s ease;
-  overflow-y: auto;
-  box-shadow:
-    var(--shadow-elevation-3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.lists-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-md);
-}
-
-.lists-back {
-  background: none;
-  border: none;
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--color-text);
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  transition: opacity 0.15s ease;
-}
-
-.lists-back:hover {
-  opacity: 0.8;
-}
-
 .lists-add-btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 228, 94, 0.3);
@@ -83,7 +19,7 @@
   background: rgba(0, 0, 0, 0.2);
   padding: var(--space-md);
   border-radius: 8px;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
 
 .lists-create-form input {
@@ -160,6 +96,7 @@
   justify-content: center;
   height: 200px;
   text-align: center;
+  margin-top: var(--space-xl);
 }
 
 .lists-empty-icon {
@@ -231,28 +168,16 @@
   opacity: 0.5;
 }
 
-.lists-item-delete {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: var(--space-xs);
+.lists-item-arrow {
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
   opacity: 0.5;
   transition: opacity 0.15s ease;
-  flex-shrink: 0;
 }
 
-.lists-item-delete:hover {
+.lists-item:hover .lists-item-arrow {
   opacity: 1;
-}
-
-@media (min-width: 769px) {
-  .lists-overlay {
-    align-items: center;
-  }
-
-  .lists-modal {
-    border-radius: 16px;
-    max-height: 90vh;
-  }
+  color: var(--color-accent);
 }
