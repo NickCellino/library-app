@@ -347,7 +347,6 @@ input, textarea, select {
   flex-shrink: 0;
   background: transparent;
   border-radius: 8px;
-  border: 1px solid rgba(255, 228, 94, 0.3);
   color: rgba(255, 228, 94, 0.9);
 }
 
@@ -357,7 +356,6 @@ input, textarea, select {
 
 .hamburger-item-danger .hamburger-icon {
   background: rgba(255, 107, 107, 0.15);
-  border-color: rgba(255, 107, 107, 0.3);
 }
 
 .hamburger-item-danger:hover {
@@ -383,7 +381,6 @@ input, textarea, select {
 
 .hamburger-dev-toggle .hamburger-icon {
   background: rgba(107, 140, 174, 0.15);
-  border-color: rgba(107, 140, 174, 0.3);
 }
 
 .hamburger-chevron {
