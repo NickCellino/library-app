@@ -339,16 +339,16 @@ input, textarea, select {
 }
 
 .hamburger-icon {
-  font-size: 1.4rem;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: rgba(255, 228, 94, 0.1);
+  background: transparent;
   border-radius: 8px;
-  border: 1px solid rgba(255, 228, 94, 0.2);
+  border: 1px solid rgba(255, 228, 94, 0.3);
+  color: rgba(255, 228, 94, 0.9);
 }
 
 .hamburger-item-danger {
@@ -370,28 +370,9 @@ input, textarea, select {
 
 .hamburger-divider {
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 228, 94, 0.2) 20%,
-    rgba(255, 228, 94, 0.2) 80%,
-    transparent 100%
-  );
+  background: rgba(255, 228, 94, 0.2);
   margin: var(--space-md) var(--space-sm);
   position: relative;
-}
-
-.hamburger-divider::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 4px;
-  height: 4px;
-  background: var(--color-accent);
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(255, 228, 94, 0.5);
 }
 
 /* Dev Tools Section */
@@ -442,7 +423,6 @@ input, textarea, select {
   margin-top: auto;
   padding: var(--space-md);
   background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
-  border-top: 1px solid rgba(255, 228, 94, 0.1);
 }
 
 .hamburger-auth-hint {
@@ -524,21 +504,6 @@ input, textarea, select {
   border: 1px solid rgba(255, 228, 94, 0.1);
   position: relative;
   overflow: hidden;
-}
-
-.hamburger-user-info::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--color-accent) 50%,
-    transparent 100%
-  );
 }
 
 .hamburger-user-email {

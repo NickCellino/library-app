@@ -1,0 +1,111 @@
+- generic [ref=e3]:
+  - banner [ref=e6]:
+    - generic [ref=e8]:
+      - heading "Library" [level=1] [ref=e9]
+      - generic [ref=e10]:
+        - button "Search" [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+        - button "Open menu" [ref=e15] [cursor=pointer]: ☰
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]: 10 books
+        - text: ·
+        - generic [ref=e20]: 6 authors
+      - generic [ref=e21]:
+        - generic [ref=e22]: Jane Austen
+        - generic [ref=e23] [cursor=pointer]:
+          - img "Cover of Pride and Prejudice" [ref=e25]
+          - generic [ref=e26]:
+            - generic [ref=e27]: Pride and Prejudice
+            - generic [ref=e28]: Jane Austen
+            - generic [ref=e29]: 432 pp · 1813
+        - generic [ref=e30] [cursor=pointer]:
+          - img "Cover of Emma" [ref=e32]
+          - generic [ref=e33]:
+            - generic [ref=e34]: Emma
+            - generic [ref=e35]: Jane Austen
+            - generic [ref=e36]: 474 pp · 1815
+        - generic [ref=e37]: F. Scott Fitzgerald
+        - generic [ref=e38] [cursor=pointer]:
+          - img "Cover of Tender Is the Night" [ref=e40]
+          - generic [ref=e41]:
+            - generic [ref=e42]: Tender Is the Night
+            - generic [ref=e43]: F. Scott Fitzgerald
+            - generic [ref=e44]: 320 pp · 1934
+        - generic [ref=e45] [cursor=pointer]:
+          - img "Cover of The Great Gatsby" [ref=e47]
+          - generic [ref=e48]:
+            - generic [ref=e49]: The Great Gatsby
+            - generic [ref=e50]: F. Scott Fitzgerald
+            - generic [ref=e51]: 180 pp · 1925
+        - generic [ref=e52]: Harper Lee
+        - generic [ref=e53] [cursor=pointer]:
+          - img "Cover of To Kill a Mockingbird" [ref=e55]
+          - generic [ref=e56]:
+            - generic [ref=e57]: To Kill a Mockingbird
+            - generic [ref=e58]: Harper Lee
+            - generic [ref=e59]: 324 pp · 1960
+        - generic [ref=e60]: George Orwell
+        - generic [ref=e61] [cursor=pointer]:
+          - img "Cover of Animal Farm" [ref=e63]
+          - generic [ref=e64]:
+            - generic [ref=e65]: Animal Farm
+            - generic [ref=e66]: George Orwell
+            - generic [ref=e67]: 112 pp · 1945
+        - generic [ref=e68] [cursor=pointer]:
+          - img "Cover of 1984" [ref=e70]
+          - generic [ref=e71]:
+            - generic [ref=e72]: "1984"
+            - generic [ref=e73]: George Orwell
+            - generic [ref=e74]: 328 pp · 1949
+        - generic [ref=e75]: J.D. Salinger
+        - generic [ref=e76] [cursor=pointer]:
+          - img "Cover of The Catcher in the Rye" [ref=e78]
+          - generic [ref=e79]:
+            - generic [ref=e80]: The Catcher in the Rye
+            - generic [ref=e81]: J.D. Salinger
+            - generic [ref=e82]: 234 pp · 1951
+        - generic [ref=e83]: J.R.R. Tolkien
+        - generic [ref=e84] [cursor=pointer]:
+          - img "Cover of The Lord of the Rings" [ref=e86]
+          - generic [ref=e87]:
+            - generic [ref=e88]: The Lord of the Rings
+            - generic [ref=e89]: J.R.R. Tolkien
+            - generic [ref=e90]: 1178 pp · 1954
+        - generic [ref=e91] [cursor=pointer]:
+          - img "Cover of The Hobbit" [ref=e93]
+          - generic [ref=e94]:
+            - generic [ref=e95]: The Hobbit
+            - generic [ref=e96]: J.R.R. Tolkien
+            - generic [ref=e97]: 310 pp · 1937
+      - generic [ref=e98]:
+        - generic [ref=e99] [cursor=pointer]: A
+        - generic [ref=e100] [cursor=pointer]: B
+        - generic [ref=e101] [cursor=pointer]: C
+        - generic [ref=e102] [cursor=pointer]: D
+        - generic [ref=e103] [cursor=pointer]: E
+        - generic [ref=e104] [cursor=pointer]: F
+        - generic [ref=e105] [cursor=pointer]: G
+        - generic [ref=e106] [cursor=pointer]: H
+        - generic [ref=e107] [cursor=pointer]: I
+        - generic [ref=e108] [cursor=pointer]: J
+        - generic [ref=e109] [cursor=pointer]: K
+        - generic [ref=e110] [cursor=pointer]: L
+        - generic [ref=e111] [cursor=pointer]: M
+        - generic [ref=e112] [cursor=pointer]: "N"
+        - generic [ref=e113] [cursor=pointer]: O
+        - generic [ref=e114] [cursor=pointer]: P
+        - generic [ref=e115] [cursor=pointer]: Q
+        - generic [ref=e116] [cursor=pointer]: R
+        - generic [ref=e117] [cursor=pointer]: S
+        - generic [ref=e118] [cursor=pointer]: T
+        - generic [ref=e119] [cursor=pointer]: U
+        - generic [ref=e120] [cursor=pointer]: V
+        - generic [ref=e121] [cursor=pointer]: W
+        - generic [ref=e122] [cursor=pointer]: X
+        - generic [ref=e123] [cursor=pointer]: "Y"
+        - generic [ref=e124] [cursor=pointer]: Z
+        - generic [ref=e125] [cursor=pointer]: "#"
+  - button "Scan barcode" [ref=e126] [cursor=pointer]:
+    - img [ref=e127]
