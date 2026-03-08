@@ -60,7 +60,8 @@ html, body {
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-bg);
+  background: linear-gradient(180deg, #111111 0%, #080808 50%, #000000 100%);
+  background-attachment: fixed;
   color: var(--color-text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
