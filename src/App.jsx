@@ -170,7 +170,7 @@ function App() {
               </div>
             ) : (
               <>
-                <h1 className="logo">Library</h1>
+                <h1 className="logo">library</h1>
                 <div className="header-right">
                   {books.length > 0 && (
                     <button
