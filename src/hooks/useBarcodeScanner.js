@@ -2,9 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { readBarcodes } from 'zxing-wasm/reader'
 
 export const DEFAULT_COOLDOWN_MS = 5000
+export const DEFAULT_SCAN_FPS = 10
 
 export function useBarcodeScanner({
   cooldownMs = DEFAULT_COOLDOWN_MS,
+  scanFps = DEFAULT_SCAN_FPS,
+  canvasWidth = DEFAULT_CANVAS_WIDTH,
   onScan,
   onError,
   isEnabled = true
@@ -17,7 +20,7 @@ export function useBarcodeScanner({
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const streamRef = useRef(null)
-  const animationFrameRef = useRef(null)
+  const scanTimeoutRef = useRef(null)
   const isProcessingRef = useRef(false)
   const recentISBNs = useRef(new Map())
   const toastTimeoutRef = useRef(null)
@@ -29,6 +32,9 @@ export function useBarcodeScanner({
     onScanRef.current = onScan
     onErrorRef.current = onError
   }, [onScan, onError])
+
+  // Calculate scan interval from FPS
+  const scanIntervalMs = 1000 / scanFps
 
   // Cleanup on unmount
   useEffect(() => {
@@ -75,9 +81,9 @@ export function useBarcodeScanner({
   }, [])
 
   const stopCamera = useCallback(() => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current)
-      animationFrameRef.current = null
+    if (scanTimeoutRef.current) {
+      clearTimeout(scanTimeoutRef.current)
+      scanTimeoutRef.current = null
     }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop())
@@ -99,7 +105,7 @@ export function useBarcodeScanner({
       if (!streamRef.current) return
 
       if (isProcessingRef.current) {
-        animationFrameRef.current = requestAnimationFrame(scan)
+        scanTimeoutRef.current = setTimeout(scan, scanIntervalMs)
         return
       }
 
@@ -146,11 +152,11 @@ export function useBarcodeScanner({
         // Ignore decode errors
       }
 
-      animationFrameRef.current = requestAnimationFrame(scan)
+      scanTimeoutRef.current = setTimeout(scan, scanIntervalMs)
     }
 
-    animationFrameRef.current = requestAnimationFrame(scan)
-  }, [isOnCooldown, addToCooldown])
+    scanTimeoutRef.current = setTimeout(scan, scanIntervalMs)
+  }, [isOnCooldown, addToCooldown, canvasWidth, scanIntervalMs])
 
   const startCamera = useCallback(async () => {
     try {
