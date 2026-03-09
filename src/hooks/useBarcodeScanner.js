@@ -3,6 +3,7 @@ import { readBarcodes } from 'zxing-wasm/reader'
 
 export const DEFAULT_COOLDOWN_MS = 5000
 export const DEFAULT_SCAN_FPS = 10
+export const DEFAULT_CANVAS_WIDTH = 640
 
 export function useBarcodeScanner({
   cooldownMs = DEFAULT_COOLDOWN_MS,
@@ -98,8 +99,11 @@ export function useBarcodeScanner({
     if (!video || !canvas) return
 
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
+    
+    // Scale canvas down for performance while maintaining aspect ratio
+    const aspectRatio = video.videoHeight / video.videoWidth
+    canvas.width = canvasWidth
+    canvas.height = Math.round(canvasWidth * aspectRatio)
 
     const scan = async () => {
       if (!streamRef.current) return
@@ -109,7 +113,8 @@ export function useBarcodeScanner({
         return
       }
 
-      ctx.drawImage(video, 0, 0)
+      // Draw scaled down image for barcode detection
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
       try {
