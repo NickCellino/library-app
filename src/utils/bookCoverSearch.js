@@ -3,10 +3,10 @@
  * Returns multiple cover image URLs from different editions
  * @param {string} title - Book title
  * @param {string} author - Book author
- * @param {number} maxResults - Maximum results to return (default 5)
+ * @param {number} maxResults - Maximum results to return (default 8)
  * @returns {Promise<Array<{url: string, source: string}>>} Array of cover image options
  */
-export async function searchBookCovers(title, author, maxResults = 5) {
+export async function searchBookCovers(title, author, maxResults = 8) {
   if (!title && !author) {
     throw new Error('Title or author is required to search for covers')
   }
@@ -44,17 +44,17 @@ export async function searchBookCovers(title, author, maxResults = 5) {
   for (const item of data.items) {
     const book = item.volumeInfo
     const thumbnail = book.imageLinks?.thumbnail
-    
+
     if (thumbnail && !seenUrls.has(thumbnail)) {
       seenUrls.add(thumbnail)
-      
+
       // Extract edition info for display
       let source = book.title || 'Unknown'
       if (book.publishedDate) {
         const year = new Date(book.publishedDate).getFullYear()
         source += ` (${year})`
       }
-      
+
       covers.push({
         url: thumbnail,
         source: source

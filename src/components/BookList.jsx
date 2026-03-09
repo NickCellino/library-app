@@ -6,7 +6,6 @@ import './BookList.css'
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('')
 
 function BookList({ books, onBookClick, totalBooks, totalAuthors, showRemove = false, onRemove }) {
-  const listRef = useRef(null)
   const authorRefs = useRef({})
   const [activeIndex, setActiveIndex] = useState(null)
 
@@ -82,7 +81,7 @@ function BookList({ books, onBookClick, totalBooks, totalAuthors, showRemove = f
         <span className="list-stats-separator">·</span>
         <span>{totalAuthors} authors</span>
       </div>
-      <div className="book-list" ref={listRef}>
+      <div className="book-list">
         {sortedAuthors.map((author) => (
           <React.Fragment key={author}>
             <div
