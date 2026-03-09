@@ -1,125 +1,23 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { readBarcodes } from 'zxing-wasm/reader'
 import { v4 as uuidv4 } from '../utils/uuid'
 import { fetchBookByISBN } from '../utils/googleBooksApi'
+import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
 import './BarcodeScannerModal.css'
 
-const COOLDOWN_MS = 30000 // 30s cooldown before re-scanning same ISBN
+const COOLDOWN_MS = 30000
 
 function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
-  const [isScanning, setIsScanning] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
-  const [loadingISBN, setLoadingISBN] = useState('')
   const [booksAdded, setBooksAdded] = useState(0)
-  const [currentToast, setCurrentToast] = useState(null) // { type: 'success'|'duplicate'|'error', book?, message? }
 
-  const videoRef = useRef(null)
-  const canvasRef = useRef(null)
-  const streamRef = useRef(null)
-  const animationFrameRef = useRef(null)
-  const isProcessingRef = useRef(false)
-  const recentISBNs = useRef(new Map()) // ISBN -> timestamp
-  const toastTimeoutRef = useRef(null)
-  const booksRef = useRef(books) // Keep fresh reference for duplicate check
+  const booksRef = useRef(books)
 
   // Keep books ref updated
   useEffect(() => {
     booksRef.current = books
   }, [books])
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopCamera()
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
-    }
-  }, [])
-
-  const stopCamera = () => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current)
-      animationFrameRef.current = null
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
-      streamRef.current = null
-    }
-  }
-
-  const showToast = useCallback((toast) => {
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
-    setCurrentToast(toast)
-
-    // Only auto-dismiss if not interactive
-    if (!toast.interactive) {
-      toastTimeoutRef.current = setTimeout(() => {
-        setCurrentToast(null)
-      }, 2500)
-    }
-  }, [])
-
-  const handleAddDuplicate = useCallback(async (isbn) => {
-    setCurrentToast(null)
-
-    // Remove from cooldown to allow re-processing
-    recentISBNs.current.delete(isbn)
-
-    // Re-fetch from Google Books API
-    setIsLoading(true)
-    setLoadingISBN(isbn)
-
-    try {
-      const bookData = await fetchBookByISBN(isbn)
-      if (bookData) {
-        const newBook = {
-          id: uuidv4(),
-          isbn: isbn,
-          ...bookData,
-          dateAdded: new Date().toISOString()
-        }
-        onAdd(newBook)
-        setBooksAdded(prev => prev + 1)
-        showToast({ type: 'success', book: newBook })
-      } else {
-        showToast({ type: 'error', message: `ISBN ${isbn} not found` })
-      }
-    } catch (error) {
-      showToast({ type: 'error', message: `Failed: ${error.message}` })
-    } finally {
-      setIsLoading(false)
-      setLoadingISBN('')
-      isProcessingRef.current = false
-    }
-  }, [onAdd, showToast])
-
-  const handleDismissToast = useCallback(() => {
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
-    setCurrentToast(null)
-  }, [])
-
-  const isOnCooldown = (isbn) => {
-    const lastScan = recentISBNs.current.get(isbn)
-    if (!lastScan) return false
-    return Date.now() - lastScan < COOLDOWN_MS
-  }
-
-  const addToCooldown = (isbn) => {
-    recentISBNs.current.set(isbn, Date.now())
-  }
-
-  const processISBN = useCallback(async (isbn) => {
-    // Check cooldown
-    if (isOnCooldown(isbn)) {
-      console.log('[Scanner] ISBN on cooldown:', isbn)
-      isProcessingRef.current = false
-      setIsLoading(false)
-      setLoadingISBN('')
-      return
-    }
-
-    addToCooldown(isbn)
-    setIsLoading(true)
-    setLoadingISBN(isbn)
+  const handleScan = useCallback(async (isbn, helpers) => {
+    const { showToast, dismissToast, removeFromCooldown, resetProcessing } = helpers
 
     // Check for duplicate
     const existing = booksRef.current.find(b => b.isbn && b.isbn === isbn)
@@ -128,11 +26,9 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
         type: 'duplicate',
         book: existing,
         interactive: true,
-        onAction: () => handleAddDuplicate(isbn)
+        onAction: () => handleAddDuplicate(isbn, helpers)
       })
-      setIsLoading(false)
-      setLoadingISBN('')
-      isProcessingRef.current = false
+      resetProcessing()
       return
     }
 
@@ -156,90 +52,64 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     } catch (error) {
       console.error('[Scanner] Error fetching book:', error)
       showToast({ type: 'error', message: `Failed to fetch: ${error.message}` })
+    }
+  }, [onAdd])
+
+  const handleAddDuplicate = useCallback(async (isbn, helpers) => {
+    const { showToast, dismissToast, removeFromCooldown, resetProcessing } = helpers
+
+    dismissToast()
+
+    // Remove from cooldown to allow re-processing
+    removeFromCooldown(isbn)
+
+    // Re-fetch from Google Books API
+    try {
+      const bookData = await fetchBookByISBN(isbn)
+      if (bookData) {
+        const newBook = {
+          id: uuidv4(),
+          isbn: isbn,
+          ...bookData,
+          dateAdded: new Date().toISOString()
+        }
+        onAdd(newBook)
+        setBooksAdded(prev => prev + 1)
+        showToast({ type: 'success', book: newBook })
+      } else {
+        showToast({ type: 'error', message: `ISBN ${isbn} not found` })
+      }
+    } catch (error) {
+      showToast({ type: 'error', message: `Failed: ${error.message}` })
     } finally {
-      setIsLoading(false)
-      setLoadingISBN('')
-      isProcessingRef.current = false
+      resetProcessing()
     }
-  }, [onAdd, showToast])
+  }, [onAdd])
 
-  // Initialize camera when isScanning becomes true
-  useEffect(() => {
-    if (!isScanning) return
+  const handleScanError = useCallback((error) => {
+    console.error('[BarcodeScannerModal] Scan error:', error)
+  }, [])
 
-    const initCamera = async () => {
-      try {
-        console.log('[Scanner] Starting camera...')
+  const {
+    videoRef,
+    canvasRef,
+    isScanning,
+    isLoading,
+    loadingISBN,
+    currentToast,
+    dismissToast
+  } = useBarcodeScanner({
+    cooldownMs: COOLDOWN_MS,
+    onScan: handleScan,
+    onError: handleScanError,
+    isEnabled: true
+  })
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-        })
-
-        streamRef.current = stream
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current.play()
-            startScanLoop()
-          }
-        }
-      } catch (err) {
-        console.error('Error starting camera:', err)
-        showToast({ type: 'error', message: 'Could not access camera' })
-        setIsScanning(false)
-      }
-    }
-
-    initCamera()
-  }, [isScanning, showToast])
-
-  const startScanLoop = () => {
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    if (!video || !canvas) return
-
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
-
-    const scan = async () => {
-      if (!streamRef.current) return // Camera stopped
-
-      if (isProcessingRef.current) {
-        animationFrameRef.current = requestAnimationFrame(scan)
-        return
-      }
-
-      ctx.drawImage(video, 0, 0)
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-
-      try {
-        const results = await readBarcodes(imageData, {
-          formats: ['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E']
-        })
-
-        if (results.length > 0) {
-          const decodedText = results[0].text
-
-          if (!isOnCooldown(decodedText)) {
-            isProcessingRef.current = true
-            console.log('[Scanner] Barcode decoded:', decodedText)
-            processISBN(decodedText)
-          }
-        }
-      } catch (err) {
-        // Ignore decode errors, keep scanning
-      }
-
-      animationFrameRef.current = requestAnimationFrame(scan)
-    }
-
-    animationFrameRef.current = requestAnimationFrame(scan)
-  }
+  const handleDismissToast = useCallback(() => {
+    dismissToast()
+  }, [dismissToast])
 
   const handleDone = () => {
-    stopCamera()
     onClose()
   }
 

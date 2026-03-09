@@ -1,32 +1,21 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import Fuse from 'fuse.js'
-import { readBarcodes } from 'zxing-wasm/reader'
 import { v4 as uuidv4 } from '../utils/uuid'
 import { fetchBookByISBN } from '../utils/googleBooksApi'
+import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
 import BookCard from './BookCard'
 import './AddToListModal.css'
 
-const COOLDOWN_MS = 5000 // 5s cooldown before re-scanning same ISBN
+const COOLDOWN_MS = 5000
 
 function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook }) {
   const [activeTab, setActiveTab] = useState('search')
   const [searchQuery, setSearchQuery] = useState('')
   const [addedBookIds, setAddedBookIds] = useState(new Set())
   const [booksAddedCount, setBooksAddedCount] = useState(0)
-  const [currentToast, setCurrentToast] = useState(null)
-  const [isScanning, setIsScanning] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [loadingISBN, setLoadingISBN] = useState('')
 
-  const videoRef = useRef(null)
-  const canvasRef = useRef(null)
-  const streamRef = useRef(null)
-  const animationFrameRef = useRef(null)
-  const isProcessingRef = useRef(false)
-  const recentISBNs = useRef(new Map()) // ISBN -> timestamp
-  const toastTimeoutRef = useRef(null)
-  const booksRef = useRef(books)
   const listRef = useRef(list)
+  const booksRef = useRef(books)
 
   useEffect(() => {
     booksRef.current = books
@@ -36,30 +25,63 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
     listRef.current = list
   }, [list])
 
-  useEffect(() => {
-    return () => {
-      stopCamera()
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
+  const handleScan = useCallback(async (isbn, { showToast }) => {
+    // Check if book exists in library
+    const existingBook = booksRef.current.find(b => b.isbn && b.isbn === isbn)
+    
+    if (existingBook) {
+      // Check if already in list
+      if (listRef.current.bookIds.includes(existingBook.id)) {
+        showToast({ type: 'info', message: 'Already in list' })
+      } else {
+        // Add to list
+        await onAddBook(existingBook.id)
+        setAddedBookIds(prev => new Set([...prev, existingBook.id]))
+        setBooksAddedCount(prev => prev + 1)
+        showToast({ type: 'success', book: existingBook })
+      }
+    } else {
+      // Book not in library - fetch from Google Books and add
+      const bookData = await fetchBookByISBN(isbn)
+      
+      if (bookData) {
+        const newBook = {
+          id: uuidv4(),
+          isbn: isbn,
+          ...bookData,
+          dateAdded: new Date().toISOString()
+        }
+        
+        await onAddNewBook(newBook)
+        setAddedBookIds(prev => new Set([...prev, newBook.id]))
+        setBooksAddedCount(prev => prev + 1)
+        showToast({ type: 'success', book: newBook, message: 'Added to library and list' })
+      } else {
+        showToast({ type: 'error', message: `ISBN ${isbn} not found` })
+      }
     }
+  }, [onAddBook, onAddNewBook])
+
+  const handleScanError = useCallback((error) => {
+    console.error('[AddToListModal] Scan error:', error)
   }, [])
 
-  const showToast = useCallback((toast) => {
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
-    setCurrentToast(toast)
-    toastTimeoutRef.current = setTimeout(() => {
-      setCurrentToast(null)
-    }, 2500)
-  }, [])
-
-  const isOnCooldown = (isbn) => {
-    const lastScan = recentISBNs.current.get(isbn)
-    if (!lastScan) return false
-    return Date.now() - lastScan < COOLDOWN_MS
-  }
-
-  const addToCooldown = (isbn) => {
-    recentISBNs.current.set(isbn, Date.now())
-  }
+  const {
+    videoRef,
+    canvasRef,
+    isScanning,
+    isLoading,
+    loadingISBN,
+    currentToast,
+    startCamera,
+    stopCamera,
+    showToast
+  } = useBarcodeScanner({
+    cooldownMs: COOLDOWN_MS,
+    onScan: handleScan,
+    onError: handleScanError,
+    isEnabled: isOpen && activeTab === 'scan'
+  })
 
   const fuse = useMemo(() => {
     return new Fuse(books, {
@@ -81,13 +103,11 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
-      stopCamera()
       onClose()
     }
   }
 
   const handleClose = () => {
-    stopCamera()
     onClose()
   }
 
@@ -104,132 +124,6 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
       }
     } catch (error) {
       showToast({ type: 'error', message: error.message })
-    }
-  }
-
-  const stopCamera = () => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current)
-      animationFrameRef.current = null
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
-      streamRef.current = null
-    }
-    setIsScanning(false)
-  }
-
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-      })
-
-      streamRef.current = stream
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play()
-          startScanLoop()
-        }
-      }
-      setIsScanning(true)
-    } catch (err) {
-      console.error('Error starting camera:', err)
-      showToast({ type: 'error', message: 'Could not access camera' })
-    }
-  }
-
-  const startScanLoop = () => {
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    if (!video || !canvas) return
-
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
-
-    const scan = async () => {
-      if (!streamRef.current) return
-
-      if (isProcessingRef.current) {
-        animationFrameRef.current = requestAnimationFrame(scan)
-        return
-      }
-
-      ctx.drawImage(video, 0, 0)
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-
-      try {
-        const results = await readBarcodes(imageData, {
-          formats: ['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E']
-        })
-
-        if (results.length > 0) {
-          const isbn = results[0].text
-          if (!isOnCooldown(isbn)) {
-            isProcessingRef.current = true
-            addToCooldown(isbn)
-            await processISBN(isbn)
-          }
-        }
-      } catch (err) {
-        // Ignore decode errors
-      }
-
-      animationFrameRef.current = requestAnimationFrame(scan)
-    }
-
-    animationFrameRef.current = requestAnimationFrame(scan)
-  }
-
-  const processISBN = async (isbn) => {
-    setIsLoading(true)
-    setLoadingISBN(isbn)
-
-    try {
-      // Check if book exists in library
-      const existingBook = booksRef.current.find(b => b.isbn && b.isbn === isbn)
-      
-      if (existingBook) {
-        // Check if already in list
-        if (listRef.current.bookIds.includes(existingBook.id)) {
-          showToast({ type: 'info', message: 'Already in list' })
-        } else {
-          // Add to list
-          await onAddBook(existingBook.id)
-          setAddedBookIds(prev => new Set([...prev, existingBook.id]))
-          setBooksAddedCount(prev => prev + 1)
-          showToast({ type: 'success', book: existingBook })
-        }
-      } else {
-        // Book not in library - fetch from Google Books and add
-        const bookData = await fetchBookByISBN(isbn)
-        
-        if (bookData) {
-          const newBook = {
-            id: uuidv4(),
-            isbn: isbn,
-            ...bookData,
-            dateAdded: new Date().toISOString()
-          }
-          
-          await onAddNewBook(newBook)
-          setAddedBookIds(prev => new Set([...prev, newBook.id]))
-          setBooksAddedCount(prev => prev + 1)
-          showToast({ type: 'success', book: newBook, message: 'Added to library and list' })
-        } else {
-          showToast({ type: 'error', message: `ISBN ${isbn} not found` })
-        }
-      }
-    } catch (error) {
-      console.error('Error processing ISBN:', error)
-      showToast({ type: 'error', message: error.message })
-    } finally {
-      setIsLoading(false)
-      setLoadingISBN('')
-      isProcessingRef.current = false
     }
   }
 
