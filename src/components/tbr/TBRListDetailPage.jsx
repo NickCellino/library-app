@@ -1,25 +1,34 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import BookList from '../library/BookList'
+import BookDetailModal from '../library/BookDetailModal'
+import BookFormModal from '../library/BookFormModal'
 import AddToTBRListModal from './AddToTBRListModal'
 import DeleteTBRListConfirmModal from './DeleteTBRListConfirmModal'
 import './TBRListDetailPage.css'
 
-function TBRListDetailPage({ 
-  tbrList, 
-  books, 
-  onBack, 
-  onRemoveBook, 
-  onUpdateTBRListName, 
+function TBRListDetailPage({
+  tbrList,
+  books,
+  lists,
+  onBack,
+  onRemoveBook,
+  onUpdateTBRListName,
   onDeleteTBRList,
   addBookToTBRList,
-  addBook
+  addBook,
+  onUpdateBook,
+  onDeleteBook
 }) {
+  const navigate = useNavigate()
   const [editing, setEditing] = useState(false)
   const [editName, setEditName] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [selectedBook, setSelectedBook] = useState(null)
+  const [editingBook, setEditingBook] = useState(null)
 
   const tbrListBooks = useMemo(() => {
     if (!tbrList) return []
@@ -142,7 +151,7 @@ function TBRListDetailPage({
           ) : (
             <BookList
               books={tbrListBooks}
-              onBookClick={() => {}}
+              onBookClick={setSelectedBook}
               totalBooks={totalBooks}
               totalAuthors={totalAuthors}
               showRemove={true}
@@ -173,6 +182,30 @@ function TBRListDetailPage({
           onConfirm={() => onDeleteTBRList()}
           tbrList={tbrList}
           books={books}
+        />
+      )}
+
+      {selectedBook && (
+        <BookDetailModal
+          book={selectedBook}
+          onClose={() => setSelectedBook(null)}
+          onEdit={setEditingBook}
+          showDelete={false}
+          onRemoveFromList={(bookId) => onRemoveBook(bookId)}
+          tbrLists={lists}
+          onOpenTBRList={(tbrList) => {
+            setSelectedBook(null)
+            navigate(`/list/${tbrList.id}`)
+          }}
+        />
+      )}
+
+      {editingBook && (
+        <BookFormModal
+          book={editingBook}
+          onClose={() => setEditingBook(null)}
+          onSave={onUpdateBook}
+          onDelete={onDeleteBook}
         />
       )}
     </div>

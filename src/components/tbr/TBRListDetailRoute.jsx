@@ -10,7 +10,7 @@ function TBRListDetailRoute() {
   const navigate = useNavigate()
   
   const { user, loading: authLoading } = useAuth()
-  const { books, loading: booksLoading, addBook } = useBooks(user)
+  const { books, loading: booksLoading, addBook, updateBook, deleteBook } = useBooks(user)
   const { 
     lists, 
     loading: listsLoading, 
@@ -80,12 +80,15 @@ function TBRListDetailRoute() {
     <TBRListDetailPage
       tbrList={tbrList}
       books={books}
+      lists={lists}
       onBack={handleBack}
       onRemoveBook={(bookId) => removeBookFromList(listId, bookId)}
       onUpdateTBRListName={updateList}
       onDeleteTBRList={handleDeleteTBRList}
       addBookToTBRList={addBookToList}
       addBook={addBook}
+      onUpdateBook={updateBook}
+      onDeleteBook={deleteBook}
     />
   )
 }

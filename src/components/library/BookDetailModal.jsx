@@ -1,6 +1,6 @@
 import './BookDetailModal.css'
 
-function BookDetailModal({ book, onClose, onEdit, onDelete, tbrLists = [], onOpenTBRList }) {
+function BookDetailModal({ book, onClose, onEdit, onDelete, tbrLists = [], onOpenTBRList, showDelete = true, onRemoveFromList }) {
   if (!book) return null
 
   const handleBackdropClick = (e) => {
@@ -10,6 +10,13 @@ function BookDetailModal({ book, onClose, onEdit, onDelete, tbrLists = [], onOpe
   const handleDelete = () => {
     if (window.confirm('Delete this book?')) {
       onDelete(book.id)
+      onClose()
+    }
+  }
+
+  const handleRemoveFromList = () => {
+    if (window.confirm('Remove this book from the list?')) {
+      onRemoveFromList(book.id)
       onClose()
     }
   }
@@ -64,9 +71,15 @@ function BookDetailModal({ book, onClose, onEdit, onDelete, tbrLists = [], onOpe
           <button className="detail-btn detail-btn-edit" onClick={() => { onEdit(book); onClose() }}>
             Edit
           </button>
-          <button className="detail-btn detail-btn-delete" onClick={handleDelete}>
-            Delete
-          </button>
+          {showDelete ? (
+            <button className="detail-btn detail-btn-delete" onClick={handleDelete}>
+              Delete
+            </button>
+          ) : onRemoveFromList ? (
+            <button className="detail-btn detail-btn-delete" onClick={handleRemoveFromList}>
+              Remove from List
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
