@@ -1,22 +1,22 @@
 import { useState } from 'react'
 import { formatRelativeTime } from '../utils/dateUtils'
-import './ListsPage.css'
+import './TBRListsPage.css'
 
-function ListsPage({ lists, onBack, onSelectList, onCreateList, loading }) {
+function TBRListsPage({ tbrLists, onBack, onSelectTBRList, onCreateTBRList, loading }) {
   const [showCreateForm, setShowCreateForm] = useState(false)
-  const [newListName, setNewListName] = useState('')
+  const [newTBRListName, setNewTBRListName] = useState('')
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
 
-  const handleCreateList = async (e) => {
+  const handleCreateTBRList = async (e) => {
     e.preventDefault()
-    if (!newListName.trim()) return
+    if (!newTBRListName.trim()) return
 
     setCreating(true)
     setError('')
     try {
-      await onCreateList(newListName.trim())
-      setNewListName('')
+      await onCreateTBRList(newTBRListName.trim())
+      setNewTBRListName('')
       setShowCreateForm(false)
     } catch (err) {
       setError(err.message)
@@ -39,14 +39,14 @@ function ListsPage({ lists, onBack, onSelectList, onCreateList, loading }) {
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
               </svg>
             </button>
-            <h1 className="logo">My Lists</h1>
+            <h1 className="logo">My TBR Lists</h1>
             <div className="header-right">
               {!showCreateForm && (
                 <button 
-                  className="lists-add-btn"
+                  className="tbr-lists-add-btn"
                   onClick={() => setShowCreateForm(true)}
                 >
-                  Add list
+                  Add TBR List
                 </button>
               )}
             </div>
@@ -57,23 +57,23 @@ function ListsPage({ lists, onBack, onSelectList, onCreateList, loading }) {
       <main className="main">
         <div className="container">
           {showCreateForm && (
-            <form className="lists-create-form" onSubmit={handleCreateList}>
+            <form className="tbr-lists-create-form" onSubmit={handleCreateTBRList}>
               <input
                 type="text"
-                placeholder="List name..."
-                value={newListName}
-                onChange={(e) => setNewListName(e.target.value)}
+                placeholder="TBR list name..."
+                value={newTBRListName}
+                onChange={(e) => setNewTBRListName(e.target.value)}
                 maxLength={128}
                 autoFocus
                 disabled={creating}
               />
-              <div className="lists-create-actions">
+              <div className="tbr-lists-create-actions">
                 <button 
                   type="button" 
-                  className="lists-create-cancel"
+                  className="tbr-lists-create-cancel"
                   onClick={() => {
                     setShowCreateForm(false)
-                    setNewListName('')
+                    setNewTBRListName('')
                     setError('')
                   }}
                 >
@@ -81,43 +81,43 @@ function ListsPage({ lists, onBack, onSelectList, onCreateList, loading }) {
                 </button>
                 <button 
                   type="submit" 
-                  className="lists-create-submit"
-                  disabled={!newListName.trim() || creating}
+                  className="tbr-lists-create-submit"
+                  disabled={!newTBRListName.trim() || creating}
                 >
                   {creating ? 'Creating...' : 'Create'}
                 </button>
               </div>
-              {error && <div className="lists-create-error">{error}</div>}
+              {error && <div className="tbr-lists-create-error">{error}</div>}
             </form>
           )}
 
-          <div className="lists-content">
+          <div className="tbr-lists-content">
             {loading ? (
-              <div className="lists-loading">Loading...</div>
-            ) : lists.length === 0 ? (
-              <div className="lists-empty">
-                <div className="lists-empty-icon">📚</div>
-                <p className="lists-empty-title">No lists yet</p>
-                <p className="lists-empty-subtitle">Create your first list to organize your books</p>
+              <div className="tbr-lists-loading">Loading...</div>
+            ) : tbrLists.length === 0 ? (
+              <div className="tbr-lists-empty">
+                <div className="tbr-lists-empty-icon">📚</div>
+                <p className="tbr-lists-empty-title">No TBR lists yet</p>
+                <p className="tbr-lists-empty-subtitle">Create your first TBR list to organize your books</p>
               </div>
             ) : (
-              <div className="lists-items">
-                {lists.map(list => (
+              <div className="tbr-lists-items">
+                {tbrLists.map(tbrList => (
                   <div 
-                    key={list.id} 
-                    className="lists-item"
-                    onClick={() => onSelectList(list)}
+                    key={tbrList.id} 
+                    className="tbr-lists-item"
+                    onClick={() => onSelectTBRList(tbrList)}
                   >
-                    <div className="lists-item-info">
-                      <div className="lists-item-name">{list.name}</div>
-                      <div className="lists-item-meta">
-                        <span>{list.bookIds.length} {list.bookIds.length === 1 ? 'book' : 'books'}</span>
-                        <span className="lists-item-separator">·</span>
-                        <span>{formatRelativeTime(list.updatedAt)}</span>
+                    <div className="tbr-lists-item-info">
+                      <div className="tbr-lists-item-name">{tbrList.name}</div>
+                      <div className="tbr-lists-item-meta">
+                        <span>{tbrList.bookIds.length} {tbrList.bookIds.length === 1 ? 'book' : 'books'}</span>
+                        <span className="tbr-lists-item-separator">·</span>
+                        <span>{formatRelativeTime(tbrList.updatedAt)}</span>
                       </div>
                     </div>
                     <svg 
-                      className="lists-item-arrow" 
+                      className="tbr-lists-item-arrow" 
                       viewBox="0 0 24 24" 
                       fill="none" 
                       stroke="currentColor" 
@@ -136,4 +136,4 @@ function ListsPage({ lists, onBack, onSelectList, onCreateList, loading }) {
   )
 }
 
-export default ListsPage
+export default TBRListsPage

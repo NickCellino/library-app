@@ -1,32 +1,32 @@
 import { useState, useMemo } from 'react'
 import BookList from './BookList'
-import './ListDetailModal.css'
+import './TBRDetailModal.css'
 
-function ListDetailModal({ isOpen, onClose, list, books, onAddBooks, onRemoveBook, onUpdateListName, onDeleteList }) {
+function TBRDetailModal({ isOpen, onClose, tbrList, books, onAddBooks, onRemoveBook, onUpdateTBRListName, onDeleteTBRList }) {
   const [editing, setEditing] = useState(false)
   const [editName, setEditName] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const listBooks = useMemo(() => {
-    if (!list) return []
-    return books.filter(book => list.bookIds.includes(book.id))
-  }, [list, books])
+  const tbrListBooks = useMemo(() => {
+    if (!tbrList) return []
+    return books.filter(book => tbrList.bookIds.includes(book.id))
+  }, [tbrList, books])
 
-  const totalBooks = listBooks.length
+  const totalBooks = tbrListBooks.length
   const totalAuthors = useMemo(() => {
-    const authors = new Set(listBooks.map(book => book.author || 'Unknown Author'))
+    const authors = new Set(tbrListBooks.map(book => book.author || 'Unknown Author'))
     return authors.size
-  }, [listBooks])
+  }, [tbrListBooks])
 
-  if (!isOpen || !list) return null
+  if (!isOpen || !tbrList) return null
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) onClose()
   }
 
   const handleStartEdit = () => {
-    setEditName(list.name)
+    setEditName(tbrList.name)
     setEditing(true)
     setError('')
   }
@@ -39,14 +39,14 @@ function ListDetailModal({ isOpen, onClose, list, books, onAddBooks, onRemoveBoo
 
   const handleSaveEdit = async () => {
     if (!editName.trim()) {
-      setError('List name cannot be empty')
+      setError('TBR list name cannot be empty')
       return
     }
 
     setSaving(true)
     setError('')
     try {
-      await onUpdateListName({ ...list, name: editName.trim() })
+      await onUpdateTBRListName({ ...tbrList, name: editName.trim() })
       setEditing(false)
     } catch (err) {
       setError(err.message)
@@ -56,13 +56,13 @@ function ListDetailModal({ isOpen, onClose, list, books, onAddBooks, onRemoveBoo
   }
 
   return (
-    <div className="list-detail-overlay" onClick={handleBackdropClick}>
-      <div className="list-detail-modal">
-        <button className="list-detail-close" onClick={onClose}>×</button>
+    <div className="tbr-detail-modal-overlay" onClick={handleBackdropClick}>
+      <div className="tbr-detail-modal">
+        <button className="tbr-detail-modal-close" onClick={onClose}>×</button>
 
-        <div className="list-detail-header">
+        <div className="tbr-detail-modal-header">
           {editing ? (
-            <div className="list-detail-edit-form">
+            <div className="tbr-detail-modal-edit-form">
               <input
                 type="text"
                 value={editName}
@@ -75,48 +75,48 @@ function ListDetailModal({ isOpen, onClose, list, books, onAddBooks, onRemoveBoo
                   if (e.key === 'Escape') handleCancelEdit()
                 }}
               />
-              <div className="list-detail-edit-actions">
+              <div className="tbr-detail-modal-edit-actions">
                 <button 
-                  className="list-detail-edit-cancel"
+                  className="tbr-detail-modal-edit-cancel"
                   onClick={handleCancelEdit}
                   disabled={saving}
                 >
                   Cancel
                 </button>
                 <button 
-                  className="list-detail-edit-save"
+                  className="tbr-detail-modal-edit-save"
                   onClick={handleSaveEdit}
                   disabled={saving}
                 >
                   {saving ? 'Saving...' : 'Save'}
                 </button>
               </div>
-              {error && <div className="list-detail-edit-error">{error}</div>}
+              {error && <div className="tbr-detail-modal-edit-error">{error}</div>}
             </div>
           ) : (
-            <h2 className="list-detail-title" onClick={handleStartEdit}>
-              {list.name}
-              <span className="list-detail-edit-icon">✏️</span>
+            <h2 className="tbr-detail-modal-title" onClick={handleStartEdit}>
+              {tbrList.name}
+              <span className="tbr-detail-modal-edit-icon">✏️</span>
             </h2>
           )}
         </div>
 
-        <div className="list-detail-actions">
-          <button className="list-detail-add-btn" onClick={onAddBooks}>
+        <div className="tbr-detail-modal-actions">
+          <button className="tbr-detail-modal-add-btn" onClick={onAddBooks}>
             Add Books
           </button>
         </div>
 
-        <div className="list-detail-content">
-          {listBooks.length === 0 ? (
-            <div className="list-detail-empty">
-              <div className="list-detail-empty-icon">📚</div>
-              <p className="list-detail-empty-title">No books in this list</p>
-              <p className="list-detail-empty-subtitle">Add books to get started</p>
+        <div className="tbr-detail-modal-content">
+          {tbrListBooks.length === 0 ? (
+            <div className="tbr-detail-modal-empty">
+              <div className="tbr-detail-modal-empty-icon">📚</div>
+              <p className="tbr-detail-modal-empty-title">No books in this TBR list</p>
+              <p className="tbr-detail-modal-empty-subtitle">Add books to get started</p>
             </div>
           ) : (
             <BookList
-              books={listBooks}
+              books={tbrListBooks}
               onBookClick={() => {}}
               totalBooks={totalBooks}
               totalAuthors={totalAuthors}
@@ -126,12 +126,12 @@ function ListDetailModal({ isOpen, onClose, list, books, onAddBooks, onRemoveBoo
           )}
         </div>
 
-        <div className="list-detail-footer">
+        <div className="tbr-detail-modal-footer">
           <button 
-            className="list-detail-delete-btn"
-            onClick={() => onDeleteList()}
+            className="tbr-detail-modal-delete-btn"
+            onClick={() => onDeleteTBRList()}
           >
-            Delete List
+            Delete TBR List
           </button>
         </div>
       </div>
@@ -139,4 +139,4 @@ function ListDetailModal({ isOpen, onClose, list, books, onAddBooks, onRemoveBoo
   )
 }
 
-export default ListDetailModal
+export default TBRDetailModal

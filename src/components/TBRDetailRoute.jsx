@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useMemo } from 'react'
-import ListDetailPage from './ListDetailPage'
+import TBRDetailPage from './TBRDetailPage'
 import { useAuth } from '../hooks/useAuth'
 import { useBooks } from '../hooks/useBooks'
 import { useLists } from '../hooks/useLists'
 
-function ListDetailRoute() {
+function TBRDetailRoute() {
   const { listId } = useParams()
   const navigate = useNavigate()
   
@@ -20,7 +20,7 @@ function ListDetailRoute() {
     removeBookFromList 
   } = useLists(user)
 
-  const list = useMemo(() => {
+  const tbrList = useMemo(() => {
     return lists.find(l => l.id === listId)
   }, [lists, listId])
 
@@ -42,7 +42,7 @@ function ListDetailRoute() {
         <div className="empty-state">
           <div className="empty-state-icon">🔒</div>
           <h2>Sign in required</h2>
-          <p>Please sign in to view this list</p>
+          <p>Please sign in to view this TBR list</p>
           <button className="btn-primary" onClick={() => navigate('/')}>
             Go to Library
           </button>
@@ -51,14 +51,14 @@ function ListDetailRoute() {
     )
   }
 
-  // List not found - show helpful message instead of redirecting
-  if (!list) {
+  // TBR List not found - show helpful message instead of redirecting
+  if (!tbrList) {
     return (
       <div className="app">
         <div className="empty-state">
           <div className="empty-state-icon">📋</div>
-          <h2>List not found</h2>
-          <p>This list may have been deleted or you don't have access to it</p>
+          <h2>TBR list not found</h2>
+          <p>This TBR list may have been deleted or you don't have access to it</p>
           <button className="btn-primary" onClick={() => navigate('/')}>
             Back to Library
           </button>
@@ -71,23 +71,23 @@ function ListDetailRoute() {
     navigate('/lists')
   }
 
-  const handleDeleteList = async () => {
+  const handleDeleteTBRList = async () => {
     await deleteList(listId)
     navigate('/lists')
   }
 
   return (
-    <ListDetailPage
-      list={list}
+    <TBRDetailPage
+      tbrList={tbrList}
       books={books}
       onBack={handleBack}
       onRemoveBook={(bookId) => removeBookFromList(listId, bookId)}
-      onUpdateListName={updateList}
-      onDeleteList={handleDeleteList}
-      addBookToList={addBookToList}
+      onUpdateTBRListName={updateList}
+      onDeleteTBRList={handleDeleteTBRList}
+      addBookToTBRList={addBookToList}
       addBook={addBook}
     />
   )
 }
 
-export default ListDetailRoute
+export default TBRDetailRoute

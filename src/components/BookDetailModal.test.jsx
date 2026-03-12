@@ -157,59 +157,59 @@ describe('BookDetailModal', () => {
     })
   })
 
-  describe('lists', () => {
-    it('displays lists containing the book', () => {
-      const lists = [
+  describe('TBR lists', () => {
+    it('displays TBR lists containing the book', () => {
+      const tbrLists = [
         { id: 'list1', name: 'Favorites', bookIds: ['123'] },
         { id: 'list2', name: 'Read', bookIds: ['123', '456'] }
       ]
       
       render(
-        <BookDetailModal 
-          book={mockBook} 
-          onClose={mockOnClose} 
-          lists={lists} 
+        <BookDetailModal
+          book={mockBook}
+          onClose={mockOnClose}
+          tbrLists={tbrLists}
         />
       )
-      
+
       expect(screen.getByText('Favorites')).toBeInTheDocument()
       expect(screen.getByText('Read')).toBeInTheDocument()
     })
 
-    it('does not show list section when book not in any list', () => {
-      const lists = [
+    it('does not show TBR list section when book not in any TBR list', () => {
+      const tbrLists = [
         { id: 'list1', name: 'Favorites', bookIds: ['other-book'] }
       ]
-      
+
       render(
-        <BookDetailModal 
-          book={mockBook} 
-          onClose={mockOnClose} 
-          lists={lists} 
+        <BookDetailModal
+          book={mockBook}
+          onClose={mockOnClose}
+          tbrLists={tbrLists}
         />
       )
-      
-      expect(screen.queryByText('In:')).not.toBeInTheDocument()
+
+      expect(screen.queryByText('In TBR:')).not.toBeInTheDocument()
     })
 
-    it('calls onOpenList when list badge clicked', () => {
-      const mockOnOpenList = vi.fn()
-      const lists = [
+    it('calls onOpenTBRList when TBR list badge clicked', () => {
+      const mockOnOpenTBRList = vi.fn()
+      const tbrLists = [
         { id: 'list1', name: 'Favorites', bookIds: ['123'] }
       ]
-      
+
       render(
-        <BookDetailModal 
-          book={mockBook} 
-          onClose={mockOnClose} 
-          lists={lists}
-          onOpenList={mockOnOpenList}
+        <BookDetailModal
+          book={mockBook}
+          onClose={mockOnClose}
+          tbrLists={tbrLists}
+          onOpenTBRList={mockOnOpenTBRList}
         />
       )
-      
+
       fireEvent.click(screen.getByText('Favorites'))
-      
-      expect(mockOnOpenList).toHaveBeenCalledWith(lists[0])
+
+      expect(mockOnOpenTBRList).toHaveBeenCalledWith(tbrLists[0])
     })
   })
 })

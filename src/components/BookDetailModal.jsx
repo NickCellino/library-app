@@ -1,6 +1,6 @@
 import './BookDetailModal.css'
 
-function BookDetailModal({ book, onClose, onEdit, onDelete, lists = [], onOpenList }) {
+function BookDetailModal({ book, onClose, onEdit, onDelete, tbrLists = [], onOpenTBRList }) {
   if (!book) return null
 
   const handleBackdropClick = (e) => {
@@ -14,7 +14,7 @@ function BookDetailModal({ book, onClose, onEdit, onDelete, lists = [], onOpenLi
     }
   }
 
-  const containingLists = lists.filter(list => list.bookIds.includes(book.id))
+  const containingTBRLists = tbrLists.filter(tbrList => tbrList.bookIds.includes(book.id))
 
   return (
     <div className="detail-overlay" onClick={handleBackdropClick}>
@@ -36,16 +36,16 @@ function BookDetailModal({ book, onClose, onEdit, onDelete, lists = [], onOpenLi
             <h2 className="detail-title">{book.title}</h2>
             {book.author && <p className="detail-author">{book.author}</p>}
 
-            {containingLists.length > 0 && (
+            {containingTBRLists.length > 0 && (
               <div className="list-badges">
-                <span className="badge-label">In:</span>
-                {containingLists.map(list => (
+                <span className="badge-label">In TBR:</span>
+                {containingTBRLists.map(tbrList => (
                   <span 
-                    key={list.id} 
+                    key={tbrList.id} 
                     className="list-badge"
-                    onClick={() => onOpenList && onOpenList(list)}
+                    onClick={() => onOpenTBRList && onOpenTBRList(tbrList)}
                   >
-                    {list.name}
+                    {tbrList.name}
                   </span>
                 ))}
               </div>

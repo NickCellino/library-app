@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import ListsPage from './ListsPage'
+import TBRListsPage from './TBRListsPage'
 import { useAuth } from '../hooks/useAuth'
 import { useLists } from '../hooks/useLists'
 
-function ListsRoute() {
+function TBRRoute() {
   const navigate = useNavigate()
   
   const { user, loading: authLoading } = useAuth()
@@ -31,7 +31,7 @@ function ListsRoute() {
         <div className="empty-state">
           <div className="empty-state-icon">🔒</div>
           <h2>Sign in required</h2>
-          <p>Please sign in to view your lists</p>
+          <p>Please sign in to view your TBR lists</p>
           <button className="btn-primary" onClick={() => navigate('/')}>
             Go to Library
           </button>
@@ -44,23 +44,23 @@ function ListsRoute() {
     navigate('/')
   }
 
-  const handleSelectList = (list) => {
-    navigate(`/list/${list.id}`)
+  const handleSelectTBRList = (tbrList) => {
+    navigate(`/list/${tbrList.id}`)
   }
 
-  const handleCreateList = async (name) => {
+  const handleCreateTBRList = async (name) => {
     await addList(name)
   }
 
   return (
-    <ListsPage
-      lists={lists}
+    <TBRListsPage
+      tbrLists={lists}
       onBack={handleBack}
-      onSelectList={handleSelectList}
-      onCreateList={handleCreateList}
+      onSelectTBRList={handleSelectTBRList}
+      onCreateTBRList={handleCreateTBRList}
       loading={listsLoading}
     />
   )
 }
 
-export default ListsRoute
+export default TBRRoute

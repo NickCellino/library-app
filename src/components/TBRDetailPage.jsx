@@ -1,17 +1,17 @@
 import { useState, useMemo } from 'react'
 import BookList from './BookList'
-import AddToListModal from './AddToListModal'
-import DeleteListConfirmModal from './DeleteListConfirmModal'
-import './ListDetailPage.css'
+import AddToTBRModal from './AddToTBRModal'
+import DeleteTBRConfirmModal from './DeleteTBRConfirmModal'
+import './TBRDetailPage.css'
 
-function ListDetailPage({ 
-  list, 
+function TBRDetailPage({ 
+  tbrList, 
   books, 
   onBack, 
   onRemoveBook, 
-  onUpdateListName, 
-  onDeleteList,
-  addBookToList,
+  onUpdateTBRListName, 
+  onDeleteTBRList,
+  addBookToTBRList,
   addBook
 }) {
   const [editing, setEditing] = useState(false)
@@ -21,21 +21,21 @@ function ListDetailPage({
   const [showAddModal, setShowAddModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-  const listBooks = useMemo(() => {
-    if (!list) return []
-    return books.filter(book => list.bookIds.includes(book.id))
-  }, [list, books])
+  const tbrListBooks = useMemo(() => {
+    if (!tbrList) return []
+    return books.filter(book => tbrList.bookIds.includes(book.id))
+  }, [tbrList, books])
 
-  const totalBooks = listBooks.length
+  const totalBooks = tbrListBooks.length
   const totalAuthors = useMemo(() => {
-    const authors = new Set(listBooks.map(book => book.author || 'Unknown Author'))
+    const authors = new Set(tbrListBooks.map(book => book.author || 'Unknown Author'))
     return authors.size
-  }, [listBooks])
+  }, [tbrListBooks])
 
-  if (!list) return null
+  if (!tbrList) return null
 
   const handleStartEdit = () => {
-    setEditName(list.name)
+    setEditName(tbrList.name)
     setEditing(true)
     setError('')
   }
@@ -48,14 +48,14 @@ function ListDetailPage({
 
   const handleSaveEdit = async () => {
     if (!editName.trim()) {
-      setError('List name cannot be empty')
+      setError('TBR list name cannot be empty')
       return
     }
 
     setSaving(true)
     setError('')
     try {
-      await onUpdateListName({ ...list, name: editName.trim() })
+      await onUpdateTBRListName({ ...tbrList, name: editName.trim() })
       setEditing(false)
     } catch (err) {
       setError(err.message)
@@ -65,18 +65,18 @@ function ListDetailPage({
   }
 
   return (
-    <div className="list-detail-page">
-      <header className="list-detail-header">
+    <div className="tbr-detail-page">
+      <header className="tbr-detail-header">
         <div className="container">
-          <div className="list-detail-header-content">
-            <button className="list-detail-back-btn" onClick={onBack}>
+          <div className="tbr-detail-header-content">
+            <button className="tbr-detail-back-btn" onClick={onBack}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
               </svg>
             </button>
             
             {editing ? (
-              <div className="list-detail-edit-form">
+              <div className="tbr-detail-edit-form">
                 <input
                   type="text"
                   value={editName}
@@ -89,28 +89,28 @@ function ListDetailPage({
                     if (e.key === 'Escape') handleCancelEdit()
                   }}
                 />
-                <div className="list-detail-edit-actions">
+                <div className="tbr-detail-edit-actions">
                   <button 
-                    className="list-detail-edit-cancel"
+                    className="tbr-detail-edit-cancel"
                     onClick={handleCancelEdit}
                     disabled={saving}
                   >
                     Cancel
                   </button>
                   <button 
-                    className="list-detail-edit-save"
+                    className="tbr-detail-edit-save"
                     onClick={handleSaveEdit}
                     disabled={saving}
                   >
                     {saving ? 'Saving...' : 'Save'}
                   </button>
                 </div>
-                {error && <div className="list-detail-edit-error">{error}</div>}
+                {error && <div className="tbr-detail-edit-error">{error}</div>}
               </div>
             ) : (
-              <h1 className="list-detail-title" onClick={handleStartEdit}>
-                {list.name}
-                <span className="list-detail-edit-icon">✏️</span>
+              <h1 className="tbr-detail-title" onClick={handleStartEdit}>
+                {tbrList.name}
+                <span className="tbr-detail-edit-icon">✏️</span>
               </h1>
             )}
           </div>
@@ -118,30 +118,30 @@ function ListDetailPage({
       </header>
 
       <div className="container">
-        <div className="list-detail-actions">
-          <button className="list-detail-add-btn" onClick={() => setShowAddModal(true)}>
+        <div className="tbr-detail-actions">
+          <button className="tbr-detail-add-btn" onClick={() => setShowAddModal(true)}>
             Add Books
           </button>
           <button 
-            className="list-detail-delete-btn"
+            className="tbr-detail-delete-btn"
             onClick={() => setShowDeleteConfirm(true)}
           >
-            Delete List
+            Delete TBR List
           </button>
         </div>
       </div>
 
-      <main className="list-detail-main">
+      <main className="tbr-detail-main">
         <div className="container">
-          {listBooks.length === 0 ? (
-            <div className="list-detail-empty">
-              <div className="list-detail-empty-icon">📚</div>
-              <p className="list-detail-empty-title">No books in this list</p>
-              <p className="list-detail-empty-subtitle">Add books to get started</p>
+          {tbrListBooks.length === 0 ? (
+            <div className="tbr-detail-empty">
+              <div className="tbr-detail-empty-icon">📚</div>
+              <p className="tbr-detail-empty-title">No books in this TBR list</p>
+              <p className="tbr-detail-empty-subtitle">Add books to get started</p>
             </div>
           ) : (
             <BookList
-              books={listBooks}
+              books={tbrListBooks}
               onBookClick={() => {}}
               totalBooks={totalBooks}
               totalAuthors={totalAuthors}
@@ -153,25 +153,25 @@ function ListDetailPage({
       </main>
 
       {showAddModal && (
-        <AddToListModal
+        <AddToTBRModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
-          list={list}
+          tbrList={tbrList}
           books={books}
-          onAddBook={(bookId) => addBookToList(list.id, bookId)}
+          onAddBook={(bookId) => addBookToTBRList(tbrList.id, bookId)}
           onAddNewBook={async (book) => {
             await addBook(book)
-            await addBookToList(list.id, book.id)
+            await addBookToTBRList(tbrList.id, book.id)
           }}
         />
       )}
 
       {showDeleteConfirm && (
-        <DeleteListConfirmModal
+        <DeleteTBRConfirmModal
           isOpen={showDeleteConfirm}
           onClose={() => setShowDeleteConfirm(false)}
-          onConfirm={() => onDeleteList()}
-          list={list}
+          onConfirm={() => onDeleteTBRList()}
+          tbrList={tbrList}
           books={books}
         />
       )}
@@ -179,4 +179,4 @@ function ListDetailPage({
   )
 }
 
-export default ListDetailPage
+export default TBRDetailPage

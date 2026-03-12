@@ -213,10 +213,10 @@ function App() {
           onClose={() => setSelectedBook(null)}
           onEdit={setEditingBook}
           onDelete={handleDeleteBook}
-          lists={lists}
-          onOpenList={(list) => {
+          tbrLists={lists}
+          onOpenTBRList={(tbrList) => {
             setSelectedBook(null)
-            navigate(`/list/${list.id}`)
+            navigate(`/list/${tbrList.id}`)
           }}
         />
       )}
@@ -265,7 +265,7 @@ function App() {
         onSignOut={signOut}
         isAdmin={userIsAdmin}
         onTestVision={() => setShowVisionTestModal(true)}
-        onShowLists={() => {
+        onShowTBRLists={() => {
           setShowHamburger(false)
           navigate('/lists')
         }}

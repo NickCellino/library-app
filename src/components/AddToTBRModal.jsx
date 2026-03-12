@@ -4,17 +4,17 @@ import { v4 as uuidv4 } from '../utils/uuid'
 import { fetchBookByISBN } from '../utils/googleBooksApi'
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
 import BookCard from './BookCard'
-import './AddToListModal.css'
+import './AddToTBRModal.css'
 
 const COOLDOWN_MS = 5000
 
-function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook }) {
+function AddToTBRModal({ isOpen, onClose, tbrList, books, onAddBook, onAddNewBook }) {
   const [activeTab, setActiveTab] = useState('search')
   const [searchQuery, setSearchQuery] = useState('')
   const [addedBookIds, setAddedBookIds] = useState(new Set())
   const [booksAddedCount, setBooksAddedCount] = useState(0)
 
-  const listRef = useRef(list)
+  const tbrListRef = useRef(tbrList)
   const booksRef = useRef(books)
 
   useEffect(() => {
@@ -22,19 +22,19 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
   }, [books])
 
   useEffect(() => {
-    listRef.current = list
-  }, [list])
+    tbrListRef.current = tbrList
+  }, [tbrList])
 
   const handleScan = useCallback(async (isbn, { showToast }) => {
     // Check if book exists in library
     const existingBook = booksRef.current.find(b => b.isbn && b.isbn === isbn)
     
     if (existingBook) {
-      // Check if already in list
-      if (listRef.current.bookIds.includes(existingBook.id)) {
-        showToast({ type: 'info', message: 'Already in list' })
+      // Check if already in TBR list
+      if (tbrListRef.current.bookIds.includes(existingBook.id)) {
+        showToast({ type: 'info', message: 'Already in TBR list' })
       } else {
-        // Add to list
+        // Add to TBR list
         await onAddBook(existingBook.id)
         setAddedBookIds(prev => new Set([...prev, existingBook.id]))
         setBooksAddedCount(prev => prev + 1)
@@ -55,7 +55,7 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
         await onAddNewBook(newBook)
         setAddedBookIds(prev => new Set([...prev, newBook.id]))
         setBooksAddedCount(prev => prev + 1)
-        showToast({ type: 'success', book: newBook, message: 'Added to library and list' })
+        showToast({ type: 'success', book: newBook, message: 'Added to library and TBR list' })
       } else {
         showToast({ type: 'error', message: `ISBN ${isbn} not found` })
       }
@@ -63,7 +63,7 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
   }, [onAddBook, onAddNewBook])
 
   const handleScanError = useCallback((error) => {
-    console.error('[AddToListModal] Scan error:', error)
+    console.error('[AddToTBRModal] Scan error:', error)
   }, [])
 
   const {
@@ -99,7 +99,7 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
     return results.map(result => result.item)
   }, [books, searchQuery, fuse])
 
-  if (!isOpen || !list) return null
+  if (!isOpen || !tbrList) return null
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -137,56 +137,56 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
   }
 
   return (
-    <div className="add-to-list-overlay" onClick={handleBackdropClick}>
-      <div className="add-to-list-modal">
-        <button className="add-to-list-close" onClick={handleClose}>×</button>
+    <div className="add-to-tbr-overlay" onClick={handleBackdropClick}>
+      <div className="add-to-tbr-modal">
+        <button className="add-to-tbr-close" onClick={handleClose}>×</button>
 
-        <div className="add-to-list-header">
-          <h2>Add to "{list.name}"</h2>
+        <div className="add-to-tbr-header">
+          <h2>Add to "{tbrList.name}"</h2>
         </div>
 
-        <div className="add-to-list-tabs">
+        <div className="add-to-tbr-tabs">
           <button 
-            className={`add-to-list-tab ${activeTab === 'search' ? 'active' : ''}`}
+            className={`add-to-tbr-tab ${activeTab === 'search' ? 'active' : ''}`}
             onClick={() => handleTabChange('search')}
           >
             Search
           </button>
           <button 
-            className={`add-to-list-tab ${activeTab === 'scan' ? 'active' : ''}`}
+            className={`add-to-tbr-tab ${activeTab === 'scan' ? 'active' : ''}`}
             onClick={() => handleTabChange('scan')}
           >
             Scan
           </button>
         </div>
 
-        <div className="add-to-list-content">
+        <div className="add-to-tbr-content">
           {activeTab === 'search' && (
-            <div className="add-to-list-search">
+            <div className="add-to-tbr-search">
               <input
                 type="text"
                 placeholder="Search your library..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="add-to-list-search-input"
+                className="add-to-tbr-search-input"
               />
               
-              <div className="add-to-list-results">
+              <div className="add-to-tbr-results">
                 {searchResults.map(book => (
                   <div 
                     key={book.id} 
-                    className="add-to-list-result-item"
+                    className="add-to-tbr-result-item"
                     onClick={() => handleAddBook(book.id)}
                   >
                     <BookCard book={book} onClick={() => {}} />
                     {addedBookIds.has(book.id) && (
-                      <div className="add-to-list-added-badge">✓</div>
+                      <div className="add-to-tbr-added-badge">✓</div>
                     )}
                   </div>
                 ))}
                 
                 {searchResults.length === 0 && (
-                  <div className="add-to-list-empty">
+                  <div className="add-to-tbr-empty">
                     <p>No books found</p>
                   </div>
                 )}
@@ -195,25 +195,25 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
           )}
 
           {activeTab === 'scan' && (
-            <div className="add-to-list-scan">
-              <div className="add-to-list-camera">
+            <div className="add-to-tbr-scan">
+              <div className="add-to-tbr-camera">
                 <video ref={videoRef} playsInline muted />
                 <canvas ref={canvasRef} style={{ display: 'none' }} />
                 
                 {!isScanning && (
-                  <div className="add-to-list-camera-placeholder">
+                  <div className="add-to-tbr-camera-placeholder">
                     <p>Starting camera...</p>
                   </div>
                 )}
               </div>
 
               {isLoading && (
-                <div className="add-to-list-loading">
+                <div className="add-to-tbr-loading">
                   Loading ISBN: {loadingISBN}...
                 </div>
               )}
 
-              <div className="add-to-list-counter">
+              <div className="add-to-tbr-counter">
                 Added: {booksAddedCount} books
               </div>
             </div>
@@ -221,12 +221,12 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
         </div>
 
         {currentToast && (
-          <div className={`add-to-list-toast add-to-list-toast-${currentToast.type}`}>
+          <div className={`add-to-tbr-toast add-to-tbr-toast-${currentToast.type}`}>
             {currentToast.book && (
-              <div className="add-to-list-toast-book">
-                <span className="add-to-list-toast-title">{currentToast.book.title}</span>
-                <span className="add-to-list-toast-author">{currentToast.book.author}</span>
-                <span className="add-to-list-toast-status">
+              <div className="add-to-tbr-toast-book">
+                <span className="add-to-tbr-toast-title">{currentToast.book.title}</span>
+                <span className="add-to-tbr-toast-author">{currentToast.book.author}</span>
+                <span className="add-to-tbr-toast-status">
                   {currentToast.message || 'Added ✓'}
                 </span>
               </div>
@@ -241,4 +241,4 @@ function AddToListModal({ isOpen, onClose, list, books, onAddBook, onAddNewBook 
   )
 }
 
-export default AddToListModal
+export default AddToTBRModal

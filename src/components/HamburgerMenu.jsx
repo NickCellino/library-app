@@ -62,7 +62,7 @@ const Icons = {
   ),
 }
 
-function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onTestVision, onShowLists }) {
+function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestData, onClearAll, hasBooks, user, onSignOut, isAdmin, onTestVision, onShowTBRLists }) {
   const [showDevTools, setShowDevTools] = useState(false)
   const navigate = useNavigate()
 
@@ -92,9 +92,9 @@ function HamburgerMenu({ isOpen, onClose, onAddBook, onSearchBooks, onLoadTestDa
         </button>
 
         <nav className="hamburger-nav">
-          <button className="hamburger-item" onClick={() => handleAction(onShowLists)}>
+          <button className="hamburger-item" onClick={() => handleAction(onShowTBRLists)}>
             <span className="hamburger-icon">{Icons.lists}</span>
-            My Lists
+            My TBR Lists
           </button>
 
           <button className="hamburger-item" onClick={() => handleAction(onSearchBooks)}>

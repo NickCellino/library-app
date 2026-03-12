@@ -1,4 +1,4 @@
-.delete-list-overlay {
+.delete-tbr-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
@@ -16,7 +16,7 @@
   to { opacity: 1; }
 }
 
-.delete-list-modal {
+.delete-tbr-modal {
   background: var(--gradient-surface);
   width: 90%;
   max-width: 400px;
@@ -39,7 +39,7 @@
   }
 }
 
-.delete-list-title {
+.delete-tbr-title {
   font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 600;
@@ -47,28 +47,28 @@
   margin: 0 0 var(--space-md) 0;
 }
 
-.delete-list-content {
+.delete-tbr-content {
   margin-bottom: var(--space-lg);
 }
 
-.delete-list-message {
+.delete-tbr-message {
   font-size: 1rem;
   color: var(--color-text);
   margin: 0 0 var(--space-md) 0;
   line-height: 1.5;
 }
 
-.delete-list-message strong {
+.delete-tbr-message strong {
   color: var(--color-accent);
 }
 
-.delete-list-subtitle {
+.delete-tbr-subtitle {
   font-size: 0.9rem;
   color: var(--color-text-muted);
   margin: 0 0 var(--space-sm) 0;
 }
 
-.delete-list-books {
+.delete-tbr-books {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -76,35 +76,35 @@
   overflow-y: auto;
 }
 
-.delete-list-books li {
+.delete-tbr-books li {
   padding: var(--space-xs) 0;
   font-size: 0.9rem;
   color: var(--color-text);
   border-bottom: 1px solid var(--color-border);
 }
 
-.delete-list-books li:last-child {
+.delete-tbr-books li:last-child {
   border-bottom: none;
 }
 
-.delete-list-more {
+.delete-tbr-more {
   font-style: italic;
   color: var(--color-text-muted);
 }
 
-.delete-list-empty {
+.delete-tbr-empty {
   font-size: 0.9rem;
   color: var(--color-text-muted);
   font-style: italic;
   margin: 0;
 }
 
-.delete-list-actions {
+.delete-tbr-actions {
   display: flex;
   gap: var(--space-sm);
 }
 
-.delete-list-btn {
+.delete-tbr-btn {
   flex: 1;
   padding: var(--space-sm) var(--space-md);
   border-radius: 8px;
@@ -114,23 +114,23 @@
   transition: all 0.15s ease;
 }
 
-.delete-list-btn-cancel {
+.delete-tbr-btn-cancel {
   background: transparent;
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
 }
 
-.delete-list-btn-cancel:hover {
+.delete-tbr-btn-cancel:hover {
   border-color: var(--color-text-muted);
   color: var(--color-text);
 }
 
-.delete-list-btn-confirm {
+.delete-tbr-btn-confirm {
   background: #c0392b;
   border: none;
   color: white;
 }
 
-.delete-list-btn-confirm:hover {
+.delete-tbr-btn-confirm:hover {
   background: #a93226;
 }

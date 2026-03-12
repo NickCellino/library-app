@@ -1,4 +1,4 @@
-.list-detail-overlay {
+.tbr-detail-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
@@ -16,7 +16,7 @@
   to { opacity: 1; }
 }
 
-.list-detail-modal {
+.tbr-detail-modal {
   background: var(--gradient-surface);
   width: 100%;
   max-width: 500px;
@@ -37,7 +37,7 @@
   to { transform: translateY(0); }
 }
 
-.list-detail-close {
+.tbr-detail-modal-close {
   position: absolute;
   top: var(--space-sm);
   right: var(--space-sm);
@@ -51,13 +51,13 @@
   z-index: 10;
 }
 
-.list-detail-header {
+.tbr-detail-modal-header {
   padding: var(--space-lg);
   padding-right: var(--space-xl);
   border-bottom: 1px solid var(--color-border);
 }
 
-.list-detail-title {
+.tbr-detail-modal-title {
   font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 600;
@@ -69,23 +69,23 @@
   gap: var(--space-sm);
 }
 
-.list-detail-edit-icon {
+.tbr-detail-modal-edit-icon {
   font-size: 0.9rem;
   opacity: 0;
   transition: opacity 0.15s ease;
 }
 
-.list-detail-title:hover .list-detail-edit-icon {
+.tbr-detail-modal-title:hover .tbr-detail-modal-edit-icon {
   opacity: 0.5;
 }
 
-.list-detail-edit-form {
+.tbr-detail-modal-edit-form {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
 }
 
-.list-detail-edit-form input {
+.tbr-detail-modal-edit-form input {
   width: 100%;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
@@ -97,18 +97,18 @@
   font-weight: 600;
 }
 
-.list-detail-edit-form input:focus {
+.tbr-detail-modal-edit-form input:focus {
   outline: none;
   border-color: var(--color-accent);
 }
 
-.list-detail-edit-actions {
+.tbr-detail-modal-edit-actions {
   display: flex;
   gap: var(--space-sm);
 }
 
-.list-detail-edit-cancel,
-.list-detail-edit-save {
+.tbr-detail-modal-edit-cancel,
+.tbr-detail-modal-edit-save {
   flex: 1;
   padding: var(--space-xs) var(--space-md);
   border-radius: 6px;
@@ -118,34 +118,34 @@
   transition: all 0.15s ease;
 }
 
-.list-detail-edit-cancel {
+.tbr-detail-modal-edit-cancel {
   background: transparent;
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
 }
 
-.list-detail-edit-save {
+.tbr-detail-modal-edit-save {
   background: var(--color-accent);
   border: none;
   color: #0a0a0a;
 }
 
-.list-detail-edit-save:disabled {
+.tbr-detail-modal-edit-save:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.list-detail-edit-error {
+.tbr-detail-modal-edit-error {
   color: #e74c3c;
   font-size: 0.85rem;
 }
 
-.list-detail-actions {
+.tbr-detail-modal-actions {
   padding: var(--space-md) var(--space-lg);
   border-bottom: 1px solid var(--color-border);
 }
 
-.list-detail-add-btn {
+.tbr-detail-modal-add-btn {
   width: 100%;
   background: var(--color-accent);
   color: #0a0a0a;
@@ -158,17 +158,17 @@
   transition: transform 0.15s ease;
 }
 
-.list-detail-add-btn:hover {
+.tbr-detail-modal-add-btn:hover {
   transform: translateY(-1px);
 }
 
-.list-detail-content {
+.tbr-detail-modal-content {
   flex: 1;
   overflow-y: auto;
   min-height: 200px;
 }
 
-.list-detail-empty {
+.tbr-detail-modal-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -178,30 +178,30 @@
   padding: var(--space-lg);
 }
 
-.list-detail-empty-icon {
+.tbr-detail-modal-empty-icon {
   font-size: 3rem;
   margin-bottom: var(--space-md);
   opacity: 0.5;
 }
 
-.list-detail-empty-title {
+.tbr-detail-modal-empty-title {
   font-size: 1.2rem;
   color: var(--color-text);
   margin: 0 0 var(--space-xs) 0;
 }
 
-.list-detail-empty-subtitle {
+.tbr-detail-modal-empty-subtitle {
   font-size: 0.9rem;
   color: var(--color-text-muted);
   margin: 0;
 }
 
-.list-detail-footer {
+.tbr-detail-modal-footer {
   padding: var(--space-md) var(--space-lg);
   border-top: 1px solid var(--color-border);
 }
 
-.list-detail-delete-btn {
+.tbr-detail-modal-delete-btn {
   width: 100%;
   background: transparent;
   border: 1px solid var(--color-border);
@@ -213,17 +213,17 @@
   transition: all 0.15s ease;
 }
 
-.list-detail-delete-btn:hover {
+.tbr-detail-modal-delete-btn:hover {
   border-color: #c0392b;
   color: #c0392b;
 }
 
 @media (min-width: 769px) {
-  .list-detail-overlay {
+  .tbr-detail-modal-overlay {
     align-items: center;
   }
 
-  .list-detail-modal {
+  .tbr-detail-modal {
     border-radius: 16px;
     max-height: 90vh;
   }
