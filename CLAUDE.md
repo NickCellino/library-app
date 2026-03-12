@@ -6,6 +6,8 @@ In all interactions and commit messages, be extremely concise.
 
 ## Build and Development Commands
 
+IMPORTANT: Start dev servers or any long running processes using your pty_* tools.
+
 ```bash
 npm run dev          # Start Vite dev server (http://localhost:5173)
 npm run dev:emulate  # Dev server with Firebase emulators
@@ -16,6 +18,11 @@ npm test             # Run Playwright e2e tests
 npm run test:ui      # Run tests with Playwright UI
 npm run test:debug   # Run tests in debug mode
 ```
+
+When developing, the preferred workflow is to run the dev server and visually verify changes using Playwright MCP.
+Figure out what needs to be tested and hand these tasks off to the playwright-ui-tester subagent.
+
+**IMPORTANT for manual testing with Playwright MCP**: Always use `npm run dev:emulate` instead of `npm run dev`. Emulator mode auto-signs in anonymously, avoiding Google OAuth popups. Regular dev mode requires real Google authentication which blocks Playwright testing.
 
 ### Terraform (Infrastructure)
 ```bash
@@ -28,10 +35,6 @@ npm run tf:output    # Show Terraform outputs
 Tests require the dev server running (Playwright config auto-starts it).
 
 On the hamburger menu, there is "dev tools" > "load test data" functionality. Use that when test data is needed.
-
-When developing, the preferred workflow is to run the dev server and visually verify changes using Playwright MCP. Iterate on results until they look good.
-
-**IMPORTANT for manual testing with Playwright MCP**: Always use `npm run dev:emulate` instead of `npm run dev`. Emulator mode auto-signs in anonymously, avoiding Google OAuth popups. Regular dev mode requires real Google authentication which blocks Playwright testing.
 
 ## Architecture
 
