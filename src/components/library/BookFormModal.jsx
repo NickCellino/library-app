@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { v4 as uuidv4 } from '../../utils/uuid'
 import { fetchBookByISBN, fetchBookCoverByTitleAuthor } from '../../utils/googleBooksApi'
 import { searchBookCovers } from '../../utils/bookCoverSearch'
@@ -14,8 +14,10 @@ import './AddBookModal.css'
  * @param {Function} props.onClose
  * @param {Function} props.onSave - Called with book data
  * @param {Array} [props.books] - Existing books (for duplicate ISBN check in add mode)
+ * @param {Array} [props.tbrLists] - TBR lists for move functionality
+ * @param {Function} [props.onMoveBookBetweenLists] - Called with (bookId, fromListId, toListId)
  */
-function BookFormModal({ book, onClose, onSave, books = [] }) {
+function BookFormModal({ book, onClose, onSave, books = [], tbrLists = [], onMoveBookBetweenLists }) {
   const isEditMode = Boolean(book)
 
   const [formData, setFormData] = useState({
@@ -34,6 +36,16 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
   const [isResettingCover, setIsResettingCover] = useState(false)
   const [coverSearchResults, setCoverSearchResults] = useState([])
   const [isSearchingCovers, setIsSearchingCovers] = useState(false)
+  const [showMoveTBR, setShowMoveTBR] = useState(false)
+
+  const containingTBRLists = useMemo(() => {
+    if (!isEditMode || !book) return []
+    return tbrLists.filter(list => list.bookIds.includes(book.id))
+  }, [isEditMode, book, tbrLists])
+
+  const canMoveTBR = containingTBRLists.length === 1 && tbrLists.length > 1
+  const currentTBRList = containingTBRLists[0]
+  const otherTBRLists = tbrLists.filter(list => list.id !== currentTBRList?.id)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -402,6 +414,57 @@ function BookFormModal({ book, onClose, onSave, books = [] }) {
             />
             <small className="form-hint">Upload a photo or paste an image URL</small>
           </div>
+
+          {canMoveTBR && (
+            <div className="form-group move-tbr-section">
+              <label>TBR List</label>
+              {!showMoveTBR ? (
+                <div className="move-tbr-current">
+                  <span className="move-tbr-badge">{currentTBRList.name}</span>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setShowMoveTBR(true)}
+                  >
+                    Move to TBR
+                  </button>
+                </div>
+              ) : (
+                <div className="move-tbr-options">
+                  <p className="move-tbr-prompt">
+                    Move from "{currentTBRList.name}" to:
+                  </p>
+                  <div className="move-tbr-list">
+                    {otherTBRLists.map(list => (
+                      <button
+                        key={list.id}
+                        type="button"
+                        className="move-tbr-option"
+                        onClick={() => {
+                          const confirmed = window.confirm(
+                            `Move "${book.title}" from "${currentTBRList.name}" to "${list.name}"?`
+                          )
+                          if (confirmed && onMoveBookBetweenLists) {
+                            onMoveBookBetweenLists(book.id, currentTBRList.id, list.id)
+                            setShowMoveTBR(false)
+                          }
+                        }}
+                      >
+                        {list.name}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setShowMoveTBR(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="form-actions">
             <button type="button" className="btn btn-secondary" onClick={onClose}>

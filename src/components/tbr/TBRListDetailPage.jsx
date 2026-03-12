@@ -18,7 +18,8 @@ function TBRListDetailPage({
   addBookToTBRList,
   addBook,
   onUpdateBook,
-  onDeleteBook
+  onDeleteBook,
+  onMoveBookBetweenLists
 }) {
   const navigate = useNavigate()
   const [editing, setEditing] = useState(false)
@@ -206,6 +207,8 @@ function TBRListDetailPage({
           onClose={() => setEditingBook(null)}
           onSave={onUpdateBook}
           onDelete={onDeleteBook}
+          tbrLists={lists}
+          onMoveBookBetweenLists={onMoveBookBetweenLists}
         />
       )}
     </div>

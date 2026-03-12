@@ -17,7 +17,8 @@ function TBRListDetailRoute() {
     updateList, 
     deleteList, 
     addBookToList, 
-    removeBookFromList 
+    removeBookFromList,
+    moveBookBetweenLists
   } = useLists(user)
 
   const tbrList = useMemo(() => {
@@ -89,6 +90,7 @@ function TBRListDetailRoute() {
       addBook={addBook}
       onUpdateBook={updateBook}
       onDeleteBook={deleteBook}
+      onMoveBookBetweenLists={moveBookBetweenLists}
     />
   )
 }

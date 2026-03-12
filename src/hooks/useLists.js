@@ -121,6 +121,27 @@ export function useLists(user) {
     await batch.commit()
   }, [user, lists])
 
+  const moveBookBetweenLists = useCallback(async (bookId, fromListId, toListId) => {
+    if (!user) return
+    if (fromListId === toListId) return
+
+    const batch = writeBatch(db)
+    const fromListRef = doc(db, 'users', user.uid, 'lists', fromListId)
+    const toListRef = doc(db, 'users', user.uid, 'lists', toListId)
+
+    batch.update(fromListRef, {
+      bookIds: arrayRemove(bookId),
+      updatedAt: new Date().toISOString()
+    })
+
+    batch.update(toListRef, {
+      bookIds: arrayUnion(bookId),
+      updatedAt: new Date().toISOString()
+    })
+
+    await batch.commit()
+  }, [user])
+
   const getListsForBook = useCallback((bookId) => {
     return lists
       .filter(list => list.bookIds.includes(bookId))
@@ -136,6 +157,7 @@ export function useLists(user) {
     addBookToList,
     removeBookFromList,
     getListsForBook,
-    removeBookFromAllLists
+    removeBookFromAllLists,
+    moveBookBetweenLists
   }
 }
