@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { recognizeBookCover } from '../utils/coverRecognition'
+import { recognizeBookCover } from '../../utils/coverRecognition'
 import './BookVisionTestModal.css'
 
 function BookVisionTestModal({ onClose }) {

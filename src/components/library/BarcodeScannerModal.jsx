@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { v4 as uuidv4 } from '../utils/uuid'
-import { fetchBookByISBN } from '../utils/googleBooksApi'
-import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
+import { v4 as uuidv4 } from '../../utils/uuid'
+import { fetchBookByISBN } from '../../utils/googleBooksApi'
+import { useBarcodeScanner } from '../../hooks/useBarcodeScanner'
 import './BarcodeScannerModal.css'
 
 const COOLDOWN_MS = 30000

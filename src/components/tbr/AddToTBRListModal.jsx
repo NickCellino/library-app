@@ -1,14 +1,14 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import Fuse from 'fuse.js'
-import { v4 as uuidv4 } from '../utils/uuid'
-import { fetchBookByISBN } from '../utils/googleBooksApi'
-import { useBarcodeScanner } from '../hooks/useBarcodeScanner'
-import BookCard from './BookCard'
-import './AddToTBRModal.css'
+import { v4 as uuidv4 } from '../../utils/uuid'
+import { fetchBookByISBN } from '../../utils/googleBooksApi'
+import { useBarcodeScanner } from '../../hooks/useBarcodeScanner'
+import BookCard from '../library/BookCard'
+import './AddToTBRListModal.css'
 
 const COOLDOWN_MS = 5000
 
-function AddToTBRModal({ isOpen, onClose, tbrList, books, onAddBook, onAddNewBook }) {
+function AddToTBRListModal({ isOpen, onClose, tbrList, books, onAddBook, onAddNewBook }) {
   const [activeTab, setActiveTab] = useState('search')
   const [searchQuery, setSearchQuery] = useState('')
   const [addedBookIds, setAddedBookIds] = useState(new Set())
@@ -63,7 +63,7 @@ function AddToTBRModal({ isOpen, onClose, tbrList, books, onAddBook, onAddNewBoo
   }, [onAddBook, onAddNewBook])
 
   const handleScanError = useCallback((error) => {
-    console.error('[AddToTBRModal] Scan error:', error)
+    console.error('[AddToTBRListModal] Scan error:', error)
   }, [])
 
   const {
@@ -241,4 +241,4 @@ function AddToTBRModal({ isOpen, onClose, tbrList, books, onAddBook, onAddNewBoo
   )
 }
 
-export default AddToTBRModal
+export default AddToTBRListModal

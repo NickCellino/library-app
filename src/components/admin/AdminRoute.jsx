@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import { useAdmin } from '../hooks/useAdmin'
-import { isAdmin } from '../config/adminConfig'
+import { useAuth } from '../../hooks/useAuth'
+import { useAdmin } from '../../hooks/useAdmin'
+import { isAdmin } from '../../config/adminConfig'
 import AdminPage from './AdminPage'
 
 const isEmulatorMode = import.meta.env.VITE_USE_EMULATOR === 'true'

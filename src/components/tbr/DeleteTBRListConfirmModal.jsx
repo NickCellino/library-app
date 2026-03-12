@@ -1,6 +1,6 @@
-import './DeleteTBRConfirmModal.css'
+import './DeleteTBRListConfirmModal.css'
 
-function DeleteTBRConfirmModal({ isOpen, onClose, onConfirm, tbrList, books }) {
+function DeleteTBRListConfirmModal({ isOpen, onClose, onConfirm, tbrList, books }) {
   if (!isOpen || !tbrList) return null
 
   const tbrListBooks = books.filter(book => tbrList.bookIds.includes(book.id))
@@ -58,4 +58,4 @@ function DeleteTBRConfirmModal({ isOpen, onClose, onConfirm, tbrList, books }) {
   )
 }
 
-export default DeleteTBRConfirmModal
+export default DeleteTBRListConfirmModal

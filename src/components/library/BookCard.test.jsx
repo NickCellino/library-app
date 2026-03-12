@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import BookCard from '../components/BookCard'
+import BookCard from './BookCard'
 
 describe('BookCard', () => {
   const mockBook = {

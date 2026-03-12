@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { v4 as uuidv4 } from '../utils/uuid'
-import { searchBooks } from '../utils/googleBooksApi'
+import { v4 as uuidv4 } from '../../utils/uuid'
+import { searchBooks } from '../../utils/googleBooksApi'
 import './BookSearchModal.css'
 
 function BookSearchModal({ onClose, onAdd, books = [] }) {

@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useMemo } from 'react'
-import TBRDetailPage from './TBRDetailPage'
-import { useAuth } from '../hooks/useAuth'
-import { useBooks } from '../hooks/useBooks'
-import { useLists } from '../hooks/useLists'
+import TBRListDetailPage from './TBRListDetailPage'
+import { useAuth } from '../../hooks/useAuth'
+import { useBooks } from '../../hooks/useBooks'
+import { useLists } from '../../hooks/useLists'
 
-function TBRDetailRoute() {
+function TBRListDetailRoute() {
   const { listId } = useParams()
   const navigate = useNavigate()
   
@@ -77,7 +77,7 @@ function TBRDetailRoute() {
   }
 
   return (
-    <TBRDetailPage
+    <TBRListDetailPage
       tbrList={tbrList}
       books={books}
       onBack={handleBack}
@@ -90,4 +90,4 @@ function TBRDetailRoute() {
   )
 }
 
-export default TBRDetailRoute
+export default TBRListDetailRoute

@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import TBRListsPage from './TBRListsPage'
-import { useAuth } from '../hooks/useAuth'
-import { useLists } from '../hooks/useLists'
+import { useAuth } from '../../hooks/useAuth'
+import { useLists } from '../../hooks/useLists'
 
-function TBRRoute() {
+function TBRListsRoute() {
   const navigate = useNavigate()
   
   const { user, loading: authLoading } = useAuth()
@@ -63,4 +63,4 @@ function TBRRoute() {
   )
 }
 
-export default TBRRoute
+export default TBRListsRoute

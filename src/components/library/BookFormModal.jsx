@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { v4 as uuidv4 } from '../utils/uuid'
-import { fetchBookByISBN, fetchBookCoverByTitleAuthor } from '../utils/googleBooksApi'
-import { searchBookCovers } from '../utils/bookCoverSearch'
-import { processImageFile } from '../utils/imageProcessor'
-import { uploadBookCover, deleteBookCover, isFirebaseStorageUrl } from '../utils/firebaseStorage'
-import { auth } from '../firebase/config'
+import { v4 as uuidv4 } from '../../utils/uuid'
+import { fetchBookByISBN, fetchBookCoverByTitleAuthor } from '../../utils/googleBooksApi'
+import { searchBookCovers } from '../../utils/bookCoverSearch'
+import { processImageFile } from '../../utils/imageProcessor'
+import { uploadBookCover, deleteBookCover, isFirebaseStorageUrl } from '../../utils/firebaseStorage'
+import { auth } from '../../firebase/config'
 import './AddBookModal.css'
 
 /**

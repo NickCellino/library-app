@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { formatRelativeTime } from '../utils/dateUtils'
+import { formatRelativeTime } from '../../utils/dateUtils'
 import './TBRListsPage.css'
 
 function TBRListsPage({ tbrLists, onBack, onSelectTBRList, onCreateTBRList, loading }) {

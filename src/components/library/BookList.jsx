@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useCallback } from 'react'
 import BookCard from './BookCard'
-import { sortAuthors, getAvailableLetters, findAuthorForLetter } from '../utils/sortBooks'
+import { sortAuthors, getAvailableLetters, findAuthorForLetter } from '../../utils/sortBooks'
 import './BookList.css'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('')

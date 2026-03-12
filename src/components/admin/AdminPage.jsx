@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import BookCard from './BookCard'
+import BookCard from '../library/BookCard'
 import './AdminPage.css'
 
 function AdminPage({ admin, onBack }) {

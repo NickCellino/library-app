@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react'
-import BookList from './BookList'
-import AddToTBRModal from './AddToTBRModal'
-import DeleteTBRConfirmModal from './DeleteTBRConfirmModal'
-import './TBRDetailPage.css'
+import BookList from '../library/BookList'
+import AddToTBRListModal from './AddToTBRListModal'
+import DeleteTBRListConfirmModal from './DeleteTBRListConfirmModal'
+import './TBRListDetailPage.css'
 
-function TBRDetailPage({ 
+function TBRListDetailPage({ 
   tbrList, 
   books, 
   onBack, 
@@ -153,7 +153,7 @@ function TBRDetailPage({
       </main>
 
       {showAddModal && (
-        <AddToTBRModal
+        <AddToTBRListModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
           tbrList={tbrList}
@@ -167,7 +167,7 @@ function TBRDetailPage({
       )}
 
       {showDeleteConfirm && (
-        <DeleteTBRConfirmModal
+        <DeleteTBRListConfirmModal
           isOpen={showDeleteConfirm}
           onClose={() => setShowDeleteConfirm(false)}
           onConfirm={() => onDeleteTBRList()}
@@ -179,4 +179,4 @@ function TBRDetailPage({
   )
 }
 
-export default TBRDetailPage
+export default TBRListDetailPage
