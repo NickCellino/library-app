@@ -119,7 +119,11 @@ export function useBarcodeScanner({
 
       try {
         const results = await readBarcodes(imageData, {
-          formats: ['EAN-13', 'EAN-8', 'UPC-A', 'UPC-E']
+          // EAN-13 is the standard ISBN barcode (ISBN-13). We intentionally
+          // exclude EAN-8, UPC-A, and UPC-E to avoid false positives from
+          // shorter price codes. If you need to scan older books (pre-2007)
+          // that might have UPC-A barcodes, consider adding 'UPC-A' here.
+          formats: ['EAN-13']
         })
 
         if (results.length > 0) {
