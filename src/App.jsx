@@ -22,9 +22,12 @@ function App() {
   const navigate = useNavigate()
   const { user, loading: authLoading, signIn, signOut } = useAuth()
   const { books, loading: booksLoading, addBook, updateBook, deleteBook, setAllBooks } = useBooks(user)
-  const { 
-    lists, 
-    removeBookFromAllLists 
+  const {
+    lists,
+    addList,
+    addBookToList,
+    removeBookFromAllLists,
+    moveBookBetweenLists
   } = useLists(user)
   const userIsAdmin = (user?.email && isAdmin(user.email)) || isEmulatorMode
 
@@ -39,9 +42,35 @@ function App() {
   const [showVisionTestModal, setShowVisionTestModal] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
-  const handleLoadTestData = () => {
+  const handleLoadTestData = async () => {
     const testBooks = generateTestBooks()
-    setAllBooks(testBooks)
+    await setAllBooks(testBooks)
+
+    // Create TBR lists and add books to them
+    try {
+      await addList('Want to Read')
+      await addList('Currently Reading')
+
+      // Find the newly created lists
+      const wantToReadList = lists.find(l => l.name === 'Want to Read')
+      const currentlyReadingList = lists.find(l => l.name === 'Currently Reading')
+
+      if (wantToReadList) {
+        // Add first 5 books to "Want to Read"
+        for (const book of testBooks.slice(0, 5)) {
+          await addBookToList(wantToReadList.id, book.id)
+        }
+      }
+
+      if (currentlyReadingList) {
+        // Add last 5 books to "Currently Reading"
+        for (const book of testBooks.slice(5)) {
+          await addBookToList(currentlyReadingList.id, book.id)
+        }
+      }
+    } catch (error) {
+      console.error('Error creating test lists:', error)
+    }
   }
 
   const handleClearAll = () => {
@@ -234,6 +263,8 @@ function App() {
           book={editingBook}
           onClose={() => setEditingBook(null)}
           onSave={updateBook}
+          tbrLists={lists}
+          onMoveBookBetweenLists={moveBookBetweenLists}
         />
       )}
 
