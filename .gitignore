@@ -57,3 +57,6 @@ playwright-screenshots/
 .agents/
 
 ui-testing-artifacts/
+agent-lock.json
+.opencode/skills/*
+.opencode/*
