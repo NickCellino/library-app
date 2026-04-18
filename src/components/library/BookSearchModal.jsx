@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { v4 as uuidv4 } from '../../utils/uuid'
-import { searchBooks } from '../../utils/googleBooksApi'
+import { searchBooks } from '../../utils/googleBooksClient'
 import './BookSearchModal.css'
 
 function BookSearchModal({ onClose, onAdd, books = [] }) {
@@ -52,12 +52,7 @@ function BookSearchModal({ onClose, onAdd, books = [] }) {
       setError(null)
 
       try {
-        // Build structured query
-        let query = ''
-        if (title) query += `intitle:${title}`
-        if (author) query += `${query ? '+' : ''}inauthor:${author}`
-
-        const searchResults = await searchBooks(query)
+        const searchResults = await searchBooks({ title, author })
         setResults(searchResults)
       } catch (err) {
         console.error('[Search] Error:', err)

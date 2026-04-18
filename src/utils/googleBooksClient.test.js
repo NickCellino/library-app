@@ -41,4 +41,27 @@ describe('googleBooksClient', () => {
     const { lookupBookByIsbn } = await import('./googleBooksClient')
     await expect(lookupBookByIsbn('9780441172719')).resolves.toBeNull()
   })
+
+  it('returns normalized search results from the callable response', async () => {
+    callableMock.mockResolvedValue({
+      data: {
+        books: [
+          {
+            title: 'Dune',
+            author: 'Frank Herbert',
+            isbn: '9780441172719'
+          }
+        ]
+      }
+    })
+
+    const { searchBooks } = await import('./googleBooksClient')
+    await expect(searchBooks({ title: 'Dune', author: 'Frank Herbert' })).resolves.toEqual([
+      {
+        title: 'Dune',
+        author: 'Frank Herbert',
+        isbn: '9780441172719'
+      }
+    ])
+  })
 })

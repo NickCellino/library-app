@@ -29,6 +29,34 @@ export async function lookupBookByIsbn(isbn) {
   return formatBookResult(data.items[0])
 }
 
+export async function searchBooks({ title = '', author = '', maxResults = 10 } = {}) {
+  const normalizedTitle = title.trim()
+  const normalizedAuthor = author.trim()
+
+  if (!normalizedTitle && !normalizedAuthor) {
+    return []
+  }
+
+  const query = buildSearchQuery({ title: normalizedTitle, author: normalizedAuthor })
+  const url = new URL(GOOGLE_BOOKS_API)
+  url.searchParams.set('q', query)
+  url.searchParams.set('printType', 'books')
+  url.searchParams.set('maxResults', maxResults.toString())
+  url.searchParams.set('key', googleBooksApiKey.value())
+
+  const response = await fetch(url.toString())
+  if (!response.ok) {
+    throw new Error(`Google Books API error: ${response.status}`)
+  }
+
+  const data = await response.json()
+  if (!data.items?.length) {
+    return []
+  }
+
+  return data.items.map(formatBookResult)
+}
+
 function formatBookResult(item) {
   const info = item.volumeInfo || {}
   const imageLinks = info.imageLinks || {}
@@ -42,6 +70,20 @@ function formatBookResult(item) {
     coverUrl: imageLinks.thumbnail?.replace('http:', 'https:') || '',
     isbn: extractIsbn(info.industryIdentifiers)
   }
+}
+
+function buildSearchQuery({ title, author }) {
+  const parts = []
+
+  if (title) {
+    parts.push(`intitle:${title}`)
+  }
+
+  if (author) {
+    parts.push(`inauthor:${author}`)
+  }
+
+  return parts.join('+')
 }
 
 function parsePublishYear(publishedDate) {

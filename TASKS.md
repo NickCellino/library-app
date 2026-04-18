@@ -10,7 +10,7 @@
 
 - [x] Task 1: Backend ISBN Lookup End-to-End
 - [x] Task 2: Barcode Lookup Uses Backend ISBN API
-- [ ] Task 3: Manual Search Uses Backend Search API
+- [x] Task 3: Manual Search Uses Backend Search API
 - [ ] Task 4: Cover Search And Reset Use Backend APIs
 - [ ] Task 5: Remove Browser Google Books Access And Env Dependency
 - [ ] Task 6: Regression Coverage For Backend-Only Google Books Flows
@@ -93,9 +93,9 @@ Deliver the second backend-backed Google Books contract for free-text search and
 
 **Acceptance criteria**
 
-- [ ] A signed-in user can search by title and or author through an authenticated backend callable that returns normalized book results.
-- [ ] The search modal continues to support debounced searching with user-visible behavior broadly consistent with the current UI.
-- [ ] Backend callable and normalization tests, plus frontend wrapper or UI tests, cover the app-level manual search contract.
+- [x] A signed-in user can search by title and or author through an authenticated backend callable that returns normalized book results.
+- [x] The search modal continues to support debounced searching with user-visible behavior broadly consistent with the current UI.
+- [x] Backend callable and normalization tests, plus frontend wrapper or UI tests, cover the app-level manual search contract.
 
 **Blocked by**
 
