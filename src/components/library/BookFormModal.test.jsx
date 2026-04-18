@@ -1,6 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 
+const { lookupBookByIsbnMock } = vi.hoisted(() => ({
+  lookupBookByIsbnMock: vi.fn()
+}))
+
+vi.mock('../../utils/googleBooksClient', () => ({
+  lookupBookByIsbn: lookupBookByIsbnMock
+}))
+
 vi.mock('../../firebase/config', () => ({
   auth: { currentUser: null },
   db: {},
@@ -39,6 +47,29 @@ describe('BookFormModal', () => {
     it('shows Auto-fill button in add mode', () => {
       render(<BookFormModal onClose={mockOnClose} onSave={mockOnSave} />)
       expect(screen.getByRole('button', { name: 'Auto-fill' })).toBeInTheDocument()
+    })
+
+    it('fills the form from backend ISBN lookup', async () => {
+      lookupBookByIsbnMock.mockResolvedValue({
+        title: 'Dune',
+        author: 'Frank Herbert',
+        publishYear: 1965,
+        publisher: 'Chilton Books',
+        pageCount: 412,
+        coverUrl: 'https://example.com/dune.jpg'
+      })
+
+      render(<BookFormModal onClose={mockOnClose} onSave={mockOnSave} />)
+
+      fireEvent.change(screen.getByLabelText('ISBN'), { target: { value: '9780441172719' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Auto-fill' }))
+
+      expect(await screen.findByDisplayValue('Dune')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('Frank Herbert')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('1965')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('Chilton Books')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('412')).toBeInTheDocument()
+      expect(lookupBookByIsbnMock).toHaveBeenCalledWith('9780441172719')
     })
   })
 

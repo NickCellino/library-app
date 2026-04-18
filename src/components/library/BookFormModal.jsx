@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { v4 as uuidv4 } from '../../utils/uuid'
 import { fetchBookByISBN, fetchBookCoverByTitleAuthor } from '../../utils/googleBooksApi'
+import { lookupBookByIsbn } from '../../utils/googleBooksClient'
 import { searchBookCovers } from '../../utils/bookCoverSearch'
 import { processImageFile } from '../../utils/imageProcessor'
 import { uploadBookCover, deleteBookCover, isFirebaseStorageUrl } from '../../utils/firebaseStorage'
@@ -58,7 +59,7 @@ function BookFormModal({ book, onClose, onSave, books = [], tbrLists = [], onMov
 
     setIsSearching(true)
     try {
-      const bookData = await fetchBookByISBN(formData.isbn)
+      const bookData = await lookupBookByIsbn(formData.isbn)
       if (bookData) {
         setFormData(prev => ({
           ...prev,
