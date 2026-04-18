@@ -1,50 +1,47 @@
 import { test, expect } from '@playwright/test'
 
-// Mock Google Books API responses for video fixture ISBNs
 const MOCK_ULYSSES = {
-  totalItems: 1,
-  items: [{
-    volumeInfo: {
-      title: 'Ulysses',
-      authors: ['James Joyce'],
-      publishedDate: '1922-02-02',
-      publisher: 'Vintage',
-      pageCount: 783,
-      imageLinks: { thumbnail: 'https://example.com/ulysses.jpg' }
-    }
-  }]
+  title: 'Ulysses',
+  author: 'James Joyce',
+  publishYear: 1922,
+  publisher: 'Vintage',
+  pageCount: 783,
+  coverUrl: 'https://example.com/ulysses.jpg',
+  isbn: '9780679722762'
 }
 
 const MOCK_CREATIVE_ACT = {
-  totalItems: 1,
-  items: [{
-    volumeInfo: {
-      title: 'The Creative Act',
-      authors: ['Rick Rubin'],
-      publishedDate: '2023-01-17',
-      publisher: 'Penguin Press',
-      pageCount: 432,
-      imageLinks: { thumbnail: 'https://example.com/creative-act.jpg' }
-    }
-  }]
+  title: 'The Creative Act',
+  author: 'Rick Rubin',
+  publishYear: 2023,
+  publisher: 'Penguin Press',
+  pageCount: 432,
+  coverUrl: 'https://example.com/creative-act.jpg',
+  isbn: '9780593652886'
+}
+
+function callableResult(result) {
+  return {
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ result })
+  }
 }
 
 test.describe('Barcode Scanner Modal', () => {
   test.beforeEach(async ({ page }) => {
-    // Mock Google Books API for video fixture ISBNs
-    // Video shows Ulysses first, then Creative Act
-    await page.route('**/googleapis.com/books/**', route => {
-      const url = route.request().url()
-      if (url.includes('9780679722762')) {
-        route.fulfill({ json: MOCK_ULYSSES })
-      } else if (url.includes('9780593652886')) {
-        route.fulfill({ json: MOCK_CREATIVE_ACT })
+    await page.route(/lookupBookByIsbn$/, route => {
+      const isbn = route.request().postDataJSON()?.data?.isbn
+
+      if (isbn === '9780679722762') {
+        route.fulfill(callableResult({ book: MOCK_ULYSSES }))
+      } else if (isbn === '9780593652886') {
+        route.fulfill(callableResult({ book: MOCK_CREATIVE_ACT }))
       } else {
-        route.fulfill({ json: { totalItems: 0 } })
+        route.fulfill(callableResult({ book: null }))
       }
     })
 
-    // Navigate (anonymous auth provides unique user per session)
     await page.goto('http://localhost:5173/')
     await page.waitForSelector('.fab', { timeout: 10000 })
   })

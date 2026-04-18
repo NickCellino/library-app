@@ -12,7 +12,7 @@
 - [x] Task 2: Barcode Lookup Uses Backend ISBN API
 - [x] Task 3: Manual Search Uses Backend Search API
 - [x] Task 4: Cover Search And Reset Use Backend APIs
-- [ ] Task 5: Remove Browser Google Books Access And Env Dependency
+- [x] Task 5: Remove Browser Google Books Access And Env Dependency
 - [ ] Task 6: Regression Coverage For Backend-Only Google Books Flows
 
 ## Task 1: Backend ISBN Lookup End-to-End
@@ -170,9 +170,9 @@ Complete the architectural migration by removing remaining browser-side Google B
 
 **Acceptance criteria**
 
-- [ ] All current Google Books-backed user flows route through app-owned backend call paths with no remaining direct browser requests to Google Books.
-- [ ] Frontend code no longer constructs Google Books URLs or relies on frontend environment configuration as a Google Books credential.
-- [ ] Project documentation or configuration examples reflect the backend-only Google Books access model.
+- [x] All current Google Books-backed user flows route through app-owned backend call paths with no remaining direct browser requests to Google Books.
+- [x] Frontend code no longer constructs Google Books URLs or relies on frontend environment configuration as a Google Books credential.
+- [x] Project documentation or configuration examples reflect the backend-only Google Books access model.
 
 **Blocked by**
 

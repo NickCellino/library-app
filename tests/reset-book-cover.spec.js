@@ -1,32 +1,30 @@
 import { test, expect } from '@playwright/test'
 
-// Mock Google Books API responses
 const MOCK_ULYSSES = {
-  totalItems: 1,
-  items: [{
-    volumeInfo: {
-      title: 'Ulysses',
-      authors: ['James Joyce'],
-      publishedDate: '1922-02-02',
-      publisher: 'Vintage',
-      pageCount: 783,
-      imageLinks: { thumbnail: 'https://example.com/new-ulysses-cover.jpg' }
-    }
-  }]
+  title: 'Ulysses',
+  author: 'James Joyce',
+  publishYear: 1922,
+  publisher: 'Vintage',
+  pageCount: 783,
+  coverUrl: 'https://example.com/new-ulysses-cover.jpg',
+  isbn: '9780679722762'
 }
 
 const MOCK_1984 = {
-  totalItems: 1,
-  items: [{
-    volumeInfo: {
-      title: '1984',
-      authors: ['George Orwell'],
-      publishedDate: '1949-06-08',
-      publisher: 'Secker & Warburg',
-      pageCount: 328,
-      imageLinks: { thumbnail: 'https://example.com/new-1984-cover.jpg' }
-    }
-  }]
+  title: '1984',
+  author: 'George Orwell',
+  publishYear: 1949,
+  publisher: 'Secker & Warburg',
+  pageCount: 328,
+  coverUrl: 'https://example.com/new-1984-cover.jpg'
+}
+
+function callableResult(result) {
+  return {
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ result })
+  }
 }
 
 test.describe('Reset Book Cover Feature', () => {
@@ -63,9 +61,8 @@ test.describe('Reset Book Cover Feature', () => {
   })
 
   test('should reset cover using ISBN when available', async ({ page }) => {
-    // Set up route mock BEFORE navigation - use regex for more reliable matching
-    await page.route(/googleapis\.com\/books/, route => {
-      route.fulfill({ json: MOCK_ULYSSES })
+    await page.route(/lookupBookByIsbn$/, route => {
+      route.fulfill(callableResult({ book: MOCK_ULYSSES }))
     })
 
     await page.goto('http://localhost:5173/')
@@ -104,9 +101,10 @@ test.describe('Reset Book Cover Feature', () => {
   })
 
   test('should reset cover using title and author when no ISBN', async ({ page }) => {
-    // Set up route mock BEFORE navigation - use regex for more reliable matching
-    await page.route(/googleapis\.com\/books/, route => {
-      route.fulfill({ json: MOCK_1984 })
+    await page.route(/searchBookCovers$/, route => {
+      route.fulfill(callableResult({
+        covers: [{ url: MOCK_1984.coverUrl, source: '1984 (1949)' }]
+      }))
     })
 
     await page.goto('http://localhost:5173/')
@@ -164,9 +162,8 @@ test.describe('Reset Book Cover Feature', () => {
   })
 
   test('should handle no cover found gracefully', async ({ page }) => {
-    // Mock empty response BEFORE navigation - use regex for more reliable matching
-    await page.route(/googleapis\.com\/books/, route => {
-      route.fulfill({ json: { totalItems: 0 } })
+    await page.route(/lookupBookByIsbn$/, route => {
+      route.fulfill(callableResult({ book: null }))
     })
 
     await page.goto('http://localhost:5173/')
@@ -193,10 +190,9 @@ test.describe('Reset Book Cover Feature', () => {
   })
 
   test('should disable Reset Image button during operation', async ({ page }) => {
-    // Set up route mock with delay - use regex for more reliable matching
-    await page.route(/googleapis\.com\/books/, async route => {
+    await page.route(/lookupBookByIsbn$/, async route => {
       await new Promise(r => setTimeout(r, 1000))
-      route.fulfill({ json: MOCK_ULYSSES })
+      route.fulfill(callableResult({ book: MOCK_ULYSSES }))
     })
 
     await page.goto('http://localhost:5173/')

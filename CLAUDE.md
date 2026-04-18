@@ -88,8 +88,8 @@ React + Vite personal book collection manager with Firebase backend. Mobile-firs
 - **useAdmin.js** - Admin functions to fetch all users and their books
 
 ### External APIs
-- **Google Books API** (`https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}`) - ISBN lookup in BookFormModal and BarcodeScannerModal
-- **Firebase Cloud Functions** - Book cover recognition via Gemini vision
+- **Google Books API** - accessed server-side from Cloud Functions for ISBN lookup, search, and cover search
+- **Firebase Cloud Functions** - callable transport for Google Books access and Gemini-powered cover recognition
 
 ### Key Libraries
 - **zxing-wasm** - Barcode scanning via device camera
