@@ -93,11 +93,6 @@ resource "google_apikeys_key" "library_app" {
       )
     }
 
-    # Books API for ISBN lookup
-    api_targets {
-      service = "books.googleapis.com"
-    }
-
     # Firestore (uses both firestore and datastore APIs)
     api_targets {
       service = "firestore.googleapis.com"
