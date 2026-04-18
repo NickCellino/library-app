@@ -1,12 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 
-const { lookupBookByIsbnMock } = vi.hoisted(() => ({
-  lookupBookByIsbnMock: vi.fn()
+const { lookupBookByIsbnMock, searchBookCoversMock } = vi.hoisted(() => ({
+  lookupBookByIsbnMock: vi.fn(),
+  searchBookCoversMock: vi.fn()
 }))
 
 vi.mock('../../utils/googleBooksClient', () => ({
-  lookupBookByIsbn: lookupBookByIsbnMock
+  lookupBookByIsbn: lookupBookByIsbnMock,
+  searchBookCovers: searchBookCoversMock
 }))
 
 vi.mock('../../firebase/config', () => ({
@@ -23,6 +25,11 @@ describe('BookFormModal', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.spyOn(window, 'alert').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    window.alert.mockRestore()
   })
 
   describe('add mode', () => {
@@ -106,6 +113,55 @@ describe('BookFormModal', () => {
     it('does not show Auto-fill button in edit mode', () => {
       render(<BookFormModal book={existingBook} onClose={mockOnClose} onSave={mockOnSave} />)
       expect(screen.queryByRole('button', { name: 'Auto-fill' })).not.toBeInTheDocument()
+    })
+
+    it('resets the cover from backend ISBN lookup', async () => {
+      lookupBookByIsbnMock.mockResolvedValue({
+        coverUrl: 'https://example.com/reset-from-isbn.jpg'
+      })
+
+      render(<BookFormModal book={existingBook} onClose={mockOnClose} onSave={mockOnSave} />)
+
+      fireEvent.click(screen.getByRole('button', { name: 'Reset Image' }))
+
+      await waitFor(() => {
+        expect(screen.getByAltText('Book cover preview')).toHaveAttribute('src', 'https://example.com/reset-from-isbn.jpg')
+      })
+      expect(lookupBookByIsbnMock).toHaveBeenCalledWith('1234567890')
+    })
+
+    it('resets the cover from backend title and author cover search when isbn is missing', async () => {
+      searchBookCoversMock.mockResolvedValue([
+        { url: 'https://example.com/reset-from-search.jpg', source: 'Existing Book (2020)' }
+      ])
+
+      render(
+        <BookFormModal
+          book={{ ...existingBook, isbn: '', coverUrl: '' }}
+          onClose={mockOnClose}
+          onSave={mockOnSave}
+        />
+      )
+
+      fireEvent.click(screen.getByRole('button', { name: 'Reset Image' }))
+
+      await waitFor(() => {
+        expect(screen.getByAltText('Book cover preview')).toHaveAttribute('src', 'https://example.com/reset-from-search.jpg')
+      })
+      expect(searchBookCoversMock).toHaveBeenCalledWith({ title: 'Existing Book', author: 'Existing Author' })
+    })
+
+    it('shows backend cover search results in the picker', async () => {
+      searchBookCoversMock.mockResolvedValue([
+        { url: 'https://example.com/cover-option.jpg', source: 'Existing Book (2020)' }
+      ])
+
+      render(<BookFormModal book={existingBook} onClose={mockOnClose} onSave={mockOnSave} />)
+
+      fireEvent.click(screen.getByRole('button', { name: 'Find Online' }))
+
+      expect(await screen.findByRole('img', { name: 'Cover option 1' })).toHaveAttribute('src', 'https://example.com/cover-option.jpg')
+      expect(searchBookCoversMock).toHaveBeenCalledWith({ title: 'Existing Book', author: 'Existing Author' })
     })
   })
 

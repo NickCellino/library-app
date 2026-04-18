@@ -1,8 +1,6 @@
 import { useState, useMemo } from 'react'
 import { v4 as uuidv4 } from '../../utils/uuid'
-import { fetchBookByISBN, fetchBookCoverByTitleAuthor } from '../../utils/googleBooksApi'
-import { lookupBookByIsbn } from '../../utils/googleBooksClient'
-import { searchBookCovers } from '../../utils/bookCoverSearch'
+import { lookupBookByIsbn, searchBookCovers } from '../../utils/googleBooksClient'
 import { processImageFile } from '../../utils/imageProcessor'
 import { uploadBookCover, deleteBookCover, isFirebaseStorageUrl } from '../../utils/firebaseStorage'
 import { auth } from '../../firebase/config'
@@ -85,16 +83,18 @@ function BookFormModal({ book, onClose, onSave, books = [], tbrLists = [], onMov
     setIsResettingCover(true)
     try {
       let coverUrl = ''
-      
+
       if (formData.isbn) {
-        // Primary: ISBN search
-        const bookData = await fetchBookByISBN(formData.isbn)
+        const bookData = await lookupBookByIsbn(formData.isbn)
         coverUrl = bookData?.coverUrl || ''
       } else if (formData.title && formData.author) {
-        // Fallback: title + author search
-        coverUrl = await fetchBookCoverByTitleAuthor(formData.title, formData.author)
+        const covers = await searchBookCovers({
+          title: formData.title,
+          author: formData.author
+        })
+        coverUrl = covers[0]?.url || ''
       }
-      
+
       if (coverUrl) {
         setFormData(prev => ({ ...prev, coverUrl }))
       } else {
@@ -170,7 +170,10 @@ function BookFormModal({ book, onClose, onSave, books = [], tbrLists = [], onMov
     setCoverSearchResults([])
 
     try {
-      const covers = await searchBookCovers(formData.title, formData.author)
+      const covers = await searchBookCovers({
+        title: formData.title,
+        author: formData.author
+      })
       if (covers.length === 0) {
         alert('No cover images found for this book')
       } else {

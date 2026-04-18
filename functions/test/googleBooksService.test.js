@@ -102,4 +102,55 @@ describe('googleBooksService', () => {
       }
     ])
   })
+
+  it('returns distinct lightweight cover options', async () => {
+    global.fetch = async () => ({
+      ok: true,
+      json: async () => ({
+        items: [
+          {
+            volumeInfo: {
+              title: 'Dune',
+              publishedDate: '1965-08-01',
+              imageLinks: {
+                thumbnail: 'http://example.com/dune-1.jpg'
+              }
+            }
+          },
+          {
+            volumeInfo: {
+              title: 'Dune',
+              publishedDate: '1984-01-01',
+              imageLinks: {
+                thumbnail: 'http://example.com/dune-1.jpg'
+              }
+            }
+          },
+          {
+            volumeInfo: {
+              title: 'Dune Messiah',
+              publishedDate: '1969-01-01',
+              imageLinks: {
+                thumbnail: 'http://example.com/dune-2.jpg'
+              }
+            }
+          }
+        ]
+      })
+    })
+
+    const { searchBookCovers } = await import('../src/googleBooksService.js')
+    const results = await searchBookCovers({ title: 'Dune', author: 'Frank Herbert' })
+
+    assert.deepStrictEqual(results, [
+      {
+        url: 'https://example.com/dune-1.jpg',
+        source: 'Dune (1965)'
+      },
+      {
+        url: 'https://example.com/dune-2.jpg',
+        source: 'Dune Messiah (1969)'
+      }
+    ])
+  })
 })

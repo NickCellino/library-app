@@ -64,4 +64,25 @@ describe('googleBooksClient', () => {
       }
     ])
   })
+
+  it('returns lightweight cover options from the callable response', async () => {
+    callableMock.mockResolvedValue({
+      data: {
+        covers: [
+          {
+            url: 'https://example.com/dune.jpg',
+            source: 'Dune (1965)'
+          }
+        ]
+      }
+    })
+
+    const { searchBookCovers } = await import('./googleBooksClient')
+    await expect(searchBookCovers({ title: 'Dune', author: 'Frank Herbert' })).resolves.toEqual([
+      {
+        url: 'https://example.com/dune.jpg',
+        source: 'Dune (1965)'
+      }
+    ])
+  })
 })

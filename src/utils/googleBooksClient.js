@@ -3,6 +3,7 @@ import { auth, functions } from '../firebase/config'
 
 const lookupBookByIsbnFn = httpsCallable(functions, 'lookupBookByIsbn')
 const searchBooksFn = httpsCallable(functions, 'searchBooks')
+const searchBookCoversFn = httpsCallable(functions, 'searchBookCovers')
 
 export async function lookupBookByIsbn(isbn) {
   if (!auth.currentUser) {
@@ -20,4 +21,13 @@ export async function searchBooks({ title = '', author = '' }) {
 
   const result = await searchBooksFn({ title, author })
   return result.data.books
+}
+
+export async function searchBookCovers({ title = '', author = '' }) {
+  if (!auth.currentUser) {
+    throw new Error('User not authenticated')
+  }
+
+  const result = await searchBookCoversFn({ title, author })
+  return result.data.covers
 }

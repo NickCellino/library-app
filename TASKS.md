@@ -11,7 +11,7 @@
 - [x] Task 1: Backend ISBN Lookup End-to-End
 - [x] Task 2: Barcode Lookup Uses Backend ISBN API
 - [x] Task 3: Manual Search Uses Backend Search API
-- [ ] Task 4: Cover Search And Reset Use Backend APIs
+- [x] Task 4: Cover Search And Reset Use Backend APIs
 - [ ] Task 5: Remove Browser Google Books Access And Env Dependency
 - [ ] Task 6: Regression Coverage For Backend-Only Google Books Flows
 
@@ -132,9 +132,9 @@ Move the cover-related flows to backend-owned Google Books access. This slice sh
 
 **Acceptance criteria**
 
-- [ ] Cover option search uses an authenticated backend callable that returns lightweight cover choices tailored to the existing cover-picker UI.
-- [ ] Reset cover by ISBN and reset cover by title plus author both use backend-owned Google Books access and preserve current success, not-found, and basic error behavior.
-- [ ] Cover-flow tests verify the dedicated response contract and the user-visible reset or selection behavior.
+- [x] Cover option search uses an authenticated backend callable that returns lightweight cover choices tailored to the existing cover-picker UI.
+- [x] Reset cover by ISBN and reset cover by title plus author both use backend-owned Google Books access and preserve current success, not-found, and basic error behavior.
+- [x] Cover-flow tests verify the dedicated response contract and the user-visible reset or selection behavior.
 
 **Blocked by**
 

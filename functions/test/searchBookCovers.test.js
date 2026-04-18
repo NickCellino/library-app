@@ -4,8 +4,8 @@ import firebaseFunctionsTest from 'firebase-functions-test'
 const projectId = process.env.GCLOUD_PROJECT || 'library-app-dev'
 const testEnv = firebaseFunctionsTest({ projectId })
 
-describe('searchBooks', () => {
-  let searchBooks
+describe('searchBookCovers', () => {
+  let searchBookCovers
 
   before(async () => {
     global.fetch = async () => ({
@@ -15,24 +15,18 @@ describe('searchBooks', () => {
           {
             volumeInfo: {
               title: 'Dune',
-              authors: ['Frank Herbert'],
               publishedDate: '1965',
-              publisher: 'Chilton Books',
-              pageCount: 412,
               imageLinks: {
                 thumbnail: 'http://example.com/dune.jpg'
-              },
-              industryIdentifiers: [
-                { type: 'ISBN_13', identifier: '9780441172719' }
-              ]
+              }
             }
           }
         ]
       })
     })
 
-    const module = await import('../src/searchBooks.js')
-    searchBooks = testEnv.wrap(module.searchBooks)
+    const module = await import('../src/searchBookCovers.js')
+    searchBookCovers = testEnv.wrap(module.searchBookCovers)
   })
 
   after(() => {
@@ -42,7 +36,7 @@ describe('searchBooks', () => {
 
   it('rejects unauthenticated requests', async () => {
     try {
-      await searchBooks({ data: { title: 'Dune' }, auth: null })
+      await searchBookCovers({ data: { title: 'Dune' }, auth: null })
       assert.fail('Should have thrown unauthenticated error')
     } catch (error) {
       assert.strictEqual(error.code, 'unauthenticated')
@@ -51,7 +45,7 @@ describe('searchBooks', () => {
 
   it('rejects requests without a title or author', async () => {
     try {
-      await searchBooks({ data: { title: '   ', author: '' }, auth: { uid: 'test-user' } })
+      await searchBookCovers({ data: { title: '   ', author: '' }, auth: { uid: 'test-user' } })
       assert.fail('Should have thrown invalid-argument error')
     } catch (error) {
       assert.strictEqual(error.code, 'invalid-argument')
@@ -59,25 +53,19 @@ describe('searchBooks', () => {
     }
   })
 
-  it('returns normalized book results for valid requests', async () => {
-    const result = await searchBooks({
+  it('returns lightweight cover options for valid requests', async () => {
+    const result = await searchBookCovers({
       data: { title: 'Dune', author: 'Frank Herbert' },
       auth: { uid: 'test-user' }
     })
 
     assert.deepStrictEqual(result, {
-      books: [
+      covers: [
         {
-          title: 'Dune',
-          author: 'Frank Herbert',
-          publishYear: 1965,
-          publisher: 'Chilton Books',
-          pageCount: 412,
-          coverUrl: 'https://example.com/dune.jpg',
-          isbn: '9780441172719'
+          url: 'https://example.com/dune.jpg',
+          source: 'Dune (1965)'
         }
       ]
     })
   })
-
 })
