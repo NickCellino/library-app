@@ -58,6 +58,17 @@ npm run preview
 ### Frontend (Vercel)
 Connect your GitHub repo and deploy automatically, or use Netlify/GitHub Pages.
 
+Set the Firebase web config in Vercel Project Settings -> Environment Variables:
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
+These values are read by `src/firebase/config.js` at build time.
+
 ### Keys And Secrets
 
 - `VITE_FIREBASE_API_KEY` is only for Firebase web app initialization in `src/firebase/config.js`.

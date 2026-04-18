@@ -101,6 +101,7 @@ React + Vite personal book collection manager with Firebase backend. Mobile-firs
 - Config loaded from env vars (VITE_FIREBASE_*)
 - Emulator support via VITE_USE_EMULATOR=true
 - Emulator ports: Firestore 8080, Auth 9099, Functions 5001, Storage 9199
+- Production hosting on Vercel requires these env vars in Project Settings -> Environment Variables: `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
 
 ### Testing
 - **E2E Tests**: Playwright in `tests/` directory (Chromium only, dev server auto-started)
