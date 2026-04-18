@@ -17,7 +17,7 @@ Your job is just to test and report back with results, not to actually fix/resol
 
 Before your testing, you will need to start the dev server and emulator using your pty_* tools.
 
-See CLAUDE.md for project-specific details (dev server commands, test locations, auth behavior).
+See AGENTS.md for project-specific details (dev server commands, test locations, auth behavior).
 
 If you capture screenshots as part of your testing, create a folder for them under ui-testing/, prefixed by a timestamp, and put them all in there.
 
