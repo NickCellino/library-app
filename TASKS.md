@@ -9,7 +9,7 @@
 ### Completion Checklist
 
 - [x] Task 1: Backend ISBN Lookup End-to-End
-- [ ] Task 2: Barcode Lookup Uses Backend ISBN API
+- [x] Task 2: Barcode Lookup Uses Backend ISBN API
 - [ ] Task 3: Manual Search Uses Backend Search API
 - [ ] Task 4: Cover Search And Reset Use Backend APIs
 - [ ] Task 5: Remove Browser Google Books Access And Env Dependency
@@ -63,9 +63,9 @@ Extend the backend ISBN lookup slice into the scanner-based flows so barcode sca
 
 **Acceptance criteria**
 
-- [ ] Barcode scanning in the main library flow resolves scanned ISBNs through the backend ISBN lookup path and preserves current duplicate and add behavior.
-- [ ] Add-to-TBR scanning resolves missing library books through the same backend ISBN lookup path and preserves current success and not-found behavior.
-- [ ] Scanner-focused tests verify user-visible outcomes without depending on direct browser Google Books requests.
+- [x] Barcode scanning in the main library flow resolves scanned ISBNs through the backend ISBN lookup path and preserves current duplicate and add behavior.
+- [x] Add-to-TBR scanning resolves missing library books through the same backend ISBN lookup path and preserves current success and not-found behavior.
+- [x] Scanner-focused tests verify user-visible outcomes without depending on direct browser Google Books requests.
 
 **Blocked by**
 

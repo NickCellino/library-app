@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { v4 as uuidv4 } from '../../utils/uuid'
-import { fetchBookByISBN } from '../../utils/googleBooksApi'
+import { lookupBookByIsbn } from '../../utils/googleBooksClient'
 import { useBarcodeScanner } from '../../hooks/useBarcodeScanner'
 import './BarcodeScannerModal.css'
 
@@ -33,7 +33,7 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     }
 
     try {
-      const bookData = await fetchBookByISBN(isbn)
+      const bookData = await lookupBookByIsbn(isbn)
 
       if (bookData) {
         const newBook = {
@@ -63,9 +63,9 @@ function BarcodeScannerModal({ onClose, onAdd, books = [] }) {
     // Remove from cooldown to allow re-processing
     removeFromCooldown(isbn)
 
-    // Re-fetch from Google Books API
+    // Re-run the backend lookup so duplicate adds still get normalized data.
     try {
-      const bookData = await fetchBookByISBN(isbn)
+      const bookData = await lookupBookByIsbn(isbn)
       if (bookData) {
         const newBook = {
           id: uuidv4(),

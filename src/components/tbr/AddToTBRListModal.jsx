@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import Fuse from 'fuse.js'
 import { v4 as uuidv4 } from '../../utils/uuid'
-import { fetchBookByISBN } from '../../utils/googleBooksApi'
+import { lookupBookByIsbn } from '../../utils/googleBooksClient'
 import { useBarcodeScanner } from '../../hooks/useBarcodeScanner'
 import BookCard from '../library/BookCard'
 import './AddToTBRListModal.css'
@@ -41,8 +41,8 @@ function AddToTBRListModal({ isOpen, onClose, tbrList, books, onAddBook, onAddNe
         showToast({ type: 'success', book: existingBook })
       }
     } else {
-      // Book not in library - fetch from Google Books and add
-      const bookData = await fetchBookByISBN(isbn)
+      // Book not in library - fetch from the backend ISBN lookup and add
+      const bookData = await lookupBookByIsbn(isbn)
       
       if (bookData) {
         const newBook = {
