@@ -13,7 +13,7 @@
 - [x] Task 3: Manual Search Uses Backend Search API
 - [x] Task 4: Cover Search And Reset Use Backend APIs
 - [x] Task 5: Remove Browser Google Books Access And Env Dependency
-- [ ] Task 6: Regression Coverage For Backend-Only Google Books Flows
+- [x] Task 6: Regression Coverage For Backend-Only Google Books Flows
 
 ## Task 1: Backend ISBN Lookup End-to-End
 
@@ -202,9 +202,9 @@ Add final regression coverage that treats the migrated backend-owned Google Book
 
 **Acceptance criteria**
 
-- [ ] Critical flows have regression coverage aligned with the PRD: ISBN autofill, scanner lookup, manual search, and cover search or reset.
-- [ ] Tests assert user-visible behavior and app-owned API contracts rather than direct Google Books transport details.
-- [ ] The test suite or supporting checks make it difficult to reintroduce direct browser Google Books access unnoticed.
+- [x] Critical flows have regression coverage aligned with the PRD: ISBN autofill, scanner lookup, manual search, and cover search or reset.
+- [x] Tests assert user-visible behavior and app-owned API contracts rather than direct Google Books transport details.
+- [x] The test suite or supporting checks make it difficult to reintroduce direct browser Google Books access unnoticed.
 
 **Blocked by**
 

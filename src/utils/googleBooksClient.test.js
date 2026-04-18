@@ -1,19 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const callableMock = vi.fn()
+const { callableMock, authState } = vi.hoisted(() => ({
+  callableMock: vi.fn(),
+  authState: { currentUser: { uid: 'test-user' } }
+}))
 
 vi.mock('firebase/functions', () => ({
   httpsCallable: vi.fn(() => callableMock)
 }))
 
 vi.mock('../firebase/config', () => ({
-  auth: { currentUser: { uid: 'test-user' } },
+  auth: authState,
   functions: {}
 }))
 
 describe('googleBooksClient', () => {
   beforeEach(() => {
     callableMock.mockReset()
+    authState.currentUser = { uid: 'test-user' }
   })
 
   it('returns the normalized book from the callable response', async () => {
@@ -84,5 +88,16 @@ describe('googleBooksClient', () => {
         source: 'Dune (1965)'
       }
     ])
+  })
+
+  it('rejects unauthenticated calls before the callable boundary', async () => {
+    authState.currentUser = null
+
+    const { lookupBookByIsbn, searchBooks, searchBookCovers } = await import('./googleBooksClient')
+
+    await expect(lookupBookByIsbn('9780441172719')).rejects.toThrow('User not authenticated')
+    await expect(searchBooks({ title: 'Dune' })).rejects.toThrow('User not authenticated')
+    await expect(searchBookCovers({ title: 'Dune', author: 'Frank Herbert' })).rejects.toThrow('User not authenticated')
+    expect(callableMock).not.toHaveBeenCalled()
   })
 })
